@@ -8,11 +8,11 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-    constructor(@InjectRepository(User) private repo: Repository<User>) {}
+    constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
 
     async create(dto: Register) {
-    const exists = await this.repo.findOne({ where: [{ username: dto.username }, { email: dto.email }] });
+    const exists = await this.userRepo.findOne({ where: [{ username: dto.username }, { email: dto.email }] });
     if (exists) throw new ConflictException('Username or email already exists');
 
 
@@ -21,29 +21,36 @@ export class UserService {
     const hash = await bcrypt.hash(dto.password, salt);
 
 
-    const user = this.repo.create({ username: dto.username, email: dto.email, password: hash });
-        return this.repo.save(user);
+    const user = this.userRepo.create({ username: dto.username, email: dto.email, password: hash });
+        return this.userRepo.save(user);
     }
 
 
     async findByUsername(username: string) {
-        return this.repo.findOne({ where: { username } });
+        return this.userRepo.findOne({ where: { username } });
     }
 
     async findByIdentifier(identifier: string): Promise<User | null> {
-        return this.repo.findOne({
+        return this.userRepo.findOne({
             where: [{ username: identifier }, { email: identifier }],
         });
     }
 
 
-    async findById(id: number) {
-        return this.repo.findOne({ where: { id } });
+    async findById(userId: number) {
+        return this.userRepo.findOne({ where: { id: userId } });
     }
 
 
     async validatePassword(user: User, plainPassword: string): Promise<boolean> {
         return await bcrypt.compare(plainPassword, user.password);
+    }
+
+    async removeUser(userId: number){
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+
+        if(!user) throw new NotFoundException("Usuário não encontrado ou não existe.");
+        return this.userRepo.remove(user);
     }
 
 }

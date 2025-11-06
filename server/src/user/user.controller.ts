@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Delete, Param, ParseIntPipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Register } from './dto/register.dto';
 
@@ -14,5 +14,10 @@ export class UserController {
         // Nunca retornar o hash da senha
         const { password, ...rest } = user as any;
         return rest;
+    }
+
+    @Delete('remove/:userId')
+    async remove(@Param('userId', ParseIntPipe) userId: number){
+        return this.userService.removeUser(userId);
     }
 }
