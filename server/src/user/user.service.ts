@@ -12,16 +12,16 @@ export class UserService {
 
 
     async create(dto: Register) {
-    const exists = await this.userRepo.findOne({ where: [{ username: dto.username }, { email: dto.email }] });
-    if (exists) throw new ConflictException('Username or email already exists');
+        const exists = await this.userRepo.findOne({ where: [{ username: dto.username }, { email: dto.email }] });
+        if (exists) throw new ConflictException('Username or email already exists');
 
 
-    // Gera salt aleatório e hash — bcrypt já faz salt aleatório com genSalt()
-    const salt = await bcrypt.genSalt();
-    const hash = await bcrypt.hash(dto.password, salt);
+        // Gera salt aleatório e hash — bcrypt já faz salt aleatório com genSalt()
+        const salt = await bcrypt.genSalt();
+        const hash = await bcrypt.hash(dto.password, salt);
 
 
-    const user = this.userRepo.create({ username: dto.username, email: dto.email, password: hash });
+        const user = this.userRepo.create({ username: dto.username, email: dto.email, password: hash });
         return this.userRepo.save(user);
     }
 

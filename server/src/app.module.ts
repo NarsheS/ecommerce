@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
 import { User } from './user/user.entity';
+import { AddressModule } from './address/address.module';
 
 
 dotenv.config();
@@ -19,6 +20,11 @@ synchronize: true, // em produção, usar migrations
 
 
 @Module({
-imports: [TypeOrmModule.forRoot(dataSourceOptions), UserModule, AuthModule],
+imports: [
+    TypeOrmModule.forRoot(dataSourceOptions), 
+    UserModule, 
+    AuthModule,
+    AddressModule,
+],
 })
 export class AppModule {}

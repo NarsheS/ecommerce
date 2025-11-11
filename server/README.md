@@ -12,3 +12,4 @@ um identifier e não email ou username.
 - Lembrando que para os tokens funcionarem é necessario o prefixo: Bearer <token>
 
 - Testar "addresses"
+- adicionar updateUser
