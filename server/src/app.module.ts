@@ -6,16 +6,18 @@ import { DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
 import { User } from './user/user.entity';
 import { AddressModule } from './address/address.module';
+import { Address } from './address/address.entity';
+import { Products } from './products/products.entity';
 
 
 dotenv.config();
 
 
 const dataSourceOptions: DataSourceOptions = {
-type: 'sqlite',
-database: process.env.SQLITE_DB || 'data/sqlite.db',
-entities: [User],
-synchronize: true, // em produção, usar migrations
+    type: 'sqlite',
+    database: process.env.SQLITE_DB || 'data/sqlite.db',
+    entities: [User, Address, Products],
+    synchronize: true, // em produção, usar migrations
 };
 
 
