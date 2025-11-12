@@ -8,6 +8,7 @@ import { User } from './user/user.entity';
 import { AddressModule } from './address/address.module';
 import { Address } from './address/address.entity';
 import { Products } from './products/products.entity';
+import { ProductsModule } from './products/products.module';
 
 
 dotenv.config();
@@ -27,6 +28,7 @@ imports: [
     UserModule, 
     AuthModule,
     AddressModule,
+    ProductsModule,
 ],
 })
 export class AppModule {}
