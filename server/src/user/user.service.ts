@@ -13,7 +13,7 @@ export class UserService {
 
     async create(dto: Register) {
         const exists = await this.userRepo.findOne({ where: [{ username: dto.username }, { email: dto.email }] });
-        if (exists) throw new ConflictException('Username or email already exists');
+        if (exists) throw new ConflictException('Username ou email já existe');
 
 
         // Gera salt aleatório e hash — bcrypt já faz salt aleatório com genSalt()

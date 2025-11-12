@@ -1,29 +1,29 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Category } from '../category/category.entity';
 
 @Entity('products')
-export class Products{
-    @PrimaryGeneratedColumn('increment')
-    id: number
+export class Products {
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
-    @Column({ unique: true })
-    name: string
+  @Column({ unique: true })
+  name: string;
 
-    @Column()
-    description: string
+  @Column()
+  description: string;
 
-    @Column({ default: 0 })
-    inStock: number
+  @Column()
+  inStock: number;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 }) // Definindo para valores, basicamente...
-    price: number
+  @Column('decimal', { precision: 10, scale: 2 })
+  price: number;
 
-    @Column()
-    category: string
+  @ManyToOne(() => Category, (category) => category.products, { nullable: true, eager: true })
+  category: Category;
 
-    @CreateDateColumn()
-    createdAt: Date;
-    
-    
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

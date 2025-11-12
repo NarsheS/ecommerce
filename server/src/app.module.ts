@@ -9,6 +9,8 @@ import { AddressModule } from './address/address.module';
 import { Address } from './address/address.entity';
 import { Products } from './products/products.entity';
 import { ProductsModule } from './products/products.module';
+import { CategoryModule } from './category/category.module';
+import { Category } from './category/category.entity';
 
 
 dotenv.config();
@@ -17,7 +19,7 @@ dotenv.config();
 const dataSourceOptions: DataSourceOptions = {
     type: 'sqlite',
     database: process.env.SQLITE_DB || 'data/sqlite.db',
-    entities: [User, Address, Products],
+    entities: [User, Address, Products, Category],
     synchronize: true, // em produção, usar migrations
 };
 
@@ -29,6 +31,7 @@ imports: [
     AuthModule,
     AddressModule,
     ProductsModule,
+    CategoryModule,
 ],
 })
 export class AppModule {}
