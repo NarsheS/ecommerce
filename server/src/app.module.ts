@@ -11,6 +11,9 @@ import { Products } from './products/products.entity';
 import { ProductsModule } from './products/products.module';
 import { CategoryModule } from './category/category.module';
 import { Category } from './category/category.entity';
+import { CartModule } from './cart/cart.module';
+import { Cart } from './cart/cart.entity';
+import { CartItem } from './cart/cart-item.entity';
 
 
 dotenv.config();
@@ -19,7 +22,7 @@ dotenv.config();
 const dataSourceOptions: DataSourceOptions = {
     type: 'sqlite',
     database: process.env.SQLITE_DB || 'data/sqlite.db',
-    entities: [User, Address, Products, Category],
+    entities: [User, Address, Products, Category, Cart, CartItem],
     synchronize: true, // em produção, usar migrations
 };
 
@@ -32,6 +35,7 @@ imports: [
     AddressModule,
     ProductsModule,
     CategoryModule,
+    CartModule,
 ],
 })
 export class AppModule {}

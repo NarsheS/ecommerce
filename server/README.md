@@ -11,5 +11,6 @@ um identifier e não email ou username.
 
 - Lembrando que para os tokens funcionarem é necessario o prefixo: Bearer <token>
 
-- Testes realizados, tudo funcionando
+- Realizar testes em Cart
+- implementar orders
 - adicionar updateUser
