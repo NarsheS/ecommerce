@@ -7,9 +7,9 @@ export class Cart{
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @ManyToOne(() => User, (user) => user.carts, { onDelete: 'CASCADE' })
+    @ManyToOne(() => User, user => user.carts, { onDelete: 'CASCADE' })
     user: User;
 
-    @OneToMany(() => CartItem, (item) => item.cart, { cascade: true })
+    @OneToMany(() => CartItem, item => item.cart, { cascade: true })
     items: CartItem[];
 }

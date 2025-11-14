@@ -18,7 +18,7 @@ export class Products {
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
 
-  @ManyToOne(() => Category, (category) => category.products, { nullable: true, eager: true })
+  @ManyToOne(() => Category, category => category.products, { nullable: true, eager: true })
   category: Category;
 
   @CreateDateColumn()

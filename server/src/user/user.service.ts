@@ -53,4 +53,38 @@ export class UserService {
         return this.userRepo.remove(user);
     }
 
+    async updateUser(userId: number, data: Partial<User>) {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+
+    if (!user) {
+        throw new NotFoundException('Usuário não encontrado.');
+    }
+
+    // If username or email is being updated, check for conflicts
+    if (data.username || data.email) {
+        const conflict = await this.userRepo.findOne({
+            where: [
+                data.username ? { username: data.username } : {},
+                data.email ? { email: data.email } : {},
+            ],
+        });
+
+        if (conflict && conflict.id !== userId) {
+            throw new ConflictException('Username ou email já está em uso.');
+        }
+    }
+
+    // If password is being updated → hash it again
+    if (data.password) {
+        const salt = await bcrypt.genSalt();
+        const hash = await bcrypt.hash(data.password, salt);
+        data.password = hash;
+    }
+
+    // Merge the new data into the existing user
+    Object.assign(user, data);
+
+    return this.userRepo.save(user);
+    }
+
 }

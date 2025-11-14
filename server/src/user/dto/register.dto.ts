@@ -1,5 +1,12 @@
+import { IsString, IsEmail, MinLength } from "class-validator";
+
 export class Register {
-    username: string;
-    email: string;
-    password: string;
+        @IsString()
+        username: string;   
+
+        @IsEmail()
+        email: string;
+    
+        @MinLength(8)
+        password: string;
 }
