@@ -17,6 +17,7 @@ import { CartItem } from './cart/cart-item.entity';
 import { OrderModule } from './order/order.module';
 import { Order } from './order/order.entity';
 import { OrderItem } from './order/order-item.entity';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 
 dotenv.config();
@@ -29,9 +30,15 @@ const dataSourceOptions: DataSourceOptions = {
     synchronize: true, // em produção, usar migrations
 };
 
+const throttlerSetup = {
+    ttl: 60, // 1 minuto
+    limit: 10, // 10 requisições por minuto por ip
+}
+
 
 @Module({
 imports: [
+    ThrottlerModule.forRoot([throttlerSetup]),
     TypeOrmModule.forRoot(dataSourceOptions), 
     UserModule, 
     AuthModule,
