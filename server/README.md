@@ -11,10 +11,15 @@ um identifier e não email ou username.
 
 - Lembrando que para os tokens funcionarem é necessario o prefixo: Bearer <token>
 
-- Realizar testes em TUDO
+- Realizar testes em TUDO menos users e address (testados)
 - Verificação de email
 - Trocar para https quando pronto
 - Nginx reverse proxy
 - CSRF se for usar cookies
 
 - Em teoria estamos 75% prontos, falta algumas coisas como payment, order status, admin privilege
+
+Em seguida:
+- Implementar verificação por email
+- Verificar se é admin para adicionar, remover ou atualizar algum product
+- Orders interativos (informar se ja saiu, esta pendente ou foi cancelado etc.)
