@@ -17,7 +17,10 @@ import { CartItem } from './cart/cart-item.entity';
 import { OrderModule } from './order/order.module';
 import { Order } from './order/order.entity';
 import { OrderItem } from './order/order-item.entity';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './common/roles/roles.guard';
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 
 
 dotenv.config();
@@ -37,16 +40,30 @@ const throttlerSetup = {
 
 
 @Module({
-imports: [
-    ThrottlerModule.forRoot([throttlerSetup]),
-    TypeOrmModule.forRoot(dataSourceOptions), 
-    UserModule, 
-    AuthModule,
-    AddressModule,
-    ProductsModule,
-    CategoryModule,
-    CartModule,
-    OrderModule,
-],
+    imports: [
+        ThrottlerModule.forRoot([throttlerSetup]),
+        TypeOrmModule.forRoot(dataSourceOptions), 
+        UserModule, 
+        AuthModule,
+        AddressModule,
+        ProductsModule,
+        CategoryModule,
+        CartModule,
+        OrderModule,
+    ],
+    providers: [
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: JwtAuthGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: RolesGuard
+        }
+    ],
 })
 export class AppModule {}

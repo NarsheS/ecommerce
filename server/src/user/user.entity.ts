@@ -1,40 +1,79 @@
 import { Address } from 'src/address/address.entity';
 import { Cart } from 'src/cart/cart.entity';
 import { Order } from 'src/order/order.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 
+export enum Role {
+  USER = 'user',
+  ADMIN = 'admin',
+}
 
 @Entity('users')
 export class User {
-    @PrimaryGeneratedColumn('increment')
-    id: number;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
+  @Column({ unique: true })
+  username: string;
 
-    @Column({ unique: true })
-    username: string;
+  @Column({ unique: true })
+  email: string;
 
+  @Column()
+  password: string; // bcrypt hash
 
-    @Column({ unique: true })
-    email: string;
+  @Column({ type: 'text', default: Role.USER })
+  role: Role;
 
+  @Column({ type: 'boolean', default: false })
+  isVerified: boolean;
 
-    @Column()
-    password: string; // armazenamos o hash completo (contém salt)
+  // -------------------------------------------------
+  // EMAIL VERIFICATION
+  // -------------------------------------------------
+  @Column({ type: 'text', nullable: true, unique: true })
+  verificationTokenHash?: string | null;
 
+  @Column({ type: 'bigint', nullable: true })
+  verificationTokenExpiresAt?: number | null;
 
-    @CreateDateColumn()
-    createdAt: Date;
+  // -------------------------------------------------
+  // PASSWORD RESET
+  // -------------------------------------------------
+  @Column({ type: 'text', nullable: true, unique: true })
+  resetTokenHash?: string | null;
 
+  @Column({ type: 'bigint', nullable: true })
+  resetTokenExpiresAt?: number | null;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  // -------------------------------------------------
+  // REFRESH TOKEN STORAGE
+  // -------------------------------------------------
+  @Column({ type: 'text', nullable: true })
+  currentHashedRefreshToken: string | null;
 
-    @OneToMany(() => Address, address => address.user, { cascade: true })
-    adresses: Address[];
+  @Column({ type: 'bigint', nullable: true })
+  currentHashedRefreshTokenExpiresAt: number | null;
 
-    @OneToMany(() => Cart, (cart) => cart.user)
-    carts: Cart[];
+  @CreateDateColumn()
+  createdAt: Date;
 
-    @OneToMany(() => Order, order => order.user)
-    orders: Order[];
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @OneToMany(() => Address, (address) => address.user, { cascade: true })
+  addresses: Address[];
+
+  @OneToMany(() => Cart, (cart) => cart.user)
+  carts: Cart[];
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 }

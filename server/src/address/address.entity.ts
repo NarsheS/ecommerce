@@ -22,6 +22,6 @@ export class Address {
     @Column()
     zipcode: string;
 
-    @ManyToOne(() => User, user => user.adresses, { onDelete: 'CASCADE' })
+    @ManyToOne(() => User, user => user.addresses, { onDelete: 'CASCADE' })
     user: User;
 }

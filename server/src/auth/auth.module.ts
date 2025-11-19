@@ -8,6 +8,7 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
 import * as dotenv from 'dotenv';
+import { MailModule } from 'src/mail/mail.module';
 
 
 dotenv.config();
@@ -23,6 +24,7 @@ dotenv.config();
     },
     }),
     UserModule,
+    MailModule,
     ],
     providers: [AuthService, JwtStrategy, LocalStrategy],
     controllers: [AuthController],

@@ -1,90 +1,188 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './user.entity';
-import { Register } from './dto/register.dto'; 
+import { Role, User } from './user.entity';
+import { Register } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
-
 
 @Injectable()
 export class UserService {
-    constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
+  constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
+  // ---------------------
+  //  CREATE
+  // ---------------------
+  async create(dto: Register) {
+    const exists = await this.userRepo.findOne({
+      where: [{ username: dto.username }, { email: dto.email }],
+    });
 
-    async create(dto: Register) {
-        const exists = await this.userRepo.findOne({ where: [{ username: dto.username }, { email: dto.email }] });
-        if (exists) throw new ConflictException('Username ou email já existe');
-
-
-        // Gera salt aleatório e hash — bcrypt já faz salt aleatório com genSalt()
-        const salt = await bcrypt.genSalt();
-        const hash = await bcrypt.hash(dto.password, salt);
-
-
-        const user = this.userRepo.create({ username: dto.username, email: dto.email, password: hash });
-        return this.userRepo.save(user);
+    if (exists) {
+      throw new ConflictException('Username ou email já existe');
     }
 
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(dto.password, salt);
 
-    async findByUsername(username: string) {
-        return this.userRepo.findOne({ where: { username } });
-    }
+    const user = this.userRepo.create({
+      username: dto.username,
+      email: dto.email,
+      password: hash,
+      role: Role.USER,
+      isVerified: false, // IMPORTANT
+    });
 
-    async findByIdentifier(identifier: string): Promise<User | null> {
-        return this.userRepo.findOne({
-            where: [{ username: identifier }, { email: identifier }],
-        });
-    }
+    return this.userRepo.save(user);
+  }
 
+  // ---------------------
+  //  GETTERS
+  // ---------------------
+  async findByUsername(username: string) {
+    return this.userRepo.findOne({ where: { username } });
+  }
 
-    async findById(userId: number) {
-        return this.userRepo.findOne({ where: { id: userId } });
-    }
+  async findByIdentifier(identifier: string): Promise<User | null> {
+    return this.userRepo.findOne({
+      where: [{ username: identifier }, { email: identifier }],
+    });
+  }
 
+  async findById(userId: number) {
+    return this.userRepo.findOne({ where: { id: userId } });
+  }
 
-    async validatePassword(user: User, plainPassword: string): Promise<boolean> {
-        return await bcrypt.compare(plainPassword, user.password);
-    }
+  // ---------------------
+  //  PASSWORD CHECK
+  // ---------------------
+  async validatePassword(user: User, plainPassword: string): Promise<boolean> {
+    return bcrypt.compare(plainPassword, user.password);
+  }
 
-    async removeUser(userId: number){
-        const user = await this.userRepo.findOne({ where: { id: userId } });
+  // ---------------------
+  //  DELETE USER
+  // ---------------------
+  async removeUser(userId: number) {
+    const user = await this.findById(userId);
+    if (!user) throw new NotFoundException('Usuário não encontrado.');
 
-        if(!user) throw new NotFoundException("Usuário não encontrado ou não existe.");
-        return this.userRepo.remove(user);
-    }
+    return this.userRepo.remove(user);
+  }
 
-    async updateUser(userId: number, data: Partial<User>) {
+  // ---------------------
+  //  UPDATE USER
+  // ---------------------
+  async updateUser(userId: number, data: Partial<User>) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
 
     if (!user) {
-        throw new NotFoundException('Usuário não encontrado.');
+      throw new NotFoundException('Usuário não encontrado.');
     }
 
-    // If username or email is being updated, check for conflicts
-    if (data.username || data.email) {
-        const conflict = await this.userRepo.findOne({
-            where: [
-                data.username ? { username: data.username } : {},
-                data.email ? { email: data.email } : {},
-            ],
-        });
+    const where: FindOptionsWhere<User>[] = [];
 
-        if (conflict && conflict.id !== userId) {
-            throw new ConflictException('Username ou email já está em uso.');
-        }
+    if (data.username) {
+      where.push({ username: data.username });
+    }
+    if (data.email) {
+      where.push({ email: data.email });
     }
 
-    // If password is being updated → hash it again
+    if (where.length > 0) {
+      const conflict = await this.userRepo.findOne({ where });
+
+      if (conflict && conflict.id !== userId) {
+        throw new ConflictException('Username ou email já está em uso.');
+      }
+    }
+
+    // Re-hash password if updated
     if (data.password) {
-        const salt = await bcrypt.genSalt();
-        const hash = await bcrypt.hash(data.password, salt);
-        data.password = hash;
+      const salt = await bcrypt.genSalt();
+      data.password = await bcrypt.hash(data.password, salt);
     }
 
-    // Merge the new data into the existing user
     Object.assign(user, data);
-
     return this.userRepo.save(user);
-    }
+  }
 
+  // ---------------------
+  //  REFRESH TOKENS
+  // ---------------------
+  async saveRefreshTokenHash(userId: number, hash: string, expiresAt: number) {
+    return this.userRepo.update(userId, {
+      currentHashedRefreshToken: hash,
+      currentHashedRefreshTokenExpiresAt: expiresAt,
+    });
+  }
+
+  async clearRefreshToken(userId: number) {
+    return this.userRepo.update(userId, {
+      currentHashedRefreshToken: null,
+      currentHashedRefreshTokenExpiresAt: null,
+    });
+  }
+
+  async findByRefreshHash(hash: string) {
+    return this.userRepo.findOne({
+      where: { currentHashedRefreshToken: hash },
+    });
+  }
+
+  // =======================================================
+  //  EMAIL VERIFICATION SYSTEM
+  // =======================================================
+
+  async saveVerificationToken(
+    userId: number,
+    tokenHash: string,
+    expiresAt: number,
+  ) {
+    return this.userRepo.update(userId, {
+      verificationTokenHash: tokenHash,
+      verificationTokenExpiresAt: expiresAt,
+    });
+  }
+
+  async findByVerificationHash(hash: string) {
+    return this.userRepo.findOne({
+      where: { verificationTokenHash: hash },
+    });
+  }
+
+  async markVerified(userId: number) {
+    return this.userRepo.update(userId, {
+      isVerified: true,
+      verificationTokenHash: null,
+      verificationTokenExpiresAt: null,
+    });
+  }
+
+  // =======================================================
+  //  PASSWORD RESET SYSTEM
+  // =======================================================
+
+  async saveResetToken(userId: number, tokenHash: string, expiresAt: number) {
+    return this.userRepo.update(userId, {
+      resetTokenHash: tokenHash,
+      resetTokenExpiresAt: expiresAt,
+    });
+  }
+
+  async findByResetHash(hash: string) {
+    return this.userRepo.findOne({
+      where: { resetTokenHash: hash },
+    });
+  }
+
+  async clearResetToken(userId: number) {
+    return this.userRepo.update(userId, {
+      resetTokenHash: null,
+      resetTokenExpiresAt: null,
+    });
+  }
 }

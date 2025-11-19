@@ -2,9 +2,10 @@ import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from "@nes
 import { JwtAuthGuard } from "src/common/guards/jwt-auth.guard";
 import { CartService } from "./cart.service";
 import { AddCartItemDto } from "./dto/add-cart-item.dto";
+import { RolesGuard } from "src/common/roles/roles.guard";
 
 @Controller('cart')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class CartController{
     constructor(private readonly cartService: CartService){}
 
