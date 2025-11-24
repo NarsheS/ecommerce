@@ -6,7 +6,6 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  UseGuards,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
@@ -17,8 +16,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 import { Roles } from '../common/roles/roles.decorator';
 import { Role } from './user.entity';
-import { RolesGuard } from '../common/roles/roles.guard';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('users')
@@ -54,7 +51,6 @@ export class UserController {
   // DELETE USER – Admin only
   // -------------------------
   @Delete('remove/:userId')
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   async remove(@Param('userId', ParseIntPipe) userId: number) {
     const user = await this.userService.removeUser(userId);
@@ -65,7 +61,6 @@ export class UserController {
   // UPDATE USER – user or admin
   // -------------------------
   @Patch('update/:id')
-  @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async updateUser(
     @Param('id', ParseIntPipe) id: number,

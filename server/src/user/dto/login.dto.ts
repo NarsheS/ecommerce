@@ -1,4 +1,4 @@
-import { IsString, MinLength } from "class-validator";
+import { IsString, Matches, MinLength } from "class-validator";
 import { Transform } from "class-transformer";
 
 export class LoginDto {
@@ -7,6 +7,10 @@ export class LoginDto {
     identifier: string; // username or email
 
     @IsString()
-    @MinLength(1)
+    @MinLength(8)
+    @Matches(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
+    @Matches(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
+    @Matches(/[0-9]/, { message: 'Password must contain at least one number' })
+    @Matches(/[^A-Za-z0-9]/, { message: 'Password must contain at least one special character' })
     password: string;
 }

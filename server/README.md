@@ -21,5 +21,5 @@ um identifier e não email ou username.
 
 Em seguida:
 - Implementar verificação por email
-- Verificar se é admin para adicionar, remover ou atualizar algum product
 - Orders interativos (informar se ja saiu, esta pendente ou foi cancelado etc.)
+- Implementar cookies, aparentemente refresh token é salvo nos cookies...

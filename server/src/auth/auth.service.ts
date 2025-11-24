@@ -168,6 +168,7 @@ export class AuthService {
   // -----------------------
   // validateUser used by passport-local or custom auth flow.
   async validateUser(identifier: string, plainPassword: string, ip?: string) {
+    identifier = identifier.trim().toLowerCase();
     const key = this.makeAttemptKey(identifier, ip);
 
     if (this.isLocked(key)) {

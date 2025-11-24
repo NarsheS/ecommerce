@@ -31,6 +31,7 @@ const dataSourceOptions: DataSourceOptions = {
     database: process.env.SQLITE_DB || 'data/sqlite.db',
     entities: [User, Address, Products, Category, Cart, CartItem, Order, OrderItem],
     synchronize: true, // em produção, usar migrations
+    cache: true,
 };
 
 const throttlerSetup = {
