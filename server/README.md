@@ -20,6 +20,5 @@ um identifier e não email ou username.
 - Em teoria estamos 75% prontos, falta algumas coisas como payment, order status, admin privilege
 
 Em seguida:
-- Implementar verificação por email
 - Orders interativos (informar se ja saiu, esta pendente ou foi cancelado etc.)
 - Implementar cookies, aparentemente refresh token é salvo nos cookies...
