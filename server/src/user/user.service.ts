@@ -6,7 +6,7 @@ import {
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role, User } from './user.entity';
-import { Register } from './dto/register.dto';
+import { Register } from '../auth/dto/register.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -25,15 +25,14 @@ export class UserService {
       throw new ConflictException('Username ou email já existe');
     }
 
-    const salt = await bcrypt.genSalt();
-    const hash = await bcrypt.hash(dto.password, salt);
+    const hash = await bcrypt.hash(dto.password, 10);
 
     const user = this.userRepo.create({
       username: dto.username,
       email: dto.email,
       password: hash,
       role: Role.USER,
-      isVerified: false, // IMPORTANT
+      isVerified: false,
     });
 
     return this.userRepo.save(user);

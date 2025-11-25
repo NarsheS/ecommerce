@@ -1,4 +1,3 @@
-// src/auth/auth.service.ts
 import {
   Injectable,
   HttpException,
@@ -15,22 +14,6 @@ import {
   timingSafeEqualHash,
 } from 'src/utilities/token-utils';
 import * as bcrypt from 'bcrypt';
-
-/**
- * FULL FEATURED AUTH SERVICE
- * - brute force protection (identifier+IP)
- * - register -> send verification email
- * - verify email
- * - login -> access + refresh (rotating)
- * - refresh -> rotate refresh token, detect reuse
- * - logout -> clear refresh tokens
- * - requestReset -> send password reset email
- * - resetPassword -> validate + set new password + clear refresh tokens
- *
- * Notes:
- * - For production use Redis for attempt tracking and reuse detection.
- * - All tokens (refresh/verification/reset) stored hashed in DB via UserService.
- */
 
 @Injectable()
 export class AuthService {

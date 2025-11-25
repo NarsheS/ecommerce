@@ -1,6 +1,5 @@
 import {
   Controller,
-  Post,
   Body,
   Delete,
   Param,
@@ -11,12 +10,10 @@ import {
 } from '@nestjs/common';
 
 import { UserService } from './user.service';
-import { Register } from './dto/register.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 import { Roles } from '../common/roles/roles.decorator';
 import { Role } from './user.entity';
-import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('users')
 export class UserController {
@@ -34,17 +31,6 @@ export class UserController {
     delete user.verificationTokenExpiresAt;
 
     return user;
-  }
-
-  // -------------------------
-  // REGISTER – Allowed to all
-  // -------------------------
-  @Public()
-  @Post('register')
-  @UsePipes(new ValidationPipe({ whitelist: true }))
-  async register(@Body() dto: Register) {
-    const user = await this.userService.create(dto);
-    return this.sanitizeUser(user);
   }
 
   // -------------------------
