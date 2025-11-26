@@ -68,7 +68,7 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => Address, (address) => address.user, { cascade: true })
+  @OneToMany(() => Address, (address) => address.user)
   addresses: Address[];
 
   @OneToMany(() => Cart, (cart) => cart.user)

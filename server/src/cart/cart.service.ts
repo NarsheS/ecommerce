@@ -5,6 +5,7 @@ import { Repository } from "typeorm";
 import { CartItem } from "./cart-item.entity";
 import { Products } from "src/products/products.entity";
 import { AddCartItemDto } from "./dto/add-cart-item.dto";
+import { User } from "src/user/user.entity";
 
 @Injectable()
 export class CartService{
@@ -12,21 +13,31 @@ export class CartService{
         @InjectRepository(Cart) private cartRepo: Repository<Cart>,
         @InjectRepository(CartItem) private itemRepo: Repository<CartItem>,
         @InjectRepository(Products) private productRepo: Repository<Products>,
+        @InjectRepository(User) private userRepo: Repository<User>
     ){}
 
-    async getUserCart(userId: number){
+    async getUserCart(userId: number) {
         let cart = await this.cartRepo.findOne({
-            where: { user: { id: userId} },
+            where: { user: { id: userId } },
             relations: ['items', 'items.product']
         });
 
-        if(!cart) {
-            cart = this.cartRepo.create({ user: { id: userId }, items: [] });
+        if (!cart) {
+            const user = await this.userRepo.findOne({
+                where: { id: userId }
+            });
+
+            if(!user) throw new NotFoundException("Usuário não encontrado.")
+
+            cart = this.cartRepo.create({ user });
+
             await this.cartRepo.save(cart);
         }
 
         return cart;
     }
+
+
 
     async addItem(userId: number, dto: AddCartItemDto){
         const cart = await this.getUserCart(userId);
@@ -37,8 +48,14 @@ export class CartService{
         if(!product) throw new NotFoundException("Produto não encontrado!");
 
         // checando se já está no carrinho
-        const existingItem = cart.items?.find(i => i.product.id === dto.productId);
-        if(existingItem){
+        const existingItem = await this.itemRepo.findOne({
+            where: {
+                cart: { id: cart.id },
+                product: { id: dto.productId }
+            }
+        });
+
+        if (existingItem) {
             existingItem.quantity += dto.quantity;
             return this.itemRepo.save(existingItem);
         }

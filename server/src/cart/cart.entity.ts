@@ -10,6 +10,6 @@ export class Cart{
     @ManyToOne(() => User, user => user.carts, { onDelete: 'CASCADE' })
     user: User;
 
-    @OneToMany(() => CartItem, item => item.cart, { cascade: true })
+    @OneToMany(() => CartItem, item => item.cart, { cascade: ['insert'] })
     items: CartItem[];
 }

@@ -18,7 +18,7 @@ export class Order{
     @ManyToOne(() => User, user => user.orders)
     user: User;
 
-    @OneToMany(() => OrderItem, item => item.order, { cascade: true })
+    @OneToMany(() => OrderItem, item => item.order)
     items: OrderItem[];
 
     @Column('decimal', { precision: 10, scale: 2 })
