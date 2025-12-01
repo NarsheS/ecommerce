@@ -21,6 +21,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './common/roles/roles.guard';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { PaymentModule } from './payment/payment.module';
 
 
 dotenv.config();
@@ -51,6 +52,7 @@ const throttlerSetup = {
         CategoryModule,
         CartModule,
         OrderModule,
+        PaymentModule,
     ],
     providers: [
         {

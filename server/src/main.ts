@@ -3,51 +3,45 @@ import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
+import * as express from 'express';
 
-dotenv.config(); // load env FIRST
+dotenv.config();
 
 const corsConfig = {
-    origin: ['http://localhost:3000'], // later replace with production domain
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  };
+  origin: ['http://localhost:3000'],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+};
 
-  async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
 
-    // Global route prefix
-    app.setGlobalPrefix('api');
+  // Stripe raw body ONLY for webhook
+  app.use('/payments/webhook', express.raw({ type: 'application/json' }));
 
-    // CORS
-    app.enableCors(corsConfig);
+  app.setGlobalPrefix('api');
 
-    // Security headers
-    app.use(
-      helmet({
-        contentSecurityPolicy: false,
-      }),
-    );
+  app.enableCors(corsConfig);
 
-    // Hide Express signature
-    app.getHttpAdapter().getInstance().disable('x-powered-by');
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+    }),
+  );
 
-    // IMPORTANT: Enable validation globally
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,            // strip unknown fields
-        forbidNonWhitelisted: true, // block unknown fields
-        transform: true,            // transform types
-      })
-    );
+  app.getHttpAdapter().getInstance().disable('x-powered-by');
 
-    // If you plan to use cookies for refresh tokens:
-    // import * as cookieParser from 'cookie-parser';
-    // app.use(cookieParser());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
-    const port = process.env.PORT || 3000;
-    await app.listen(port);
-
-    console.log(`Listening on http://localhost:${port}`);
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`Listening on http://localhost:${port}`);
 }
 
 bootstrap();

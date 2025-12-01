@@ -1,20 +1,24 @@
-import { Controller, Param, Post, Body, Req } from "@nestjs/common";
+import { Controller, Param, Post, Body, Req, Headers } from "@nestjs/common";
 import { PaymentService } from "./payment.service";
 
 @Controller('payments')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  // FRONT chama isso após criar o pedido
   @Post('create/:orderId')
   createPayment(@Param('orderId') orderId: number) {
     return this.paymentService.createPayment(orderId);
   }
 
-  // Mercado Pago envia notificações aqui
+  // Stripe webhook
   @Post('webhook')
-  async handleWebhook(@Body() body: any) {
-    await this.paymentService.handleWebhook(body);
-    return { status: 'ok' };
+  async webhook(
+    @Req() req,
+    @Headers('stripe-signature') signature: string,
+  ) {
+    const rawBody = req.rawBody; // IMPORTANTE: precisa habilitar raw body no main.ts
+
+    await this.paymentService.handleWebhook(rawBody, signature);
+    return { received: true };
   }
 }
