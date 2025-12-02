@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UploadedFiles, UseInterceptors } from "@nestjs/common";
 import { ProductsService } from "./products.service";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { Roles } from "src/common/roles/roles.decorator";
 import { Role } from "src/user/user.entity";
+import { FilesInterceptor } from "@nestjs/platform-express";
 
 @Controller('products')
 export class ProductsController {
@@ -13,6 +14,16 @@ export class ProductsController {
   @Roles(Role.ADMIN)
   create(@Body() dto: CreateProductDto) {
     return this.productsService.addProduct(dto);
+  }
+
+  @Post(':id/images')
+  @Roles(Role.ADMIN)
+  @UseInterceptors(FilesInterceptor('images'))
+  async upload(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.productsService.addImages(id, files);
   }
 
   @Get()

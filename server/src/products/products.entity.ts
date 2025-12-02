@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Category } from '../category/category.entity';
+import { ProductImage } from './cloudinary/productImage.entity';
 
 @Entity('products')
 export class Products {
@@ -20,6 +21,9 @@ export class Products {
 
   @ManyToOne(() => Category, category => category.products, { nullable: true })
   category: Category;
+
+  @OneToMany(() => ProductImage, image => image.product, { cascade: true })
+  images: ProductImage[];
 
   @CreateDateColumn()
   createdAt: Date;
