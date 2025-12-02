@@ -16,42 +16,78 @@ export class ProductsService {
   ) {}
 
   async addProduct(dto: CreateProductDto) {
-    const exists = await this.productsRepo.findOne({ where: { name: dto.name } });
-    if (exists) throw new ConflictException('Este produto já está registrado!');
+    const exists = await this.productsRepo.findOne({
+      where: { name: dto.name },
+    });
 
-    let category: Category | null = null;
-
-    if (dto.categoryId) {
-      category = await this.CategoryRepo.findOne({ where: { id: dto.categoryId } });
-      if (!category) throw new NotFoundException('Categoria não encontrada');
+    if (exists) {
+      throw new ConflictException('Este produto já está registrado!');
     }
 
-    const product = this.productsRepo.create({
-      ...dto,
-      ...(category ? { category } : {}), // adiciona categoria apenas se tiver definido uma
-    });
+    const { categoryId, ...data } = dto;
+
+    let category: Category | null = null;
+    
+    if (categoryId !== undefined) {
+      if (categoryId === null) {
+        category = null;
+      }
+
+      else {
+        const found = await this.CategoryRepo.findOne({
+          where: { id: categoryId },
+        });
+
+        if (!found) {
+          throw new NotFoundException('Categoria não encontrada');
+        }
+
+        category = found;
+      }
+    }
+
+    const product = this.productsRepo.create(
+      category
+        ? { ...data, category }
+        : { ...data }
+    );
 
     return this.productsRepo.save(product);
   }
 
+
   async getAllProducts() {
-    return this.productsRepo.find();
+    return this.productsRepo.find({ relations: ['category'] });
   }
 
   async getOneProduct(id: number) {
-    const product = await this.productsRepo.findOne({ where: { id } });
+    const product = await this.productsRepo.findOne({
+      where: { id },
+      relations: ['category'],
+    });
+
     if (!product) throw new NotFoundException("Produto não encontrado.");
     return product;
   }
 
   async updateProduct(id: number, dto: UpdateProductDto) {
-    const product = await this.getOneProduct(id); // reusa verificação
-    Object.assign(product, dto);
+    const product = await this.getOneProduct(id);
+    const { categoryId, ...changes } = dto;
+
+    if (categoryId) {
+      const category = await this.CategoryRepo.findOne({ where: { id: categoryId } });
+      if (!category) throw new NotFoundException('Categoria não encontrada');
+      product.category = category;
+    }
+
+    Object.assign(product, changes);
+
     return this.productsRepo.save(product);
   }
 
   async deleteProduct(id: number) {
     const product = await this.getOneProduct(id);
-    return this.productsRepo.remove(product);
+    await this.productsRepo.remove(product);
+    return { message: 'Produto deletado com sucesso' };
   }
 }

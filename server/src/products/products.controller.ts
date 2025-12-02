@@ -27,7 +27,7 @@ export class ProductsController {
 
   @Put(':id')
   @Roles(Role.ADMIN)
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateProductDto) {
+  update(@Param('id', ParseIntPipe) id: number,@Body() dto: UpdateProductDto,) {
     return this.productsService.updateProduct(id, dto);
   }
 

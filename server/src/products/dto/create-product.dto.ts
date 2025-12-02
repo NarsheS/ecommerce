@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsInt } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsInt, Min } from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
@@ -9,9 +9,11 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsInt()
+  @Min(0)
   inStock?: number;
 
   @IsNumber()
+  @Min(0)
   price: number;
 
   @IsOptional()

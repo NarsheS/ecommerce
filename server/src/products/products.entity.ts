@@ -12,13 +12,13 @@ export class Products {
   @Column()
   description: string;
 
-  @Column()
+  @Column({ default: 0 })
   inStock: number;
 
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
 
-  @ManyToOne(() => Category, category => category.products, { nullable: true, eager: true })
+  @ManyToOne(() => Category, category => category.products, { nullable: true })
   category: Category;
 
   @CreateDateColumn()
