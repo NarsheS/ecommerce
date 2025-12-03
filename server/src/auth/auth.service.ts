@@ -193,26 +193,34 @@ export class AuthService {
 
   // issue tokens AND save hashed refresh token in DB
   async issueTokensAndSaveRefresh(user: any) {
-    // create access token
     const accessToken = this.createAccessToken(user);
 
-    // create refresh token (opaque)
     const refreshPlain = generateRandomToken(32);
     const refreshHash = hashToken(refreshPlain);
+
     const refreshTtlMs = (Number(process.env.REFRESH_TTL_DAYS || '7') || 7) * 24 * 60 * 60 * 1000;
+
     const refreshExpiresAt = Date.now() + refreshTtlMs;
 
-    // save hashed refresh in DB (overwrite previous)
-    await this.usersService.saveRefreshTokenHash(user.id, refreshHash, refreshExpiresAt);
+    await this.usersService.saveRefreshTokenHash(
+      user.id,
+      refreshHash,
+      refreshExpiresAt,
+    );
 
     const decoded = this.jwtService.decode(accessToken) as any;
-    const exp = decoded?.exp ?? undefined;
+    const exp = decoded?.exp;
 
     return {
-      access_token: accessToken,
-      refresh_token: refreshPlain,
-      expires_in: exp,
-      refresh_expires_at: refreshExpiresAt,
+      /** objeto seguro */
+      safe: {
+        access_token: accessToken,
+        expires_in: exp,
+        refresh_expires_at: refreshExpiresAt,
+      },
+
+      /** refresh token em texto plano */
+      refreshPlain,
     };
   }
 

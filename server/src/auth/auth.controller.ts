@@ -1,27 +1,19 @@
 import {
   Controller,
   Post,
-  Request,
   Body,
   Req,
-  BadRequestException,
-  UnauthorizedException,
+  Res,
   Get,
   Query,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Throttle } from '@nestjs/throttler';
 import { Public } from 'src/common/decorators/public.decorator';
-import { LoginDto } from 'src/auth/dto/login.dto';
+import { LoginDto } from './dto/login.dto';
 import { Register } from './dto/register.dto';
-
-interface AuthRequest extends Request {
-  user: {
-    sub: number;
-    username: string;
-    role: string;
-  };
-}
+import type { Request, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -33,9 +25,6 @@ export class AuthController {
     return this.authService.verifyEmail(token);
   }
 
-  // -----------------------
-  // REGISTER
-  // -----------------------
   @Public()
   @Post('register')
   async register(@Body() dto: Register) {
@@ -46,46 +35,74 @@ export class AuthController {
     };
   }
 
-  // -----------------------
-  // LOGIN
-  // -----------------------
   @Public()
-  @Throttle({ login: { limit: 5, ttl: 60 } }) // 5 attempts per minute
+  @Throttle({ login: { limit: 5, ttl: 60 } })
   @Post('login')
-  async login(@Body() dto: LoginDto) {
+  async login(
+    @Body() body: LoginDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const user = await this.authService.validateUser(
-      dto.identifier,
-      dto.password,
+      body.identifier,
+      body.password,
+      req.ip,
     );
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.authService.login(user);
+    const { safe, refreshPlain } = await this.authService.login(user);
+
+    this.setRefreshCookie(res, refreshPlain);
+
+    return safe;
   }
 
-
-  // -----------------------
-  // REFRESH TOKENS
-  // -----------------------
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @Post('refresh')
-  async refresh(@Body() dto: { refreshToken: string }) {
-    if (!dto.refreshToken || typeof dto.refreshToken !== 'string') {
-      throw new BadRequestException('Refresh token inválido.');
-    }
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = req.cookies['refresh_token'];
 
-    return this.authService.refreshTokens(dto.refreshToken);
+    const { safe, refreshPlain } =
+      await this.authService.refreshTokens(refreshToken);
+
+    this.setRefreshCookie(res, refreshPlain);
+
+    return safe;
   }
 
-  // -----------------------
-  // LOGOUT
-  // -----------------------
   @Post('logout')
-  async logout(@Req() req: AuthRequest) {
+  async logout(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     await this.authService.logout(req.user.sub);
+
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/api/auth', // <-- padronizado
+    });
+
     return { ok: true };
+  }
+
+  private setRefreshCookie(res: Response, refreshToken: string) {
+    const isProd = process.env.NODE_ENV === 'production';
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/api/auth', // <-- padronizado
+    });
   }
 }
