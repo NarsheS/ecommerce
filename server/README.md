@@ -20,4 +20,4 @@ um identifier e não email ou username.
 
 Em seguida:
 - Orders interativos (informar se ja saiu, esta pendente ou foi cancelado etc.)
-- Implementar cookies, aparentemente refresh token é salvo nos cookies...
+- Dar uma otimizada no codigo, reduzir comentarios
