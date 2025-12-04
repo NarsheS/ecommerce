@@ -1,3 +1,4 @@
+// Exigindo que o Email tenha certos requisitos
 export interface SendMailOptions {
   to: string;
   subject: string;

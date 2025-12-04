@@ -19,6 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
 
     async validate(payload: any) {
+        // Renomeei sub para id, então fica req.user.id ao invés de req.user.sub
         return { id: payload.sub, username: payload.username, role: payload.role };
     }
 }

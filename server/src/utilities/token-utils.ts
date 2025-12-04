@@ -1,27 +1,16 @@
-// src/utilities/token-utils.ts
 import * as crypto from 'crypto';
 
-/**
- * generateRandomToken(lenBytes)
- * - returns hex string of lenBytes bytes (default 24)
- */
+// Gera token aleátorio de 24 caracteres (quanto maior melhor)
 export function generateRandomToken(len = 24): string {
-  return crypto.randomBytes(len).toString('hex');
+  return crypto.randomBytes(len).toString('hex'); // long token opaco
 }
 
-/**
- * hashToken(token)
- * - returns a SHA-256 hex string (fast but not reversible)
- * - for refresh tokens you can use sha256 and store in DB
- */
 export function hashToken(token: string): string {
+  // use sha256 para velocidade (não reversível), ou bcrypt se vc quiser um hash lento
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
-/**
- * timingSafeEqualHash(a,b)
- * - safe compare to avoid timing attacks
- */
+// Não sei o que é mas funciona e é necessário
 export function timingSafeEqualHash(a: string, b: string): boolean {
   try {
     const aBuf = Buffer.from(a);

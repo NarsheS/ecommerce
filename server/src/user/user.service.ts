@@ -13,20 +13,19 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
-  // ---------------------
-  //  CREATE
-  // ---------------------
+  // CREATE USER
   async create(dto: Register) {
     const exists = await this.userRepo.findOne({
       where: [{ username: dto.username }, { email: dto.email }],
     });
 
-    if (exists) {
-      throw new ConflictException('Username ou email já existe');
-    }
+    // Verifica se já existe alguém com esse username ou email - error
+    if (exists) throw new ConflictException('Username ou email já existe');
 
+    // criptografando senha
     const hash = await bcrypt.hash(dto.password, 10);
 
+    // criando usuário com base na entidade
     const user = this.userRepo.create({
       username: dto.username,
       email: dto.email,
@@ -35,52 +34,41 @@ export class UserService {
       isVerified: false,
     });
 
-    return this.userRepo.save(user);
+    return this.userRepo.save(user); // Salvando usuário
   }
 
-  // ---------------------
-  //  GETTERS
-  // ---------------------
-  async findByUsername(username: string) {
-    return this.userRepo.findOne({ where: { username } });
-  }
-
+  // GET USER - Encontra usuário por identificador (username ou email)
   async findByIdentifier(identifier: string): Promise<User | null> {
     return this.userRepo.findOne({
       where: [{ username: identifier }, { email: identifier }],
     });
   }
 
+  // GET USER - Encontra usuário por ID
   async findById(userId: number) {
     return this.userRepo.findOne({ where: { id: userId } });
   }
 
-  // ---------------------
-  //  PASSWORD CHECK
-  // ---------------------
+  // PASSWORD CHECK - Verifica se a senha está correta
   async validatePassword(user: User, plainPassword: string): Promise<boolean> {
-    return bcrypt.compare(plainPassword, user.password);
+    return bcrypt.compare(plainPassword, user.password); // compara senhas (raw com criptografada)
   }
 
-  // ---------------------
-  //  DELETE USER
-  // ---------------------
+  // DELETE USER - Remove usuário do banco de dados
   async removeUser(userId: number) {
     const user = await this.findById(userId);
+    // Verifica se o usuário existe
     if (!user) throw new NotFoundException('Usuário não encontrado.');
 
-    return this.userRepo.remove(user);
+    return this.userRepo.remove(user); // remove usuário
   }
 
-  // ---------------------
-  //  UPDATE USER
-  // ---------------------
+  // UPDATE USER - Atualiza os campos que o usuário queira mudar
   async updateUser(userId: number, data: Partial<User>) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
 
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado.');
-    }
+    // Caso não encontre o usuário - error
+    if (!user) throw new NotFoundException('Usuário não encontrado.');
 
     const where: FindOptionsWhere<User>[] = [];
 
@@ -91,6 +79,7 @@ export class UserService {
       where.push({ email: data.email });
     }
 
+    // Impede a mudança de email ou username caso já exista alguém usando os mesmos
     if (where.length > 0) {
       const conflict = await this.userRepo.findOne({ where });
 
@@ -99,7 +88,7 @@ export class UserService {
       }
     }
 
-    // Re-hash password if updated
+    // Re-hash password/senha caso tenha sido atualizado - criptografia ele novamente
     if (data.password) {
       const salt = await bcrypt.genSalt();
       data.password = await bcrypt.hash(data.password, salt);
@@ -109,9 +98,7 @@ export class UserService {
     return this.userRepo.save(user);
   }
 
-  // ---------------------
-  //  REFRESH TOKENS
-  // ---------------------
+  // REFRESH TOKENS - Salva o refresh token
   async saveRefreshTokenHash(userId: number, hash: string, expiresAt: number) {
     return this.userRepo.update(userId, {
       currentHashedRefreshToken: hash,
@@ -119,6 +106,7 @@ export class UserService {
     });
   }
 
+  // Renova o refresh token
   async clearRefreshToken(userId: number) {
     return this.userRepo.update(userId, {
       currentHashedRefreshToken: null,
@@ -126,16 +114,14 @@ export class UserService {
     });
   }
 
+  // Encontra pelo Refresh hash
   async findByRefreshHash(hash: string) {
     return this.userRepo.findOne({
       where: { currentHashedRefreshToken: hash },
     });
   }
 
-  // =======================================================
-  //  EMAIL VERIFICATION SYSTEM
-  // =======================================================
-
+  // EMAIL VERIFICATION SYSTEM - Salva o token de verificação
   async saveVerificationToken(
     userId: number,
     tokenHash: string,
@@ -147,12 +133,14 @@ export class UserService {
     });
   }
 
+  // Encontra pelo token de verificação
   async findByVerificationHash(hash: string) {
     return this.userRepo.findOne({
       where: { verificationTokenHash: hash },
     });
   }
 
+  // Se o usuário estiver verificado, muda isVerified para true
   async markVerified(userId: number) {
     return this.userRepo.update(userId, {
       isVerified: true,
@@ -161,10 +149,7 @@ export class UserService {
     });
   }
 
-  // =======================================================
-  //  PASSWORD RESET SYSTEM
-  // =======================================================
-
+  // PASSWORD RESET SYSTEM
   async saveResetToken(userId: number, tokenHash: string, expiresAt: number) {
     return this.userRepo.update(userId, {
       resetTokenHash: tokenHash,
@@ -172,12 +157,14 @@ export class UserService {
     });
   }
 
+  // Encontra via resetHash
   async findByResetHash(hash: string) {
     return this.userRepo.findOne({
       where: { resetTokenHash: hash },
     });
   }
 
+  // Limpa resetToken
   async clearResetToken(userId: number) {
     return this.userRepo.update(userId, {
       resetTokenHash: null,

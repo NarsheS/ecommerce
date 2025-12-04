@@ -15,8 +15,9 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { PaymentModule } from './payment/payment.module';
 
 
-dotenv.config();
+dotenv.config(); // Setar dotenv primeiro
 
+// Limitador de tentativas
 const throttlerSetup = {
     ttl: 60, // 1 minuto
     limit: 10, // 10 requisições por minuto por ip
@@ -42,7 +43,7 @@ const throttlerSetup = {
         OrderModule,
         PaymentModule,
     ],
-    providers: [
+    providers: [ // Coloca GUARDS globalmente no app/server
         {
             provide: APP_GUARD,
             useClass: ThrottlerGuard,

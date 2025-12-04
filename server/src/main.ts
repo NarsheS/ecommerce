@@ -33,7 +33,7 @@ async function bootstrap() {
     credentials: true,              // permitir cookies
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['Set-Cookie'], // 🔥 necessário
+    exposedHeaders: ['Set-Cookie'], // necessário por causa dos cookies
   });
 
   // Remove X-Powered-By

@@ -20,4 +20,4 @@ um identifier e não email ou username.
 
 Em seguida:
 - Orders interativos (informar se ja saiu, esta pendente ou foi cancelado etc.)
-- Dar uma otimizada no codigo, reduzir comentarios
+- Main.ts, app.module, mail e user otimizados

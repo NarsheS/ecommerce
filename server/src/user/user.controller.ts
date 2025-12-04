@@ -6,7 +6,8 @@ import {
   ParseIntPipe,
   Patch,
   UsePipes,
-  ValidationPipe
+  ValidationPipe,
+  Req
 } from '@nestjs/common';
 
 import { UserService } from './user.service';
@@ -19,40 +20,46 @@ import { Role } from './user.entity';
 export class UserController {
   constructor(private userService: UserService) {}
 
+  // Remove TUDO do usuario
   private sanitizeUser(user: any) {
-    if (!user) return user;
+    if (!user) return null;
 
-    delete user.password;
-    delete user.currentHashedRefreshToken;
-    delete user.currentHashedRefreshTokenExpiresAt;
-    delete user.resetTokenHash;
-    delete user.resetTokenExpiresAt;
-    delete user.verificationTokenHash;
-    delete user.verificationTokenExpiresAt;
+    const clone = { ...user };
 
-    return user;
+    delete clone.password;
+    delete clone.currentHashedRefreshToken;
+    delete clone.currentHashedRefreshTokenExpiresAt;
+    delete clone.resetTokenHash;
+    delete clone.resetTokenExpiresAt;
+    delete clone.verificationTokenHash;
+    delete clone.verificationTokenExpiresAt;
+
+    return clone;
   }
 
-  // -------------------------
-  // DELETE USER – Admin only
-  // -------------------------
-  @Delete('remove/:userId')
-  @Roles(Role.ADMIN)
-  async remove(@Param('userId', ParseIntPipe) userId: number) {
+  // DELETE USER – Deletar a própria conta
+  @Delete('remove')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async remove(@Req() req: any){
+    const userId = req.user.id;
     const user = await this.userService.removeUser(userId);
+    return this.sanitizeUser(user); 
+  }
+
+  // DELETE USER – Somente Admin
+  @Delete('remove/:id')
+  @Roles(Role.ADMIN) // Apenas Admin pode interagir com esse controller
+  async removeAdm(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.userService.removeUser(id);
     return this.sanitizeUser(user);
   }
 
-  // -------------------------
-  // UPDATE USER – user or admin
-  // -------------------------
-  @Patch('update/:id')
+  // UPDATE USER
+  @Patch('update')
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  async updateUser(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateUserDto
-  ) {
-    const user = await this.userService.updateUser(id, dto);
+  async updateUser(@Req() req: any, @Body() dto: UpdateUserDto) {
+    const userId = req.user.id;
+    const user = await this.userService.updateUser(userId, dto);
     return this.sanitizeUser(user);
   }
 }
