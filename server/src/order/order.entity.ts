@@ -31,6 +31,9 @@ export class Order{
     })
     status: OrderStatus;
 
+    @Column({ nullable: true })
+    stripeSessionId?: string;
+
     @CreateDateColumn()
     createdAt: Date;
 

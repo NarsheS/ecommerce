@@ -1,16 +1,17 @@
-import { Controller, Param, Post, Body, Req, Headers } from "@nestjs/common";
+import { Controller, Param, Post, Body, Req, Headers, ParseIntPipe } from "@nestjs/common";
 import { PaymentService } from "./payment.service";
 
 @Controller('payments')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
+  // POST - Cria um novo pagamento a partir da order
   @Post('create/:orderId')
-  createPayment(@Param('orderId') orderId: number) {
+  createPayment(@Param('orderId', ParseIntPipe) orderId: number) {
     return this.paymentService.createPayment(orderId);
   }
 
-  // Stripe webhook
+  // POST - Stripe webhook
   @Post('webhook')
   async webhook(
     @Req() req,

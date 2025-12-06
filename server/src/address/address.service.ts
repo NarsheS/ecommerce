@@ -17,37 +17,44 @@ export class AddressService {
         private userRepo: Repository<User>,
     ){}
 
+    // Cria e atribui um endereço ao usuário
     async addAddress(userId: number, dto: CreateAddressDto){
+        // Verifica se o usuário existe
         const user = await this.userRepo.findOne({ where: { id: userId } });
         if(!user) throw new NotFoundException("Usuário não encontrado.");
 
+        // Cria e salva o ou os endereços ao usuário
         const address = this.addressRepo.create({ ...dto, user });
         return this.addressRepo.save(address);
     }
 
+    // Lista todos os endereços do usuário a partir de seu ID
     async listByUser(userId: number){
         return this.addressRepo.find({ where: { user: { id: userId } } });
     }
 
+    // Atualizar endereço
     async updateAddress(userId: number, addressId: number, dto: UpdateAddressDto){
         const address = await this.addressRepo.findOne({
             where: {id: addressId, user: { id: userId } }
         });
-
+        // Verifica se o endereço existe
         if(!address) throw new NotFoundException("Endereço não encontrado.");
 
+        // Isso aqui copia o endereço anterior e em cima disso as mudanças são feitas
         Object.assign(address, dto);
 
-        return this.addressRepo.save(address);
+        return this.addressRepo.save(address); // Salva o novo endereço
     }
 
+    // Deleta o endereço
     async removeAddress(userId: number, addressId: number){
         const address = await this.addressRepo.findOne({
             where: { id: addressId, user: { id: userId } }
         });
-
+        // Verifica se o endereço existe
         if(!address) throw new NotFoundException("Endereço não encontrado.");
 
-        return this.addressRepo.remove(address);
+        return this.addressRepo.remove(address); // Deleta o endereço
     }
 }

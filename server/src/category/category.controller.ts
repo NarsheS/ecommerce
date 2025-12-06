@@ -8,17 +8,20 @@ import { Role } from 'src/user/user.entity';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
+  // POST - Cria uma nova categoria
   @Post()
   @Roles(Role.ADMIN)
   create(@Body() dto: CreateCategoryDto) {
     return this.categoryService.createCategory(dto);
   }
 
+  // GET - Lista todas as categorias
   @Get()
   findAll() {
     return this.categoryService.findAllCategories();
   }
 
+  // DELETE - Deleta uma categoria
   @Delete(':id')
   @Roles(Role.ADMIN)
   remove(@Param('id', ParseIntPipe) id: number){

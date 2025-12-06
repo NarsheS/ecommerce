@@ -69,15 +69,15 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  // Endereço
+  // Usuário pode ter vários endereços
   @OneToMany(() => Address, (address) => address.user)
   addresses: Address[];
 
-  // Carrinho
+  // Usuário pode ter vários produtos no carrinho
   @OneToMany(() => Cart, (cart) => cart.user)
   carts: Cart[];
 
-  // Orders
+  // Usuário pode ter vários pedidos
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
 }

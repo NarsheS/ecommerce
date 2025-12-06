@@ -3,10 +3,11 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import * as dotenv from 'dotenv';
 
+// .env deve ser chamado no ínicio
+dotenv.config(); 
 
-dotenv.config();
-
-
+// Essa paradinha aqui vai passar 3 coisas importantes junto com Bearer Token
+// Essas coisas são o Id, Username e sua Role (user ou admin)
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor() {

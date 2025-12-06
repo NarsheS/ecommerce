@@ -1,5 +1,6 @@
 import { IsString, IsOptional } from 'class-validator';
 
+// Restrições para atualizar endereço de usuário
 export class UpdateAddressDto {
     @IsOptional()
     @IsString()
