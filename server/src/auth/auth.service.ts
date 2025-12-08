@@ -14,6 +14,9 @@ import {
   timingSafeEqualHash,
 } from 'src/utilities/token-utils';
 import * as bcrypt from 'bcrypt';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 @Injectable()
 export class AuthService {
@@ -24,22 +27,21 @@ export class AuthService {
     private mailService: MailService,
   ) {}
 
-  // -----------------------
+
   // BRUTE FORCE PROTECTION
-  // -----------------------
-  // In-memory store. Replace with Redis for multi-instance production.
+  // In-memory store. Trocar para Redis em multi-instance production.
   private attempts = new Map<
     string,
     { count: number; firstAttemptAt: number; lockedUntil?: number }
   >();
 
-  // Configuration (tune to your needs / move to env)
-  private MAX_ATTEMPTS = 5;
-  private WINDOW_MS = 15 * 60_000; // 15 minutes window
-  private LOCK_MS = 15 * 60_000; // lock for 15 minutes when exceeded
+  // Config
+  private MAX_ATTEMPTS = Number(process.env.MAX_ATTEMPTS);
+  private WINDOW_MS = Number(process.env.WINDOW_MS) * 60_000; // 15 min
+  private LOCK_MS = Number(process.env.LOCK_MS) * 60_000; // Tranca por 15 min quando excede
 
   private makeAttemptKey(identifier: string, ip?: string) {
-    // Combine identifier + IP for stricter protection
+    // Combina identifier + IP para proteção
     return `${identifier}:${ip ?? 'noip'}`;
   }
 
@@ -48,7 +50,7 @@ export class AuthService {
     if (!entry) return false;
     if (entry.lockedUntil && entry.lockedUntil > Date.now()) return true;
 
-    // If window expired, reset
+    // Se a janela expirou > reset
     if (Date.now() - entry.firstAttemptAt > this.WINDOW_MS) {
       this.attempts.delete(key);
       return false;
@@ -65,7 +67,7 @@ export class AuthService {
       return;
     }
 
-    // If window expired -> reset
+    // Se a janela expirou > reset
     if (now - existing.firstAttemptAt > this.WINDOW_MS) {
       this.attempts.set(key, { count: 1, firstAttemptAt: now });
       return;
@@ -84,9 +86,8 @@ export class AuthService {
     this.attempts.delete(key);
   }
 
-  // -----------------------
+
   // Sanitization helper
-  // -----------------------
   private sanitizeUser(user: any) {
     if (!user) return null;
     const copy = { ...user };
@@ -100,12 +101,11 @@ export class AuthService {
     return copy;
   }
 
-  // -----------------------
+
   // REGISTER & EMAIL VERIFICATION
-  // -----------------------
-  // call usersService.create() -> save verification token -> send email
+  // Chama usersService.create() -> Salva verification token -> Envia email
   async register(dto: { username: string; email: string; password: string }) {
-    // normalize email
+    // normaliza email
     const email = dto.email.trim().toLowerCase();
 
     const user = await this.usersService.create({
@@ -115,18 +115,17 @@ export class AuthService {
     });
 
     // create verification token (plain + hashed)
-    const token = generateRandomToken(24); // returned to user via email
+    const token = generateRandomToken(24); // Retorna para usuário via email
     const tokenHash = hashToken(token);
     const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24h
 
     await this.usersService.saveVerificationToken(user.id, tokenHash, expiresAt);
 
-    // send email (do not fail registration if mail fails — optionally handle)
+    // Envia email (não falha o registro se o email falhar — handle opcional)
     try {
       await this.mailService.sendVerification(user.email, token);
     } catch (err) {
-      // optional: log error
-      // do not throw so registration can succeed (or you can throw depending on policy)
+      console.log(`Erro ao enviar verificação de email: ${err}`);
     }
 
     return this.sanitizeUser(user);
@@ -146,17 +145,15 @@ export class AuthService {
     return { ok: true };
   }
 
-  // -----------------------
+
   // LOGIN + VALIDATION
-  // -----------------------
-  // validateUser used by passport-local or custom auth flow.
   async validateUser(identifier: string, plainPassword: string, ip?: string) {
     identifier = identifier.trim().toLowerCase();
     const key = this.makeAttemptKey(identifier, ip);
 
     if (this.isLocked(key)) {
       throw new HttpException(
-        'Too many failed attempts. Try again later.',
+        'Você falhou muitas vezes. Tente novamente mais tarde.',
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
@@ -167,9 +164,9 @@ export class AuthService {
       return null;
     }
 
-    // Uncomment this when email verification is implemented!
+    // Se o email não estiver verificado
     if (!user.isVerified) {
-      throw new HttpException('Email not verified', HttpStatus.FORBIDDEN);
+      throw new HttpException('Email não verificado!', HttpStatus.FORBIDDEN);
     }
 
     const valid = await this.usersService.validatePassword(user, plainPassword);
@@ -183,15 +180,14 @@ export class AuthService {
     return this.sanitizeUser(user);
   }
 
-  // -----------------------
+
   // TOKENS: ACCESS + REFRESH (rotating)
-  // -----------------------
   private createAccessToken(user: any) {
     const payload = { username: user.username, sub: user.id, role: user.role };
     return this.jwtService.sign(payload);
   }
 
-  // issue tokens AND save hashed refresh token in DB
+  // Issue tokens e salvar hashed refresh token no DB
   async issueTokensAndSaveRefresh(user: any) {
     const accessToken = this.createAccessToken(user);
 
@@ -224,43 +220,41 @@ export class AuthService {
     };
   }
 
-  // Refresh endpoint — rotates token. Uses hashed lookup + safe compare.
+  // Refresh endpoint — rotates token
   async refreshTokens(refreshPlain: string) {
-    // compute hash and lookup user by hashed stored value
+    // hash
     const hash = hashToken(refreshPlain);
 
-    // find user by the stored hashed refresh (exact match)
+    // Encontra o usuário pelo refreshHash
     const user = await this.usersService.findByRefreshHash(hash);
     if (!user) {
-      // POSSIBLE TOKEN REUSE / COMPROMISE — reject and clear any tokens if detected
-      throw new HttpException('Invalid refresh token', HttpStatus.UNAUTHORIZED);
+      // Se necessário invalida o token
+      throw new HttpException('Refresh token inválido', HttpStatus.UNAUTHORIZED);
     }
 
-    // timing-safe equal protection (compare stored hash and computed hash)
-    // If your DB stores the hash exactly, direct equality is fine; timingSafeEqualHash is included for safer checks.
+    // Compara hash
     if (!timingSafeEqualHash(user.currentHashedRefreshToken || '', hash)) {
-      // token mismatch — possible tampering
+      // token mismatch
       await this.usersService.clearRefreshToken(user.id);
-      throw new HttpException('Invalid refresh token', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Refresh token inválido', HttpStatus.UNAUTHORIZED);
     }
 
-    // expiry check
+    // Verifica expiração
     if (!user.currentHashedRefreshTokenExpiresAt || user.currentHashedRefreshTokenExpiresAt < Date.now()) {
       await this.usersService.clearRefreshToken(user.id);
       throw new HttpException('Refresh token expired', HttpStatus.UNAUTHORIZED);
     }
 
-    // rotate: issue new refresh and invalidate old one by overwriting
     return this.issueTokensAndSaveRefresh(user);
   }
 
-  // login: assume `user` is sanitized or returned from validateUser
+  // login: assume que 'user' foi sanitazed ou validado de validateUser
   async login(user: any) {
-    // user must be actual DB user (we need id & role)
+    // User precisa ser um usuário do DB (precisamos de id e Role)
     const dbUser = await this.usersService.findById(user.id);
     if (!dbUser) throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
 
-    // Optionally check isVerified again
+    // Opcional: Verifica isVerified novamente
     if (!dbUser.isVerified) {
       throw new HttpException('Email not verified', HttpStatus.FORBIDDEN);
     }
@@ -273,28 +267,26 @@ export class AuthService {
     return { ok: true };
   }
 
-  // -----------------------
+
   // PASSWORD RESET FLOW
-  // -----------------------
   async requestPasswordReset(emailOrIdentifier: string) {
-    // find user
     const user = await this.usersService.findByIdentifier(emailOrIdentifier);
     if (!user) {
-      // don't reveal existence
+      // Não revele sua existência
       return { ok: true };
     }
 
     const token = generateRandomToken(32);
     const tokenHash = hashToken(token);
-    const expiresAt = Date.now() + 60 * 60_000; // 1 hour
+    const expiresAt = Date.now() + 60 * 60_000; // 1h
 
     await this.usersService.saveResetToken(user.id, tokenHash, expiresAt);
 
-    // send reset email (use mailService)
+    // Enviar reset email
     try {
       await this.mailService.sendReset(user.email, token);
-    } catch (e) {
-      // swallow or log
+    } catch (err) {
+      console.log(`Erro ao enviar email: ${err}`)
     }
 
     return { ok: true };
@@ -310,11 +302,11 @@ export class AuthService {
       throw new HttpException('Reset token expired', HttpStatus.BAD_REQUEST);
     }
 
-    // Hash the new password (use bcrypt)
+    // Criptografa a nova senha (use bcrypt)
     const hashed = await bcrypt.hash(newPassword, 12);
     await this.usersService.updateUser(user.id, { password: hashed });
 
-    // clear reset token and refresh tokens (force logout)
+    // Limpa e reseta token e refresh token (force logout)
     await this.usersService.clearResetToken(user.id);
     await this.usersService.clearRefreshToken(user.id);
 

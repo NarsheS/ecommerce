@@ -19,22 +19,25 @@ import type { Request, Response } from 'express';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  // GET - Um link pra clicar e verificar o email
   @Public()
   @Get('verify')
   async verifyEmail(@Query('token') token: string) {
     return this.authService.verifyEmail(token);
   }
 
+  // POST - Registro de usuário
   @Public()
   @Post('register')
   async register(@Body() dto: Register) {
     const user = await this.authService.register(dto);
     return {
-      message: 'User created. Please check your email to verify your account.',
+      message: 'Usuário criado. Por favor de uma olhada seu email para verificar sua conta.',
       user,
     };
   }
 
+  // POST - Login de usuário
   @Public()
   @Throttle({ login: { limit: 5, ttl: 60 } })
   @Post('login')
@@ -49,17 +52,15 @@ export class AuthController {
       req.ip,
     );
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    if (!user) throw new UnauthorizedException('Credenciais inválidas');
 
     const { safe, refreshPlain } = await this.authService.login(user);
-
     this.setRefreshCookie(res, refreshPlain);
 
     return safe;
   }
 
+  // POST - Refresh token
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60 } })
   @Post('refresh')
@@ -68,15 +69,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const refreshToken = req.cookies['refresh_token'];
-
-    const { safe, refreshPlain } =
-      await this.authService.refreshTokens(refreshToken);
+    const { safe, refreshPlain } = await this.authService.refreshTokens(refreshToken);
 
     this.setRefreshCookie(res, refreshPlain);
 
     return safe;
   }
 
+  // POST - Sair da conta
   @Post('logout')
   async logout(
     @Req() req: any,
