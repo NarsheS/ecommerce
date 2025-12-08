@@ -1,6 +1,5 @@
 import { IsString, Matches, MinLength } from "class-validator";
 import { Transform } from "class-transformer";
-
 // Restrições para fazer login: username ou email + senha
 export class LoginDto {
     @IsString()

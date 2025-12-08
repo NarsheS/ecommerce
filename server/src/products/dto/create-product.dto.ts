@@ -1,5 +1,5 @@
 import { IsString, IsNumber, IsOptional, IsInt, Min } from 'class-validator';
-
+// Restrições na hora de criar produtos para evitar bugs ou exploits
 export class CreateProductDto {
   @IsString()
   name: string;

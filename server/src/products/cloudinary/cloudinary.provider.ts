@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { ConfigService } from '@nestjs/config';
-
+// Configuração para o uso da cloudinary como DB de imagens
 export const CloudinaryProvider = {
   provide: 'CLOUDINARY',
   inject: [ConfigService],
