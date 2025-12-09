@@ -7,6 +7,7 @@ import { UpdateProductDto } from "./dto/update-product.dto";
 import { Category } from "src/category/category.entity";
 import { ProductImage } from "./cloudinary/productImage.entity";
 import { UploadService } from "./cloudinary/upload.service";
+import { DiscountService } from "./sales/discount.service";
 
 @Injectable()
 export class ProductsService {
@@ -18,6 +19,7 @@ export class ProductsService {
     @InjectRepository(ProductImage)
     private imageRepo: Repository<ProductImage>,
     private readonly uploadService: UploadService,
+    private readonly discountService: DiscountService,
   ) {}
 
   // POST - CREATE
@@ -132,7 +134,14 @@ export class ProductsService {
 
   // GET - Lista todos os produtos
   async getAllProducts() {
-    return this.productsRepo.find({ relations: ['category', 'images'] });
+    const products = await this.productsRepo.find({ relations: ['category', 'images'] });
+
+    // Aplicar desconto em cada um
+    const productsWithDiscounts = await Promise.all(
+      products.map(p => this.discountService.applyAutomaticDiscount(p))
+    );
+
+    return productsWithDiscounts;
   }
 
   // GET - Lista apenas um produto
@@ -143,7 +152,11 @@ export class ProductsService {
     });
 
     if (!product) throw new NotFoundException("Produto não encontrado.");
-    return product;
+
+    // AQUI entra o desconto
+    const productWithDiscount = await this.discountService.applyAutomaticDiscount(product);
+
+    return productWithDiscount;
   }
 
   // UPDATE - Atualiza os campos desejados de um produto
@@ -169,4 +182,5 @@ export class ProductsService {
     await this.productsRepo.remove(product);
     return { message: 'Produto deletado com sucesso' };
   }
+
 }

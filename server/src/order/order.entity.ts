@@ -24,6 +24,9 @@ export class Order{
     @Column('decimal', { precision: 10, scale: 2 })
     total: number;
 
+    @Column('decimal', { precision: 10, scale: 2, default: 0 })
+    discountTotal: number;
+
     @Column({
         type: 'text',
         enum: OrderStatus,

@@ -13,6 +13,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './common/roles/roles.guard';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { PaymentModule } from './payment/payment.module';
+import { DiscountModule } from './products/sales/discount.module';
 
 
 dotenv.config(); // Setar dotenv primeiro
@@ -42,6 +43,7 @@ const throttlerSetup = {
         CartModule,
         OrderModule,
         PaymentModule,
+        DiscountModule,
     ],
     providers: [ // Coloca GUARDS globalmente no app/server
         {

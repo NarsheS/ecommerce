@@ -3,7 +3,7 @@ import { Order } from "./order.entity";
 import { Products } from "src/products/products.entity";
 
 @Entity('order_items')
-export class OrderItem{
+export class OrderItem {
     @PrimaryGeneratedColumn('increment')
     id: number;
 
@@ -16,11 +16,19 @@ export class OrderItem{
     @Column()
     quantity: number;
 
-    // preço do produto
+    // Preço original do produto (antes do desconto)
     @Column('decimal', { precision: 10, scale: 2 })
     price: number;
 
-    // valor computado
+    // Preço final com desconto aplicado
+    @Column('decimal', { precision: 10, scale: 2 })
+    finalPrice: number;
+
+    // Desconto unitário aplicado (price - finalPrice)
+    @Column('decimal', { precision: 10, scale: 2 })
+    discountApplied: number;
+
+    // subtotal = finalPrice * quantity
     @Column('decimal', { precision: 10, scale: 2 })
     subtotal: number;
 }

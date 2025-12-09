@@ -19,5 +19,5 @@ um identifier e não email ou username.
 - Em teoria estamos 75% prontos, falta algumas coisas como payment, order status, admin privilege
 
 Em seguida:
-- Descontos/Sales
+- Descontos/Sales (testar)
 - Orders interativos (informar se ja saiu, esta pendente ou foi cancelado etc.)
