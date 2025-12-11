@@ -40,11 +40,11 @@ export class OrderService {
     const orderItems: OrderItem[] = [];
 
     for (const item of cart.items) {
-      // 1️⃣ aplica o desconto automaticamente ao produto
-      const productWithDiscount = await this.discountService.applyAutomaticDiscount(item.product);
+      const productWithDiscount =
+        await this.discountService.applyAutomaticDiscount(item.product);
 
       const originalPrice = Number(item.product.price);
-      const finalPrice = Number(productWithDiscount.price);
+      const finalPrice = productWithDiscount.finalPrice ?? originalPrice;
       const discountApplied = originalPrice - finalPrice;
 
       const subtotal = finalPrice * item.quantity;
@@ -56,7 +56,7 @@ export class OrderService {
         price: originalPrice,
         finalPrice: finalPrice,
         discountApplied: discountApplied,
-        subtotal,
+        subtotal: subtotal,
       });
 
       orderItems.push(orderItem);
@@ -72,6 +72,7 @@ export class OrderService {
 
     await this.orderRepo.save(order);
 
+    // limpa o carrinho
     await this.cartItemRepo.remove(cart.items);
 
     return this.orderRepo.findOne({

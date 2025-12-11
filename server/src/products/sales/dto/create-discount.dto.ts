@@ -5,12 +5,15 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsString,
   Min,
 } from 'class-validator';
 import { DiscountType } from '../discount-rules.entity';
 
+// Restrições para a criação de discontos
 export class CreateDiscountDto {
   @IsNotEmpty()
+  @IsString()
   name: string;
 
   @IsEnum(DiscountType)
@@ -34,10 +37,12 @@ export class CreateDiscountDto {
 
   @IsOptional()
   @IsDateString()
+  @IsString()
   startsAt?: string;
 
   @IsOptional()
   @IsDateString()
+  @IsString()
   endsAt?: string;
 
   @IsOptional()

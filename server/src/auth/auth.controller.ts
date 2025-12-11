@@ -82,7 +82,7 @@ export class AuthController {
     @Req() req: any,
     @Res({ passthrough: true }) res: Response,
   ) {
-    await this.authService.logout(req.user.sub);
+    await this.authService.logout(req.user.id);
 
     res.clearCookie('refresh_token', {
       httpOnly: true,

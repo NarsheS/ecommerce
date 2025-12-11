@@ -15,13 +15,13 @@ export class MailService {
 
       // Esse é o email que vai ser enviado
       return await this.transporter.sendMail({
-        from: `"My Store" <${process.env.MAIL_FROM}>`,
+        from: `"Loja" <${process.env.MAIL_FROM}>`,
         to: email,
         subject: 'Verifique seu email',
         html: `
           <h2>Verifique sua conta</h2>
           <p>Clique no link abaixo para confirmar a sua conta:</p>
-          <a href="${url}">${url}</a>
+          <a href="${url}"><button>Clique aqui!</button></a>
         `,
       });
     } catch (err) {
@@ -35,13 +35,13 @@ export class MailService {
     const url = `http://localhost:3000/auth/reset-password?token=${token}`;
 
     return await this.transporter.sendMail({
-      from: `"My Store" <${process.env.MAIL_FROM}>`,
+      from: `"Loja" <${process.env.MAIL_FROM}>`,
       to: email,
       subject: 'Requisição de redefinição de senha',
       html: `
         <h2>Redefinição de senha</h2>
         <p>Clique no link abaixo para redefinir sua senha:</p>
-        <a href="${url}">${url}</a>
+        <a href="${url}"><button>Clique aqui!</button></a>
         <br><br>
         <p>Se não foi você, por favor ignore este email.</p>
       `,

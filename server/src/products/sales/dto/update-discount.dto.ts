@@ -4,11 +4,14 @@ import {
   IsEnum,
   IsNumber,
   IsOptional,
+  IsString,
 } from 'class-validator';
 import { DiscountType } from '../discount-rules.entity';
 
+// Restrições para a atualização de discontos
 export class UpdateDiscountDto {
   @IsOptional()
+  @IsString()
   name?: string;
 
   @IsOptional()
@@ -33,10 +36,12 @@ export class UpdateDiscountDto {
 
   @IsOptional()
   @IsDateString()
+  @IsString()
   startsAt?: string;
 
   @IsOptional()
   @IsDateString()
+  @IsString()
   endsAt?: string;
 
   @IsOptional()

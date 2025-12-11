@@ -50,7 +50,9 @@ export class PaymentService implements OnModuleInit {
 
     // Converte items para formato Stripe
     const line_items = order.items.map((item) => {
-      if (item.price <= 0) {
+      const amount = item.finalPrice ?? item.price;
+
+      if (amount <= 0) {
         throw new BadRequestException(
           `Invalid price for product ${item.product.id}`,
         );
@@ -60,7 +62,7 @@ export class PaymentService implements OnModuleInit {
         price_data: {
           currency: 'brl',
           product_data: { name: item.product.name },
-          unit_amount: Math.round(Number(item.price) * 100),
+          unit_amount: Math.round(Number(amount) * 100),
         },
         quantity: item.quantity,
       };

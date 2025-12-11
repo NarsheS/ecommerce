@@ -6,10 +6,12 @@ import { OrderService } from './order.service';
 import { Cart } from 'src/cart/cart.entity';
 import { CartItem } from 'src/cart/cart-item.entity';
 import { OrderController } from './order.controller';
+import { DiscountModule } from 'src/products/sales/discount.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order, OrderItem, Cart, CartItem])
+    TypeOrmModule.forFeature([Order, OrderItem, Cart, CartItem]),
+    DiscountModule
   ],
   providers: [OrderService],
   controllers: [OrderController],

@@ -15,7 +15,7 @@ export class DiscountRule {
   @Column()
   name: string;
 
-  @Column({ type: 'enum', enum: DiscountType })
+  @Column({ type: 'text', enum: DiscountType })
   type: DiscountType;
 
   @Column({ nullable: true })
@@ -27,10 +27,10 @@ export class DiscountRule {
   @Column({ type: 'numeric' })
   discountPercentage: number;
 
-  @Column({ nullable: true, type: 'timestamp' })
+  @Column({ nullable: true, type: 'datetime' })
   startsAt?: Date;
 
-  @Column({ nullable: true, type: 'timestamp' })
+  @Column({ nullable: true, type: 'datetime' })
   endsAt?: Date;
 
   @Column({ nullable: true, type: 'numeric' })

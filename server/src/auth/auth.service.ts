@@ -105,11 +105,12 @@ export class AuthService {
   // REGISTER & EMAIL VERIFICATION
   // Chama usersService.create() -> Salva verification token -> Envia email
   async register(dto: { username: string; email: string; password: string }) {
-    // normaliza email
+    // normaliza email e username
     const email = dto.email.trim().toLowerCase();
+    const username = dto.username.trim();
 
     const user = await this.usersService.create({
-      username: dto.username.trim(),
+      username,
       email,
       password: dto.password,
     });
@@ -148,8 +149,10 @@ export class AuthService {
 
   // LOGIN + VALIDATION
   async validateUser(identifier: string, plainPassword: string, ip?: string) {
-    identifier = identifier.trim().toLowerCase();
-    const key = this.makeAttemptKey(identifier, ip);
+    identifier = identifier.trim();
+    const isEmail = identifier.includes('@');
+    // key de attempt usa sempre lowercase para consistência (opcional)
+    const key = this.makeAttemptKey(isEmail ? identifier.toLowerCase() : identifier, ip);
 
     if (this.isLocked(key)) {
       throw new HttpException(
@@ -158,13 +161,13 @@ export class AuthService {
       );
     }
 
+    // Deixe o usersService cuidar da busca case-insensitive se implementado
     const user = await this.usersService.findByIdentifier(identifier);
     if (!user) {
       this.registerFailed(key);
       return null;
     }
 
-    // Se o email não estiver verificado
     if (!user.isVerified) {
       throw new HttpException('Email não verificado!', HttpStatus.FORBIDDEN);
     }
@@ -175,7 +178,6 @@ export class AuthService {
       return null;
     }
 
-    // success
     this.registerSuccess(key);
     return this.sanitizeUser(user);
   }

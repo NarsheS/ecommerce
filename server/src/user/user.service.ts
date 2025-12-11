@@ -39,9 +39,13 @@ export class UserService {
 
   // GET USER - Encontra usuário por identificador (username ou email)
   async findByIdentifier(identifier: string): Promise<User | null> {
-    return this.userRepo.findOne({
-      where: [{ username: identifier }, { email: identifier }],
-    });
+    const lowered = identifier.toLowerCase();
+
+    return this.userRepo
+      .createQueryBuilder('u')
+      .where('LOWER(u.email) = :identifier', { identifier: lowered })
+      .orWhere('LOWER(u.username) = :identifier', { identifier: lowered })
+      .getOne();
   }
 
   // GET USER - Encontra usuário por ID
@@ -161,6 +165,14 @@ export class UserService {
   async findByResetHash(hash: string) {
     return this.userRepo.findOne({
       where: { resetTokenHash: hash },
+      select: {
+        id: true,
+        password: true,
+        resetTokenHash: true,
+        resetTokenExpiresAt: true,
+        currentHashedRefreshToken: true,
+        currentHashedRefreshTokenExpiresAt: true,
+      },
     });
   }
 

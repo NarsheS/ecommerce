@@ -6,6 +6,12 @@ import { Products } from "../products.entity";
 import { CreateDiscountDto } from "./dto/create-discount.dto";
 import { UpdateDiscountDto } from "./dto/update-discount.dto";
 
+// Precisa disso pra aplicar os descontos
+export interface ProductWithDiscount extends Products {
+  finalPrice: number;
+  appliedDiscount: number;
+}
+
 @Injectable()
 export class DiscountService {
     constructor(
@@ -60,7 +66,7 @@ export class DiscountService {
     }
 
     // CALC - Aplica automaticamente o melhor desconto válido ao produto.
-    async applyAutomaticDiscount(product: Products) {
+    async applyAutomaticDiscount(product: Products): Promise<ProductWithDiscount> {
         const rules = await this.discountRuleRepo.find({
             where: { active: true },
         });
@@ -104,7 +110,7 @@ export class DiscountService {
         (product as any).appliedDiscount = bestDiscount;
         (product as any).finalPrice = Number(finalPrice.toFixed(2));
 
-        return product; // retorna ENTIDADE, NÃO novo objeto
+        return product as ProductWithDiscount; // retorna ENTIDADE, NÃO novo objeto
     }
 
     // GET - Lista todas as regras de desconto

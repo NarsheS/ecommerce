@@ -18,14 +18,14 @@ export class ProductsController {
   }
 
   // POST - Atribui uma imagem a um produto a partir do id do mesmo (apenas admin)
-  @Post(':id/images')
+  @Post(':productId/images')
   @Roles(Role.ADMIN)
   @UseInterceptors(FilesInterceptor('images'))
   async upload(
     @UploadedFiles() files: Express.Multer.File[],
-    @Param('id', ParseIntPipe) id: number,
+    @Param('productId', ParseIntPipe) productId: number,
   ) {
-    return this.productsService.addImages(id, files);
+    return this.productsService.addImages(productId, files);
   }
 
   // DELETE - Deleta uma imagem atribuída a um produto
