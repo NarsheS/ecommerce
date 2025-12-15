@@ -11,6 +11,10 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // nginx setup
+  const server = app.getHttpAdapter().getInstance();
+  server.set('trust proxy', 1);
+
   // Cookies
   app.use(cookieParser());
 

@@ -7,7 +7,8 @@ import {
   Patch,
   UsePipes,
   ValidationPipe,
-  Req
+  Req,
+  Get
 } from '@nestjs/common';
 
 import { UserService } from './user.service';
@@ -15,6 +16,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 import { Roles } from '../common/roles/roles.decorator';
 import { Role } from './user.entity';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('users')
 export class UserController {
@@ -35,6 +37,17 @@ export class UserController {
     delete clone.verificationTokenExpiresAt;
 
     return clone;
+  }
+
+  // Debug - para testes
+  @Get('debug')
+  @Public()
+  debug(@Req() req) {
+    return {
+      ip: req.ip,
+      forwarded: req.headers['x-forwarded-for'],
+      proto: req.headers['x-forwarded-proto'],
+    };
   }
 
   // DELETE USER – Deletar a própria conta

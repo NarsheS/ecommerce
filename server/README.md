@@ -2,10 +2,11 @@
 
 - Lembrando que para os tokens funcionarem é necessario o prefixo: Bearer <token>
 
+- Método GET para Debug adicionado em users para teste nginx (http://localhost/api/users/debug)
+
 # Falta fazer
 - Trocar para https quando pronto
 - Trocar sqlite quando pronto
-- Nginx reverse proxy
 - CSRF se for usar cookies
 
 
