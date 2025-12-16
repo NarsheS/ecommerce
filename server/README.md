@@ -7,7 +7,7 @@
 # Falta fazer
 - Trocar para https quando pronto
 - Trocar sqlite quando pronto
-- CSRF se for usar cookies
+- CSRF se for usar cookies (Continuar implementação após https)
 
 
 # Endpoints
