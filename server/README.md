@@ -1,4 +1,5 @@
 # Server com Nestjs
+- npm run dev:start
 
 - Lembrando que para os tokens funcionarem é necessario o prefixo: Bearer <token>
 
