@@ -4,7 +4,7 @@ import { Repository } from "typeorm";
 import { Products } from "./products.entity";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
-import { Category } from "src/category/category.entity";
+import { Category } from "../category/category.entity";
 import { ProductImage } from "./cloudinary/productImage.entity";
 import { UploadService } from "./cloudinary/upload.service";
 import { DiscountService } from "./sales/discount.service";

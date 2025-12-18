@@ -27,10 +27,10 @@ export class DiscountRule {
   @Column({ type: 'numeric' })
   discountPercentage: number;
 
-  @Column({ nullable: true, type: 'datetime' })
+  @Column({ nullable: true, type: 'timestamptz' })
   startsAt?: Date;
 
-  @Column({ nullable: true, type: 'datetime' })
+  @Column({ nullable: true, type: 'timestamptz' })
   endsAt?: Date;
 
   @Column({ nullable: true, type: 'numeric' })

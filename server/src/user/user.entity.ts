@@ -1,6 +1,6 @@
-import { Address } from 'src/address/address.entity';
-import { Cart } from 'src/cart/cart.entity';
-import { Order } from 'src/order/order.entity';
+import { Address } from '../address/address.entity';
+import { Cart } from '../cart/cart.entity';
+import { Order } from '../order/order.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,

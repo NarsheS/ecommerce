@@ -6,13 +6,13 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from 'src/user/user.service';
-import { MailService } from 'src/mail/mail.service';
+import { UserService } from '../user/user.service';
+import { MailService } from '../mail/mail.service';
 import {
   generateRandomToken,
   hashToken,
   timingSafeEqualHash,
-} from 'src/utilities/token-utils';
+} from '../utilities/token-utils';
 import * as bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
 

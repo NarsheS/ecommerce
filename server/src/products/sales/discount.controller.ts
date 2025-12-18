@@ -9,8 +9,8 @@ import {
   Delete,
 } from '@nestjs/common';
 import { DiscountService } from './discount.service';
-import { Roles } from 'src/common/roles/roles.decorator';
-import { Role } from 'src/user/user.entity';
+import { Roles } from '../../common/roles/roles.decorator';
+import { Role } from '../../user/user.entity';
 import { CreateDiscountDto } from './dto/create-discount.dto';
 import { UpdateDiscountDto } from './dto/update-discount.dto';
 

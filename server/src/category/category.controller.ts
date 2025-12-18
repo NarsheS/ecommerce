@@ -1,8 +1,8 @@
 import { Controller, Post, Body, Get, Delete, ParseIntPipe, Param } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
-import { Roles } from 'src/common/roles/roles.decorator';
-import { Role } from 'src/user/user.entity';
+import { Roles } from '../common/roles/roles.decorator';
+import { Role } from '../user/user.entity';
 
 @Controller('categories')
 export class CategoryController {

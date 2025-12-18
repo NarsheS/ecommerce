@@ -29,11 +29,19 @@ const throttlerSetup = {
     imports: [
         ThrottlerModule.forRoot([throttlerSetup]),
         TypeOrmModule.forRoot({
-            type: 'sqlite',
-            database: process.env.SQLITE_DB || 'data/sqlite.db',
+            type: 'postgres',
+            host: process.env.DB_HOST,
+            port: Number(process.env.DB_PORT),
+            username: process.env.DB_USER,
+            password: process.env.DB_PASS,
+            database: process.env.DB_NAME,
             autoLoadEntities: true,
-            synchronize: true, // em produção, usar migrations
-            cache: true,
+            synchronize: false, // em produção, usar migrations
+            ssl: {
+                rejectUnauthorized: false
+            },
+            logging: process.env.NODE_ENV !== 'production',
+            // cache: true, // migrar para redis dps
         }), 
         UserModule, 
         AuthModule,

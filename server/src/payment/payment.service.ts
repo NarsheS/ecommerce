@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import Stripe from 'stripe';
-import { Order, OrderStatus } from 'src/order/order.entity';
+import { Order, OrderStatus } from '../order/order.entity';
 
 @Injectable()
 export class PaymentService implements OnModuleInit {

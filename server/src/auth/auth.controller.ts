@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Throttle } from '@nestjs/throttler';
-import { Public } from 'src/common/decorators/public.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import { LoginDto } from './dto/login.dto';
 import { Register } from './dto/register.dto';
 import type { Request, Response } from 'express';

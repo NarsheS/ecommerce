@@ -1,5 +1,5 @@
 # Server com Nestjs
-- npm run dev:start
+- npm run start:dev
 
 - Lembrando que para os tokens funcionarem é necessario o prefixo: Bearer <token>
 
@@ -7,8 +7,9 @@
 
 # Falta fazer
 - Trocar para https quando pronto
-- Trocar sqlite quando pronto
+- Talvez adicionar redis para cache
 - CSRF se for usar cookies (Continuar implementação após https)
+- nginx???
 
 
 # Endpoints

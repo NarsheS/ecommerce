@@ -2,8 +2,8 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Uploaded
 import { ProductsService } from "./products.service";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
-import { Roles } from "src/common/roles/roles.decorator";
-import { Role } from "src/user/user.entity";
+import { Roles } from "../common/roles/roles.decorator";
+import { Role } from "../user/user.entity";
 import { FilesInterceptor } from "@nestjs/platform-express";
 
 @Controller('products')
