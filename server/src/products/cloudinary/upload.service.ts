@@ -1,5 +1,4 @@
 import { Injectable, Inject } from '@nestjs/common';
-import type { Express } from 'express';
 
 @Injectable()
 export class UploadService {
@@ -7,6 +6,7 @@ export class UploadService {
     @Inject('CLOUDINARY') private cloudinary: any,
   ) {}
 
+  
   // Faz o upload da imagem para o cloudinary
   uploadImage(file: Express.Multer.File): Promise<{ url: string; publicId: string }> {
     return new Promise((resolve, reject) => {
