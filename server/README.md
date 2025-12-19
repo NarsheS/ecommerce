@@ -6,9 +6,6 @@
 - Método GET para Debug adicionado em users para teste nginx (http://localhost/api/users/debug)
 
 # Falta fazer
-- Trocar para https quando pronto (proximo passo)
-- CSRF se for usar cookies (Continuar implementação após https)
-- nginx???
 - Talvez adicionar redis para cache
 
 
