@@ -1,4 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
+import type { Express } from 'express';
 
 @Injectable()
 export class UploadService {
