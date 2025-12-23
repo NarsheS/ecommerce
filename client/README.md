@@ -1,6 +1,6 @@
 npm run dev
 
-- implementar logica de isLogged? Home : LoginPage
+- Desabilitar compra se usuário não estiver logado
 
 - fetch request no LoginPage
 
