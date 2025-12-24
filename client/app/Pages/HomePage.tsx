@@ -13,23 +13,23 @@ const HomePage = () => {
   const handleLoginClick = async () => {
     if (loading) return // evita double click
 
-    setLoading(true)
+    setLoading(true);
 
     try {
       if (accessToken) {
-        router.push("/")
+        router.push("/");
         return
       }
 
       const refreshed = await refresh()
 
       if (refreshed) {
-        router.push("/")
+        router.push("/");
       } else {
-        router.push("/login")
+        router.push("/login");
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -37,10 +37,10 @@ const HomePage = () => {
     <div className="p-6 flex flex-col gap-4">
       <h1>HomePage</h1>
 
-      <Button>Criar Conta</Button>
+      <Button onClick={() => router.push("/register")}>Criar Conta</Button>
 
       <Button onClick={handleLoginClick} disabled={loading}>
-        {loading ? "Verificando sessão..." : "Login"}
+        {loading ? "Verificando sessão..." : "Entrar"}
       </Button>
     </div>
   )

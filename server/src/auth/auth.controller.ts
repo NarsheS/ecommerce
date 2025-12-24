@@ -21,8 +21,8 @@ export class AuthController {
 
   // GET - Um link pra clicar e verificar o email
   @Public()
-  @Get('verify')
-  async verifyEmail(@Query('token') token: string) {
+  @Post('verify')
+  async verifyEmail(@Body('token') token: string) {
     return this.authService.verifyEmail(token);
   }
 

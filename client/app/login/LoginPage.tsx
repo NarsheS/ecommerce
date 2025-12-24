@@ -17,14 +17,13 @@ import { useRouter } from "next/navigation"
 import { api } from "../services/api"
 
 const LoginPage = () => {
-  const [identifier, setIdentifier] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const { accessToken, setAccessToken } = useAuth()
-  const router = useRouter()
+  const { accessToken, setAccessToken } = useAuth();
+  const router = useRouter();
 
-  // 👇 AQUI
   useEffect(() => {
     if (accessToken) {
       router.replace("/")
@@ -40,12 +39,12 @@ const LoginPage = () => {
       const response = await api.post("/auth/login", {
         identifier,
         password,
-      })
+      });
 
-      const { accessToken } = response.data
-      setAccessToken(accessToken)
+      const { accessToken } = response.data;
+      setAccessToken(accessToken);
 
-      router.replace("/")
+      router.replace("/");
     } catch (err) {
       console.error("Erro no login:", err)
     } finally {
@@ -65,7 +64,11 @@ const LoginPage = () => {
             Acesse sua conta usando seu email ou nome de usuário
           </CardDescription>
           <CardAction className="mt-4">
-            <Button type="button" variant="outline">
+            <Button
+              onClick={() => router.push("/register")}
+              type="button" 
+              variant="outline"
+            >
               Criar conta
             </Button>
           </CardAction>
@@ -78,6 +81,7 @@ const LoginPage = () => {
               <Input
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
+                placeholder='exemplo@seuEmail.com'
                 required
               />
             </div>
@@ -88,6 +92,7 @@ const LoginPage = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder='************'
                 required
               />
             </div>
