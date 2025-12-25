@@ -8,16 +8,42 @@ export class MailService {
   private logger = new Logger(MailService.name);
 
   constructor() {
+    this.logger.log('Inicializando MailService');
+
+    if (!process.env.RESEND_API_KEY) {
+      this.logger.error('RESEND_API_KEY NÃO DEFINIDA');
+    } else {
+      this.logger.log(
+        `RESEND_API_KEY carregada: ${process.env.RESEND_API_KEY.slice(0, 6)}***`,
+      );
+    }
+
     this.resend = new Resend(process.env.RESEND_API_KEY);
   }
 
   // Enviar verificação de conta
   async sendVerification(email: string, token: string) {
-    const url = `${process.env.APP_URL}/verify?token=${token}`;
+    this.logger.log(`sendVerification chamado para: ${email}`);
+
+    const appUrl = process.env.APP_URL;
+    const mailFrom = process.env.MAIL_FROM;
+
+    this.logger.log(`APP_URL: ${appUrl}`);
+    this.logger.log(`MAIL_FROM: ${mailFrom}`);
+
+    if (!appUrl || !mailFrom) {
+      this.logger.error('APP_URL ou MAIL_FROM não definidos');
+      throw new Error('Configuração de email inválida');
+    }
+
+    const url = `${appUrl}/verify?token=${token}`;
+    this.logger.log(`URL de verificação gerada: ${url}`);
 
     try {
+      this.logger.log('Tentando enviar email via Resend...');
+
       const result = await this.resend.emails.send({
-        from: `"Loja" <${process.env.MAIL_FROM}>`,
+        from: `"Loja" <${mailFrom}>`,
         to: email,
         subject: 'Verifique seu email',
         html: `
@@ -31,21 +57,39 @@ export class MailService {
         `,
       });
 
-      this.logger.log(`Email de verificação enviado para ${email}`);
+      this.logger.log(
+        `Email de verificação enviado com sucesso. ID: ${result?.data?.id}`,
+      );
+
       return result;
-    } catch (err) {
-      this.logger.error('EMAIL ERROR (verification)', err);
-      throw new Error('Falha ao enviar verificação de email');
+    } catch (err: any) {
+      this.logger.error('EMAIL ERROR (verification)');
+      this.logger.error(err?.message);
+      this.logger.error(err?.response || err);
+      throw err;
     }
   }
 
   // Redefinir senha
   async sendReset(email: string, token: string) {
-    const url = `${process.env.APP_URL}/auth/reset-password?token=${token}`;
+    this.logger.log(`sendReset chamado para: ${email}`);
+
+    const appUrl = process.env.APP_URL;
+    const mailFrom = process.env.MAIL_FROM;
+
+    if (!appUrl || !mailFrom) {
+      this.logger.error('APP_URL ou MAIL_FROM não definidos');
+      throw new Error('Configuração de email inválida');
+    }
+
+    const url = `${appUrl}/auth/reset-password?token=${token}`;
+    this.logger.log(`URL de reset gerada: ${url}`);
 
     try {
+      this.logger.log('Tentando enviar email de reset via Resend...');
+
       const result = await this.resend.emails.send({
-        from: `"Loja" <${process.env.MAIL_FROM}>`,
+        from: `"Loja" <${mailFrom}>`,
         to: email,
         subject: 'Requisição de redefinição de senha',
         html: `
@@ -61,11 +105,16 @@ export class MailService {
         `,
       });
 
-      this.logger.log(`Email de reset enviado para ${email}`);
+      this.logger.log(
+        `Email de reset enviado com sucesso. ID: ${result?.data?.id}`,
+      );
+
       return result;
-    } catch (err) {
-      this.logger.error('EMAIL ERROR (reset)', err);
-      throw new Error('Falha ao enviar email de redefinição de senha');
+    } catch (err: any) {
+      this.logger.error('EMAIL ERROR (reset)');
+      this.logger.error(err?.message);
+      this.logger.error(err?.response || err);
+      throw err;
     }
   }
 }
