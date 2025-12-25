@@ -1,6 +1,6 @@
 npm run dev
 
-- Desabilitar compra se usuário não estiver logado
+- Implementar LogOut
 
 - fetch request no LoginPage
 

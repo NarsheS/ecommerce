@@ -44,7 +44,7 @@ export class MailService {
 
       const result = await this.resend.emails.send({
         from: `"Loja" <${mailFrom}>`,
-        to: email,
+        to: [email],
         subject: 'Verifique seu email',
         html: `
           <h2>Verifique sua conta</h2>
@@ -82,7 +82,7 @@ export class MailService {
       throw new Error('Configuração de email inválida');
     }
 
-    const url = `${appUrl}/auth/reset-password?token=${token}`;
+    const url = `${appUrl}/reset-password?token=${token}`;
     this.logger.log(`URL de reset gerada: ${url}`);
 
     try {
@@ -90,7 +90,7 @@ export class MailService {
 
       const result = await this.resend.emails.send({
         from: `"Loja" <${mailFrom}>`,
-        to: email,
+        to: [email],
         subject: 'Requisição de redefinição de senha',
         html: `
           <h2>Redefinição de senha</h2>
