@@ -1,6 +1,6 @@
 npm run dev
 
-- Implementar LogOut
+- Logout com problema logo após login
 
 - fetch request no LoginPage
 

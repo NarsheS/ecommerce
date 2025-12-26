@@ -8,32 +8,25 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { api } from "../services/api"
 
 const HomePage = () => {
-  const { refresh, accessToken, setAccessToken } = useAuth()
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
+  const { refresh, accessToken, setAccessToken } = useAuth();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const { isAuthenticated } = useAuth();
+
 
   const handleLoginClick = async () => {
-    if (loading) return // evita double click
+    if (loading) return;
 
     setLoading(true);
 
     try {
-      if (accessToken) {
-        router.push("/");
-        return
-      }
+      const refreshed = accessToken ? true : await refresh();
 
-      const refreshed = await refresh()
-
-      if (refreshed) {
-        router.push("/");
-      } else {
-        router.push("/login");
-      }
+      router.push(refreshed ? "/" : "/login");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const handleLogout = async () => {
     try {
@@ -48,6 +41,7 @@ const HomePage = () => {
     }
   };
 
+
   return (
     <div className="p-6 flex flex-col gap-4">
       <h1>HomePage</h1>
@@ -61,17 +55,19 @@ const HomePage = () => {
       </Button>
 
       <DropdownMenu>
-        <DropdownMenuTrigger asChild >
-          <Button variant="outline" >Actions</Button>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            disabled={!isAuthenticated}
+            className={!isAuthenticated ? "opacity-50 cursor-not-allowed" : ""}
+          >
+            Actions
+          </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => console.log("Perfil")}>
-            Perfil
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleLogout}>
-            Sair
-          </DropdownMenuItem>
+          <DropdownMenuItem>Perfil</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleLogout}>Sair</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
