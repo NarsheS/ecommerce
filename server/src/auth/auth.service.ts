@@ -269,6 +269,16 @@ export class AuthService {
     return { ok: true };
   }
 
+  async logoutByRefreshToken(refreshToken: string) {
+  const hash = hashToken(refreshToken);
+
+  const user = await this.usersService.findByRefreshHash(hash);
+  if (user) {
+    await this.usersService.clearRefreshToken(user.id);
+  }
+}
+
+
 
   // PASSWORD RESET FLOW
   async requestPasswordReset(emailOrIdentifier: string) {

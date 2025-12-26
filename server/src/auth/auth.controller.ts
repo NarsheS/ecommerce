@@ -68,33 +68,55 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = req.cookies['refresh_token'];
-    const { safe, refreshPlain } = await this.authService.refreshTokens(refreshToken);
+    const refreshToken = req.cookies?.refresh_token;
 
-    this.setRefreshCookie(res, refreshPlain);
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token missing');
+    }
 
-    return safe;
+    try {
+      const { safe, refreshPlain } =
+        await this.authService.refreshTokens(refreshToken);
+
+      this.setRefreshCookie(res, refreshPlain);
+      return safe;
+    } catch (err) {
+      // limpa cookie inválido → evita loop infinito
+      res.clearCookie('refresh_token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        path: '/api/auth',
+      });
+
+      throw err;
+    }
   }
 
   // POST - Sair da conta
+  @Public()
   @Post('logout')
   async logout(
-    @Req() req: any,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    await this.authService.logout(req.user.id);
+    const refreshToken = req.cookies?.refresh_token;
 
-    const isProd = process.env.NODE_ENV === 'production';
+    if (refreshToken) {
+      await this.authService.logoutByRefreshToken(refreshToken);
+    }
 
     res.clearCookie('refresh_token', {
       httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'lax',
-      path: '/api/auth', // <-- padronizado
+      secure: true,
+      sameSite: 'none',
+      path: '/api/auth',
     });
 
     return { ok: true };
   }
+
+
 
   private setRefreshCookie(res: Response, refreshToken: string) {
     const isProd = process.env.NODE_ENV === 'production';
