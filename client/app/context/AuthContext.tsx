@@ -6,7 +6,6 @@ type AuthContextType = {
   accessToken: string | null
   setAccessToken: (token: string | null) => void
   refresh: () => Promise<boolean>
-  isAuthenticated: boolean
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -14,17 +13,15 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   const refresh = async () => {
     try {
       const token = await refreshAccessToken()
       setAccessToken(token)
-      setIsAuthenticated(true)
       return true
-    } catch {
+    } catch(err) {
       setAccessToken(null)
-      setIsAuthenticated(false)
+      console.error("ACCESS_TOKEN ERROR:", err)
       return false
     }
   }
@@ -42,9 +39,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider
-      value={{ accessToken, setAccessToken, refresh, isAuthenticated }}
-    >
+    <AuthContext.Provider value={{ accessToken, setAccessToken, refresh }}>
       {children}
     </AuthContext.Provider>
   )
