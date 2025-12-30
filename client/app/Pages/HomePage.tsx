@@ -9,26 +9,27 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { api } from "../services/api"
+import { api, setAuthToken } from "../services/api"
 
 const HomePage = () => {
-  const { accessToken, refresh, setAccessToken } = useAuth()
-  const router = useRouter()
+  const { accessToken, refresh, setAccessToken, user } = useAuth();
+  const router = useRouter();
 
   const isAuthenticated = !!accessToken
 
   const handleLoginClick = async () => {
     const ok = await refresh()
-    if (!ok) router.push("/login")
+    if (!ok) router.push("/login");
   }
 
   const handleLogout = async () => {
     try {
-      await api.post("/auth/logout")
+      await api.post("/auth/logout");
     } catch {}
     finally {
-      setAccessToken(null)
-      router.replace("/login")
+      setAccessToken(null);
+      setAuthToken(null);
+      router.replace("/login");
     }
   }
 
@@ -50,6 +51,7 @@ const HomePage = () => {
 
           <DropdownMenuContent align="end">
             <DropdownMenuItem>Perfil</DropdownMenuItem>
+            {user?.role === 'admin' && (<DropdownMenuItem onClick={() => router.replace("/dashboard")}>Dashboard</DropdownMenuItem>)}
             <DropdownMenuItem onClick={handleLogout}>Sair</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

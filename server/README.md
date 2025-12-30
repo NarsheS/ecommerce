@@ -17,6 +17,7 @@
 - POST - api/auth/register                          (Cria uma conta)
 - POST - api/auth/login                             (Acessa uma conta por identificador - email/username)
 - GET - api/auth/verify?token                       (Link para verificar conta)
+- GET - api/auth/me                                 (Retorna a Role do usuário)
 - POST - api/auth/logout                            (Sair da conta)
 - POST - api/auth/refresh                           (Resfresh token)
 
