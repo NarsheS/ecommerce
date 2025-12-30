@@ -1,8 +1,9 @@
 npm run dev
 
-- Logout com problema logo após login
+- Logout com problema logo após login (FEITO!)
 
-- fetch request no LoginPage
+- Dashboard
+
 
 # Endpoint
 - https://ecommerce-cyrl.onrender.com/api

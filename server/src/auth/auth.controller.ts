@@ -26,6 +26,15 @@ export class AuthController {
     return this.authService.verifyEmail(token);
   }
 
+  // GET - Pra checar no frontend se o usuário é um administrador
+  @Get('me')
+  getMe(@Req() req) {
+    return {
+      id: req.user.sub,
+      role: req.user.role,
+    };
+  }
+
   // POST - Registro de usuário
   @Public()
   @Post('register')
