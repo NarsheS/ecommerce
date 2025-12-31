@@ -10,6 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { api, setAuthToken } from "../services/api"
+import { Navbar04 } from "@/components/ui/shadcn-io/navbar-04"
+import UserMenu from "@/components/UserMenu"
 
 const HomePage = () => {
   const { accessToken, refresh, setAccessToken, user } = useAuth();
@@ -34,28 +36,25 @@ const HomePage = () => {
   }
 
   return (
-    <div className="p-6 flex flex-col gap-4">
-      <h1>HomePage</h1>
+    <div className="flex flex-col gap-4">
+      <Navbar04
+        cartText="Carrinho"
+        searchPlaceholder="Buscar..."
+        rightSlot={
+          isAuthenticated ? (
+            <UserMenu
+              role={user?.role}
+              onLogout={handleLogout}
+            />
+          ) : (
+            <Button onClick={handleLoginClick}>
+              Entrar
+            </Button>
+          )
+        }
+      />
 
-      {!isAuthenticated && (
-        <Button onClick={handleLoginClick}>
-          Entrar
-        </Button>
-      )}
-
-      {isAuthenticated && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">Actions</Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Perfil</DropdownMenuItem>
-            {user?.role === 'admin' && (<DropdownMenuItem onClick={() => router.replace("/dashboard")}>Dashboard</DropdownMenuItem>)}
-            <DropdownMenuItem onClick={handleLogout}>Sair</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      
     </div>
   )
 }
