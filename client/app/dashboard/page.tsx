@@ -1,5 +1,10 @@
-import DashboardPage from "./DashboardPage"
+
 
 export default function Dashboard() {
-  return <DashboardPage />
+  return (
+    <div>
+      <h1>Teste</h1>
+    </div>
+  )
 }
+

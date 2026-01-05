@@ -30,7 +30,6 @@ const RegisterPage = () => {
       });
 
 
-      console.log(response);
       if (response.status == 201) {
         toast.success("Verifique seu email para ativar a conta");
         router.replace("/login");

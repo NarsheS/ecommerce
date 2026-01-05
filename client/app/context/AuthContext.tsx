@@ -30,7 +30,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setAuthToken(token);
 
       const me = await api.get("/auth/me");
-      console.log(me); // remove later
       setUser(me.data);
       return true;
     } catch(err) {

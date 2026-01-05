@@ -3,12 +3,6 @@
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/app/context/AuthContext"
 import { useRouter } from "next/navigation"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { api, setAuthToken } from "../services/api"
 import { Navbar04 } from "@/components/ui/shadcn-io/navbar-04"
 import UserMenu from "@/components/UserMenu"
