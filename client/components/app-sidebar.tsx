@@ -1,3 +1,6 @@
+"use client"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Calendar, Home, Inbox, Search, Settings, User2 } from "lucide-react"
 
 import {
@@ -14,31 +17,11 @@ import {
 
 // Menu items.
 const items = [
-  {
-    title: "Home",
-    url: "/",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
+  { title: "Home", url: "/dashboard", icon: Home },
+  { title: "Inbox", url: "/dashboard/inbox", icon: Inbox },
+  { title: "Calendar", url: "/dashboard/calendar", icon: Calendar },
+  { title: "Search", url: "/dashboard/search", icon: Search },
+  { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ]
 
 type AppSidebarProps = {
@@ -46,6 +29,7 @@ type AppSidebarProps = {
 }
 
 export function AppSidebar({ onLogout }: AppSidebarProps) {
+  const pathname = usePathname()
 
   return (
     <Sidebar>
@@ -54,16 +38,24 @@ export function AppSidebar({ onLogout }: AppSidebarProps) {
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map((item) => {
+                const active = pathname === item.url
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link
+                        href={item.url}
+                        className={`flex items-center gap-2 rounded-md p-2 text-sm ${
+                          active ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""
+                        }`}
+                      >
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -72,7 +64,6 @@ export function AppSidebar({ onLogout }: AppSidebarProps) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            {/* simple logout button that calls the onLogout prop */}
             <SidebarMenuButton asChild>
               <button
                 type="button"
