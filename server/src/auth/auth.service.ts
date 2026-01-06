@@ -136,10 +136,10 @@ export class AuthService {
     const tokenHash = hashToken(tokenPlain);
     const user = await this.usersService.findByVerificationHash(tokenHash);
     if (!user) {
-      throw new HttpException('Invalid verification token', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Token de verificação inválido', HttpStatus.BAD_REQUEST);
     }
     if (!user.verificationTokenExpiresAt || user.verificationTokenExpiresAt < Date.now()) {
-      throw new HttpException('Verification token expired', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Token de verificação expirado', HttpStatus.BAD_REQUEST);
     }
 
     await this.usersService.markVerified(user.id);
@@ -244,7 +244,7 @@ export class AuthService {
     // Verifica expiração
     if (!user.currentHashedRefreshTokenExpiresAt || user.currentHashedRefreshTokenExpiresAt < Date.now()) {
       await this.usersService.clearRefreshToken(user.id);
-      throw new HttpException('Refresh token expired', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Refresh token expirado', HttpStatus.UNAUTHORIZED);
     }
 
     return this.issueTokensAndSaveRefresh(user);
@@ -254,11 +254,11 @@ export class AuthService {
   async login(user: any) {
     // User precisa ser um usuário do DB (precisamos de id e Role)
     const dbUser = await this.usersService.findById(user.id);
-    if (!dbUser) throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
+    if (!dbUser) throw new HttpException('User não encontrado', HttpStatus.UNAUTHORIZED);
 
     // Opcional: Verifica isVerified novamente
     if (!dbUser.isVerified) {
-      throw new HttpException('Email not verified', HttpStatus.FORBIDDEN);
+      throw new HttpException('Email não verificado', HttpStatus.FORBIDDEN);
     }
 
     return this.issueTokensAndSaveRefresh(dbUser);
@@ -308,10 +308,10 @@ export class AuthService {
     const tokenHash = hashToken(tokenPlain);
     const user = await this.usersService.findByResetHash(tokenHash);
     if (!user) {
-      throw new HttpException('Invalid reset token', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Token de redefinição inválido', HttpStatus.BAD_REQUEST);
     }
     if (!user.resetTokenExpiresAt || user.resetTokenExpiresAt < Date.now()) {
-      throw new HttpException('Reset token expired', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Token de redefinição expirado', HttpStatus.BAD_REQUEST);
     }
 
     // Criptografa a nova senha (use bcrypt)

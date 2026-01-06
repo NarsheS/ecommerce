@@ -17,7 +17,7 @@ import {
 
 // Menu items.
 const items = [
-  { title: "Home", url: "/dashboard", icon: Home },
+  { title: "Home", url: "/", icon: Home },
   { title: "Inbox", url: "/dashboard/inbox", icon: Inbox },
   { title: "Calendar", url: "/dashboard/calendar", icon: Calendar },
   { title: "Search", url: "/dashboard/search", icon: Search },
@@ -71,7 +71,7 @@ export function AppSidebar({ onLogout }: AppSidebarProps) {
                 className="flex cursor-pointer w-full items-center gap-2 rounded-md p-2 text-left text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               >
                 <User2 />
-                <span>Logout</span>
+                <span>Sair</span>
               </button>
             </SidebarMenuButton>
           </SidebarMenuItem>

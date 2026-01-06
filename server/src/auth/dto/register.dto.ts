@@ -11,10 +11,10 @@ export class Register {
     email: string;
 
     @IsString()
-    @MinLength(8)
-    @Matches(/[A-Z]/, { message: 'A senha deve conter pelo menos uma letra maiúscula' })
-    @Matches(/[a-z]/, { message: 'A senha deve conter pelo menos uma letra minúscula' })
-    @Matches(/[0-9]/, { message: 'A senha deve conter pelo menos um número' })
-    @Matches(/[^A-Za-z0-9]/, { message: 'A senha deve conter pelo menos um caractere especial' })
+    @MinLength(8, { message: 'A senha deve conter 8 caracteres' })
+    @Matches(/[A-Z]/, { message: 'A senha deve conter letra maiúscula' })
+    @Matches(/[a-z]/, { message: 'A senha deve conter letra minúscula' })
+    @Matches(/[0-9]/, { message: 'A senha deve conter número' })
+    @Matches(/[^A-Za-z0-9]/, { message: 'A senha deve conter caractere especial' })
     password: string;
 }

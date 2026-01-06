@@ -7,7 +7,7 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções (Fazer um esquema em que se troque de sub-paginas no dashboard com a navegação)
 
 !!!!! URGENTE !!!!!!
-- Colocar notificação quando senha estiver errada etc (popup?)
+- dashboard
 
 
 # Endpoint
