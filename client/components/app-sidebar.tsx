@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, Home, Inbox, Search, Settings, User2 } from "lucide-react"
+import { AppWindow, Boxes, DollarSign, Home, User2 } from "lucide-react"
 
 import {
   Sidebar,
@@ -17,11 +17,10 @@ import {
 
 // Menu items.
 const items = [
-  { title: "Home", url: "/", icon: Home },
-  { title: "Inbox", url: "/dashboard/inbox", icon: Inbox },
-  { title: "Calendar", url: "/dashboard/calendar", icon: Calendar },
-  { title: "Search", url: "/dashboard/search", icon: Search },
-  { title: "Settings", url: "/dashboard/settings", icon: Settings },
+  { title: "Inicío", url: "/", icon: Home },
+  { title: "Dashboard", url: "/dashboard", icon: AppWindow },
+  { title: "Produtos", url: "/dashboard/products", icon: Boxes },
+  { title: "Promoções", url: "/dashboard/sales", icon: DollarSign },
 ]
 
 type AppSidebarProps = {
@@ -35,13 +34,13 @@ export function AppSidebar({ onLogout }: AppSidebarProps) {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel className="mb-5 mt-1">Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
                 const active = pathname === item.url
                 return (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem key={item.title} className="mb-0.5">
                     <SidebarMenuButton asChild>
                       <Link
                         href={item.url}
