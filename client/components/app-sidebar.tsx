@@ -18,7 +18,7 @@ import {
 // Menu items.
 const items = [
   { title: "Inicío", url: "/", icon: Home },
-  { title: "Dashboard", url: "/dashboard", icon: AppWindow },
+  { title: "Painel de Controle", url: "/dashboard", icon: AppWindow },
   { title: "Produtos", url: "/dashboard/products", icon: Boxes },
   { title: "Promoções", url: "/dashboard/sales", icon: DollarSign },
 ]

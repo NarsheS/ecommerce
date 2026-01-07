@@ -45,7 +45,7 @@ export default function DashboardLayout({
         {/* Main content area */}
         <div className="flex-1">
           <header className="p-4 bg-white shadow flex items-center justify-between">
-            <div className="text-lg font-semibold">Admin</div>
+            <div className="text-lg font-semibold">Painel de Controle</div>
             {/* Pass a className to make the trigger visible on all sizes */}
             <SidebarTrigger className="p-2 rounded hover:bg-gray-100" />
           </header>
