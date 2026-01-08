@@ -75,15 +75,15 @@ const HamburgerIcon = ({ className, ...props }: React.SVGAttributes<SVGElement>)
 );
 
 // Types
-export interface Navbar04NavItem {
+export interface NavbarNavItem {
   href?: string;
   label: string;
 }
 
-export interface Navbar04Props extends React.HTMLAttributes<HTMLElement> {
+export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   logo?: React.ReactNode;
   logoHref?: string;
-  navigationLinks?: Navbar04NavItem[];
+  navigationLinks?: NavbarNavItem[];
   signInText?: string;
   signInHref?: string;
   cartText?: string;
@@ -97,13 +97,13 @@ export interface Navbar04Props extends React.HTMLAttributes<HTMLElement> {
 }
 
 // Default navigation links
-const defaultNavigationLinks: Navbar04NavItem[] = [
+const defaultNavigationLinks: NavbarNavItem[] = [
   { href: '#', label: 'Products' },
   { href: '#', label: 'Categories' },
   { href: '#', label: 'Deals' },
 ];
 
-export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
+export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
   (
     {
       className,
@@ -184,7 +184,7 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    className="group h-9 w-9 hover:bg-accent hover:text-accent-foreground"
+                    className="group h-9 w-9 hover:bg-accent hover:text-accent-foreground cursor-pointer"
                     variant="ghost"
                     size="icon"
                   >
@@ -299,7 +299,7 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
             <Button
               variant="ghost"
               size="sm"
-              className="text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+              className="text-sm font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer"
               onClick={(e) => {
                 e.preventDefault();
                 if (onSignInClick) onSignInClick();
@@ -312,7 +312,7 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
           {/* Carrinho só no desktop (mantém comportamento atual) */}
           <Button
             size="sm"
-            className="text-sm font-medium px-4 h-9 rounded-md shadow-sm"
+            className="text-sm font-medium px-4 h-9 rounded-md shadow-sm cursor-pointer"
             onClick={(e) => {
               e.preventDefault();
               if (onCartClick) onCartClick();
@@ -332,6 +332,6 @@ export const Navbar04 = React.forwardRef<HTMLElement, Navbar04Props>(
   }
 );
 
-Navbar04.displayName = 'Navbar04';
+Navbar.displayName = 'Navbar';
 
 export { Logo, HamburgerIcon };

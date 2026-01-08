@@ -95,6 +95,7 @@ export default function Login() {
 
           <CardAction className="mt-4">
             <Button
+              className="cursor-pointer"
               onClick={() => router.push("/register")}
               type="button"
               variant="outline"
@@ -132,7 +133,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(s => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700"
+                  className="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700"
                   aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                 >
                   {showPassword ? (
@@ -155,7 +156,7 @@ export default function Login() {
         </CardContent>
 
         <CardFooter>
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
             {loading ? "Carregando..." : "Entrar"}
           </Button>
         </CardFooter>

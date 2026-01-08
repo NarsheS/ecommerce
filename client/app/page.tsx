@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/app/context/AuthContext"
 import { useRouter } from "next/navigation"
-import { Navbar04 } from "@/components/ui/shadcn-io/navbar-04"
 import UserMenu from "@/components/UserMenu"
 import { api, setAuthToken } from "./services/api"
+import { Navbar } from "@/components/ui/shadcn-io/navbar"
 
 const Home = () => {
   const { accessToken, refresh, setAccessToken, user } = useAuth();
@@ -31,7 +31,7 @@ const Home = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <Navbar04
+      <Navbar
         cartText="Carrinho"
         searchPlaceholder="Buscar..."
         rightSlot={
@@ -41,7 +41,7 @@ const Home = () => {
               onLogout={handleLogout}
             />
           ) : (
-            <Button onClick={handleLoginClick}>
+            <Button onClick={handleLoginClick} className="cursor-pointer">
               Entrar
             </Button>
           )

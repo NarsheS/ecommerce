@@ -6,7 +6,7 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
-- dashboard
+- Criar novo product, talvez eu refaça, ficou mt complexo
 
 
 # Endpoint

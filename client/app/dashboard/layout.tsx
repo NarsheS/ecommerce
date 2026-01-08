@@ -50,7 +50,7 @@ export default function DashboardLayout({
             <SidebarTrigger className="p-2 rounded hover:bg-gray-100" />
           </header>
 
-          <main className="p-6">
+          <main className="p-3">
             {children}
           </main>
         </div>

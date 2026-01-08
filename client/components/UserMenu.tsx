@@ -20,22 +20,22 @@ const UserMenu = ({ role, onLogout }: UserMenuProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">Conta</Button>
+        <Button className="cursor-pointer" variant="outline">Conta</Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => router.push("/profile")}>
+        <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/profile")}>
           Perfil
         </DropdownMenuItem>
 
         {role === "admin" && (
-          <DropdownMenuItem onClick={() => router.replace("/dashboard")}>
+          <DropdownMenuItem className="cursor-pointer" onClick={() => router.replace("/dashboard")}>
             Dashboard
           </DropdownMenuItem>
         )}
 
         <DropdownMenuItem
-          className="text-destructive"
+          className="text-destructive cursor-pointer"
           onClick={onLogout}
         >
           Sair
