@@ -25,17 +25,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const refresh = async () => {
     try {
-      const token = await refreshAccessToken();
-      setAccessToken(token);
-      setAuthToken(token);
+      // obtain a new access token using the refresh cookie
+      const token = await refreshAccessToken()
+      // accept the token as success even if /auth/me fails
+      setAccessToken(token)
+      setAuthToken(token)
 
-      const me = await api.get("/auth/me");
-      setUser(me.data);
-      return true;
+      // try to fetch user info, but DON'T treat failure here as overall failure
+      try {
+        const me = await api.get("/auth/me")
+        setUser(me.data)
+      } catch (meErr) {
+        console.warn("failed to fetch /auth/me after refresh — continuing with token", meErr)
+        // don't clear token/user — we still consider user authenticated by token
+      }
+
+      return true
     } catch(err) {
-      setAccessToken(null);
-      setUser(null);
-      setAuthToken(null);
+      // refresh token failed -> clear client state
+      setAccessToken(null)
+      setUser(null)
+      setAuthToken(null)
       console.error("ACCESS_TOKEN ERROR:", err);
       return false;
     }

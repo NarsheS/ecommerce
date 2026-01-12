@@ -1,64 +1,106 @@
 'use client'
+
 import React, { useState } from 'react'
 import DialogAction from '@/components/dialog-action'
 import { api } from '@/app/services/api'
 
-const description = "Aqui estão os produtos disponíveis em nosso catálogo. Você pode visualizar detalhes, preços e outras informações relevantes sobre cada produto listado abaixo."
-const title = "Lista de Produtos"
+const title = 'Products'
+const description =
+  'Here you can create products and manage their information.'
 
+/**
+ * Form fields configuration
+ * `name` MUST match the API field name
+ */
 const formSetup = [
-  { id: 1, name: 'nome', type: 'text' },
-  { id: 2, name: 'descricao', type: 'text' },
-  { id: 3, name: 'estoque', type: 'number' },
-  { id: 4, name: 'preco', type: 'number' },
-  { id: 5, name: 'categoria', type: 'text' },
-  { id: 6, name: 'imagens', type: 'file' },
+  { id: 1, name: 'name', type: 'text' },
+  { id: 2, name: 'description', type: 'text' },
+  { id: 3, name: 'stock', type: 'number' },
+  { id: 4, name: 'price', type: 'number' },
+  { id: 5, name: 'category', type: 'text' },
+  { id: 6, name: 'images', type: 'file' },
 ]
 
-const Products = () => {
+const ProductsPage = () => {
   const [loading, setLoading] = useState(false)
 
-  // controlled state for the form values
-  const [formValues, setFormValues] = useState<Record<string, any>>({
+  // Product data (JSON)
+  const [formValues, setFormValues] = useState({
     name: '',
     description: '',
-    inStock: '',
+    stock: '',
     price: '',
     category: '',
-    images: null,
   })
 
+  // Images are handled separately
+  const [images, setImages] = useState<File[]>([])
+
+  /**
+   * Handles both text/number inputs and file inputs
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, type, value, files } = e.target as HTMLInputElement
+    const { name, type, value, files } = e.target
+
+    if (type === 'file' && files) {
+      setImages(Array.from(files))
+      return
+    }
+
     setFormValues(prev => ({
       ...prev,
-      [name]: type === 'file' ? (files && files[0]) : value,
+      [name]: value,
     }))
   }
 
+  /**
+   * Submit handler:
+   * 1. Create product
+   * 2. Upload images to /products/:id/images
+   */
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      // Build FormData from controlled state so files are included
-      const fd = new FormData()
-      Object.keys(formValues).forEach((key) => {
-        const val = formValues[key]
-        if (val instanceof File) {
-          fd.append(key, val)
-        } else if (val !== null && val !== undefined) {
-          fd.append(key, String(val))
-        }
+      // 1️⃣ Create product (JSON)
+      const productResponse = await api.post('/products', {
+        name: formValues.name,
+        description: formValues.description,
+        stock: Number(formValues.stock),
+        price: Number(formValues.price),
+        category: formValues.category,
       })
 
-      // axios instance usage: pass FormData directly
-      const res = await api.post('/products', fd) // don't set Content-Type manually
+      const productId = productResponse.data.id
 
-      console.log('Created product', res.data)
-      // optionally reset form or show success
-    } catch (err) {
-      console.error('Submit error', err)
+      // 2️⃣ Upload images (multipart/form-data)
+      if (images.length > 0) {
+        const formData = new FormData()
+
+        images.forEach(image => {
+          formData.append('images', image)
+        })
+
+        await api.post(
+          `/products/${productId}/images`,
+          formData
+        )
+      }
+
+      console.log('Product created successfully')
+
+      // Optional: reset form
+      setFormValues({
+        name: '',
+        description: '',
+        stock: '',
+        price: '',
+        category: '',
+      })
+      setImages([])
+    } catch (error) {
+      console.error('Error creating product:', error)
     } finally {
       setLoading(false)
     }
@@ -77,4 +119,4 @@ const Products = () => {
   )
 }
 
-export default Products
+export default ProductsPage
