@@ -33,14 +33,14 @@ const CategoriesPage: React.FC = () => {
   }
 
   // fetch categories from /categories
-  const fetchCategories = async () => {
+  const fetchContent = async (endpoint: string) => {
     setFetching(true)
     try {
       // If you store a token in localStorage/sessionStorage, ensure it's set:
       const token = localStorage.getItem('token')
       if (token) setAuthToken(token)
 
-      const resp = await api.get('/categories')
+      const resp = await api.get(endpoint)
       setCategories(resp.data)
     } catch (error: any) {
       // better diagnostics
@@ -68,7 +68,7 @@ const CategoriesPage: React.FC = () => {
 
   // run once on mount
   useEffect(() => {
-    fetchCategories()
+    fetchContent('/categories')
   }, [])
 
   /**
@@ -87,7 +87,7 @@ const CategoriesPage: React.FC = () => {
       setFormValues({ name: '' })
 
       // refresh list
-      await fetchCategories()
+      await fetchContent('/categories')
     } catch (error) {
       console.error('Error creating category:', error)
       // re-throw so DialogAction can catch and show toast
@@ -114,6 +114,7 @@ const CategoriesPage: React.FC = () => {
       <section className="mt-6">
         <h2 className="text-lg font-medium mb-2">Categorias</h2>
 
+        // criar um component para lista de categorias
         {fetching ? (
           <p>Carregando...</p>
         ) : categories.length === 0 ? (
