@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Toaster, toast } from 'sonner'
+import { toast } from 'sonner'
 
 type DialogActionProps = {
   title: string
@@ -50,9 +50,12 @@ const DialogAction: React.FC<DialogActionProps> = ({ title, description, content
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline" className='bg-blue-500 text-white cursor-pointer hover:bg-blue-600 hover:text-amber-50'>Open Dialog</Button>
-        </DialogTrigger>
+        <div className="flex justify-center">
+          <DialogTrigger asChild>
+            <Button variant="outline" className='bg-blue-500 mt-2 mb-4 text-white cursor-pointer hover:bg-blue-600 hover:text-amber-50'>Open Dialog</Button>
+          </DialogTrigger>
+        </div>
+        
 
         {/* DialogContent rendered in portal - keep form inside it so inputs and submit belong to same form */}
         <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-hidden flex flex-col">

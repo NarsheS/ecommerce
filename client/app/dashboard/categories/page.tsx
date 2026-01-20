@@ -5,6 +5,7 @@ import DialogAction from '@/components/dialog-action'
 import { api, setAuthToken } from '@/app/services/api'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import ContentBox from '@/components/content-box'
 
 const title = 'Categorias'
 const description = 'Crie uma nova categoria.'
@@ -97,6 +98,16 @@ const CategoriesPage: React.FC = () => {
     }
   }
 
+  const handleDelete = async (id: number) => {
+    try {
+      await api.delete(`/categories/${id}`)
+      await fetchContent('/categories')
+    } catch (error) {
+      console.error('Erro ao deletar categoria:', error)
+      throw error
+    }
+  }
+
   return (
     <>
       <DialogAction
@@ -111,22 +122,19 @@ const CategoriesPage: React.FC = () => {
         errorMessage="Falha ao criar categoria"
       />
 
-      <section className="mt-6">
-        <h2 className="text-lg font-medium mb-2">Categorias</h2>
+      <section>
 
-        // criar um component para lista de categorias
+        {/* criar um component para lista de categorias */}
         {fetching ? (
           <p>Carregando...</p>
         ) : categories.length === 0 ? (
           <p>Nenhuma categoria encontrada.</p>
         ) : (
-          <ul className="space-y-2">
+          <div className="space-y-2">
             {categories.map(cat => (
-              <li key={cat.id} className="p-2 border rounded">
-                {cat.name}
-              </li>
+              <ContentBox id={cat.id} text={cat.name} onDelete={handleDelete} />
             ))}
-          </ul>
+          </div>
         )}
       </section>
     </>

@@ -41,7 +41,7 @@
 
 - POST - api/categories                             (Cria uma categoria)
 - GET - api/categories                              (Lista todas as categorias criadas)
-- DELETE - api/categories:id                        (Deleta uma categoria)
+- DELETE - api/categories/:id                        (Deleta uma categoria)
 
 
 # Products: 
