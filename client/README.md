@@ -6,7 +6,7 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
-- Toast ao deletar categoria
+- Testar Products e adicionar GET com alerts
 - Criar novo product, talvez eu refaça, ficou mt complexo
 
 

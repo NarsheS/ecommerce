@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import DialogAction from '@/components/dialog-action'
+import DialogAction, { DialogField } from '@/components/dialog-action'
 import { api, setAuthToken } from '@/app/services/api'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -14,7 +14,15 @@ const description = 'Crie uma nova categoria.'
  * Form fields configuration
  * `name` is the API key; `label` is what the user sees
  */
-const formSetup = [{ id: 1, name: 'name', label: 'Nome', placeholder: 'Digite o nome da categoria' , type: 'text' }]
+const formSetup: DialogField[] = [
+  {
+    id: 1,
+    name: 'name',
+    label: 'Nome',
+    placeholder: 'Digite o nome da categoria',
+    type: 'text',
+  },
+]
 
 const CategoriesPage: React.FC = () => {
   const router = useRouter()
@@ -24,34 +32,34 @@ const CategoriesPage: React.FC = () => {
     name: '',
   })
 
-  // new: categories state + fetching indicator
-  const [categories, setCategories] = useState<Array<{ id: number; name: string }>>([])
+  // categories list
+  const [categories, setCategories] = useState<
+    Array<{ id: number; name: string }>
+  >([])
   const [fetching, setFetching] = useState(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormValues(prev => ({ ...prev, [name]: value }))
+  /* ---------------------- FORM CHANGE HANDLER ---------------------- */
+  const handleChange = (name: string, value: any) => {
+    setFormValues(prev => ({
+      ...prev,
+      [name]: value,
+    }))
   }
 
-  // fetch categories from /categories
+  /* ---------------------- FETCH CATEGORIES ------------------------- */
   const fetchContent = async (endpoint: string) => {
     setFetching(true)
     try {
-      // If you store a token in localStorage/sessionStorage, ensure it's set:
       const token = localStorage.getItem('token')
       if (token) setAuthToken(token)
 
       const resp = await api.get(endpoint)
       setCategories(resp.data)
     } catch (error: any) {
-      // better diagnostics
       console.error('Error fetching categories:', error)
+
       if (error?.response) {
-        console.error('status:', error.response.status)
-        console.error('data:', error.response.data)
-        // 401 handling
         if (error.response.status === 401) {
-          // clear stored auth and redirect to login
           setAuthToken(null)
           localStorage.removeItem('token')
           toast.error('Sessão expirada. Faça login novamente.')
@@ -67,15 +75,11 @@ const CategoriesPage: React.FC = () => {
     }
   }
 
-  // run once on mount
   useEffect(() => {
     fetchContent('/categories')
   }, [])
 
-  /**
-   * NOTE: no event param here. DialogAction will call this and handle default prevention,
-   * toast, and auto-close. This function must throw on error so DialogAction can show an error toast.
-   */
+  /* -------------------------- SUBMIT ------------------------------- */
   const handleSubmit = async () => {
     setLoading(true)
 
@@ -84,30 +88,32 @@ const CategoriesPage: React.FC = () => {
         name: formValues.name,
       })
 
-      // success: reset form
+      // reset form
       setFormValues({ name: '' })
 
       // refresh list
       await fetchContent('/categories')
     } catch (error) {
       console.error('Error creating category:', error)
-      // re-throw so DialogAction can catch and show toast
-      throw error
+      throw error // DialogAction will handle toast
     } finally {
       setLoading(false)
     }
   }
 
+  /* -------------------------- DELETE ------------------------------- */
   const handleDelete = async (id: number) => {
     try {
       await api.delete(`/categories/${id}`)
+      toast.success('Categoria deletada com sucesso')
       await fetchContent('/categories')
     } catch (error) {
       console.error('Erro ao deletar categoria:', error)
-      throw error
+      toast.error('Falha ao tentar deletar categoria')
     }
   }
 
+  /* --------------------------- RENDER ------------------------------ */
   return (
     <>
       <DialogAction
@@ -123,8 +129,6 @@ const CategoriesPage: React.FC = () => {
       />
 
       <section>
-
-        {/* criar um component para lista de categorias */}
         {fetching ? (
           <p>Carregando...</p>
         ) : categories.length === 0 ? (
@@ -132,7 +136,12 @@ const CategoriesPage: React.FC = () => {
         ) : (
           <div className="space-y-2">
             {categories.map(cat => (
-              <ContentBox id={cat.id} text={cat.name} onDelete={handleDelete} />
+              <ContentBox
+                key={cat.id}
+                id={cat.id}
+                text={cat.name}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         )}
