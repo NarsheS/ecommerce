@@ -1,11 +1,12 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import DialogAction, { DialogField } from '@/components/dialog-action'
 import { api, setAuthToken } from '@/app/services/api'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import ContentBox from '@/components/content-box'
+import handleApiError from '@/app/utils/handleApiError'
+import NewItemDialog, { DialogField } from '@/components/newItemDialog'
 
 const title = 'Categorias'
 const description = 'Crie uma nova categoria.'
@@ -57,19 +58,7 @@ const CategoriesPage: React.FC = () => {
       setCategories(resp.data)
     } catch (error: any) {
       console.error('Error fetching categories:', error)
-
-      if (error?.response) {
-        if (error.response.status === 401) {
-          setAuthToken(null)
-          localStorage.removeItem('token')
-          toast.error('Sessão expirada. Faça login novamente.')
-          router.push('/login')
-        } else {
-          toast.error('Falha ao carregar categorias')
-        }
-      } else {
-        toast.error('Erro de rede ao carregar categorias')
-      }
+      handleApiError(error, router, 'Erro ao buscar categorias')
     } finally {
       setFetching(false)
     }
@@ -95,6 +84,7 @@ const CategoriesPage: React.FC = () => {
       await fetchContent('/categories')
     } catch (error) {
       console.error('Error creating category:', error)
+      handleApiError(error, router, 'Erro ao criar categoria')
       throw error // DialogAction will handle toast
     } finally {
       setLoading(false)
@@ -109,6 +99,7 @@ const CategoriesPage: React.FC = () => {
       await fetchContent('/categories')
     } catch (error) {
       console.error('Erro ao deletar categoria:', error)
+      handleApiError(error, router, 'Falha ao tentar deletar categoria')
       toast.error('Falha ao tentar deletar categoria')
     }
   }
@@ -116,7 +107,7 @@ const CategoriesPage: React.FC = () => {
   /* --------------------------- RENDER ------------------------------ */
   return (
     <>
-      <DialogAction
+      <NewItemDialog
         title={title}
         description={description}
         content={formSetup}

@@ -6,7 +6,7 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
-- Testar Products e adicionar GET com alerts
+- Colocar interação com products para ver suas informações e editá-las, usar Dialog
 - Criar novo product, talvez eu refaça, ficou mt complexo
 
 

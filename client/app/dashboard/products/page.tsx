@@ -1,9 +1,13 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import DialogAction, { DialogField } from '@/components/dialog-action'
 import { api } from '@/app/services/api'
 import { toast } from 'sonner'
+import handleApiError from '@/app/utils/handleApiError'
+import ContentBox from '@/components/content-box'
+import { useRouter } from 'next/navigation'
+import NewItemDialog, { DialogField } from '@/components/newItemDialog'
+
 
 const title = 'Produtos'
 const description =
@@ -42,17 +46,25 @@ const ProductsPage: React.FC = () => {
 
   const [images, setImages] = useState<File[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [fetching, setFetching] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
+
+  const router = useRouter()
 
   /* -------------------- FETCH DATA -------------------- */
   const fetchCategories = async () => {
+    setFetching(true)
     try {
       const response = await api.get('/categories')
       setCategories(response.data)
     } catch (error) {
       console.error('Error fetching categories:', error)
+      handleApiError(error, router, 'Erro ao buscar categorias')
+    } finally {
+      setFetching(false)
     }
   }
+
 
   const fetchProducts = async () => {
     try {
@@ -60,6 +72,7 @@ const ProductsPage: React.FC = () => {
       setProducts(response.data)
     } catch (error) {
       console.error('Error fetching products:', error)
+      handleApiError(error, router, 'Erro ao buscar produtos')
     }
   }
 
@@ -153,26 +166,58 @@ const ProductsPage: React.FC = () => {
       await fetchProducts()
     } catch (error: any) {
       console.error('Backend error:', error.response?.data)
+      handleApiError(error, router, 'Erro ao criar produto')
     } finally {
       setLoading(false)
     }
   }
 
 
+  /* -------------------- DELETE -------------------- */
+  const handleDelete = async (id: number) => {
+    try {
+      await api.delete(`/products/${id}`)
+      await fetchProducts()
+    } catch (error) {
+      console.error('Erro ao deletar produto:', error)
+      handleApiError(error, router, 'Falha ao tentar deletar produto')
+    }
+  }
 
   /* -------------------- RENDER -------------------- */
   return (
-    <DialogAction
-      title={title}
-      description={description}
-      content={formSetup}
-      handleSubmit={handleSubmit}
-      loading={loading}
-      values={formValues}
-      onChange={handleChange}
-      successMessage="Produto criado com sucesso"
-      errorMessage="Erro ao criar produto"
-    />
+    <>
+      <NewItemDialog
+        title={title}
+        description={description}
+        content={formSetup}
+        handleSubmit={handleSubmit}
+        loading={loading}
+        values={formValues}
+        onChange={handleChange}
+        successMessage="Produto criado com sucesso"
+        errorMessage="Erro ao criar produto"
+      />
+
+      <section>
+          {fetching ? (
+            <p>Carregando...</p>
+          ) : products.length === 0 ? (
+            <p>Nenhum produto encontrado.</p>
+          ) : (
+            <div className="space-y-2">
+              {products.map(prod => (
+                <ContentBox
+                  key={prod.id}
+                  id={prod.id}
+                  text={prod.name}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+    </>
   )
 }
 

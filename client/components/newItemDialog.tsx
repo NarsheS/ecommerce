@@ -39,14 +39,14 @@ export type DialogField = {
   options?: SelectOption[]
 }
 
-type DialogActionProps = {
+type NewItemDialogProps = {
   title: string
   description?: React.ReactNode
   content?: DialogField[]
 
   /**
    * submit handler from parent
-   * DialogAction will handle preventDefault, toast and auto-close
+   * NewItemDialog will handle preventDefault, toast and auto-close
    */
   handleSubmit?: () => Promise<any>
 
@@ -64,7 +64,7 @@ type DialogActionProps = {
 
 /* --------------------------- Component --------------------------- */
 
-const DialogAction: React.FC<DialogActionProps> = ({
+const NewItemDialog: React.FC<NewItemDialogProps> = ({
   title,
   description,
   content,
@@ -186,4 +186,4 @@ const DialogAction: React.FC<DialogActionProps> = ({
   )
 }
 
-export default DialogAction
+export default NewItemDialog
