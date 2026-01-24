@@ -6,12 +6,14 @@ import { toast } from 'sonner'
 import handleApiError from '@/app/utils/handleApiError'
 import ContentBox from '@/components/content-box'
 import { useRouter } from 'next/navigation'
-import NewItemDialog, { DialogField } from '@/components/newItemDialog'
-
+import DialogAction, { DialogField } from '@/components/dialog-action'
+import { Button } from '@/components/ui/button'
 
 const title = 'Produtos'
 const description =
   'Aqui você pode criar produtos e gerenciar suas informações.'
+
+/* -------------------- Types -------------------- */
 
 type Category = {
   id: number
@@ -34,7 +36,15 @@ type Product = {
 }
 
 const ProductsPage: React.FC = () => {
+  const router = useRouter()
+
+  const [dialogOpen, setDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [fetching, setFetching] = useState(false)
+
+  const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
 
   const [formValues, setFormValues] = useState({
     name: '',
@@ -44,35 +54,28 @@ const ProductsPage: React.FC = () => {
     categoryId: '',
   })
 
-  const [images, setImages] = useState<File[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [fetching, setFetching] = useState(false)
-  const [products, setProducts] = useState<Product[]>([])
-
-  const router = useRouter()
-
   /* -------------------- FETCH DATA -------------------- */
+
   const fetchCategories = async () => {
-    setFetching(true)
     try {
       const response = await api.get('/categories')
       setCategories(response.data)
     } catch (error) {
       console.error('Error fetching categories:', error)
       handleApiError(error, router, 'Erro ao buscar categorias')
-    } finally {
-      setFetching(false)
     }
   }
 
-
   const fetchProducts = async () => {
+    setFetching(true)
     try {
       const response = await api.get('/products')
       setProducts(response.data)
     } catch (error) {
       console.error('Error fetching products:', error)
       handleApiError(error, router, 'Erro ao buscar produtos')
+    } finally {
+      setFetching(false)
     }
   }
 
@@ -82,12 +85,13 @@ const ProductsPage: React.FC = () => {
   }, [])
 
   /* -------------------- FORM SETUP -------------------- */
+
   const formSetup: DialogField[] = useMemo(
     () => [
-      { id: 1, name: 'name', type: 'text', label: 'Nome', placeholder: 'Digite o nome do produto' },
-      { id: 2, name: 'description', type: 'text', label: 'Descrição', placeholder: 'Digite a descrição do produto' },
-      { id: 3, name: 'inStock', type: 'number', label: 'Estoque', placeholder: 'Digite o estoque do produto' },
-      { id: 4, name: 'price', type: 'number', label: 'Preço', placeholder: 'Digite o preço do produto' },
+      { id: 1, name: 'name', type: 'text', label: 'Nome' },
+      { id: 2, name: 'description', type: 'text', label: 'Descrição' },
+      { id: 3, name: 'inStock', type: 'number', label: 'Estoque' },
+      { id: 4, name: 'price', type: 'number', label: 'Preço' },
       {
         id: 5,
         name: 'categoryId',
@@ -99,25 +103,21 @@ const ProductsPage: React.FC = () => {
           label: cat.name,
         })),
       },
-      { id: 6, name: 'images', label: 'Imagens', type: 'file' },
     ],
     [categories]
   )
 
   /* -------------------- CHANGE HANDLER -------------------- */
-  const handleChange = (name: string, value: any) => {
-    if (name === 'images') {
-      setImages(Array.from(value as FileList))
-      return
-    }
 
+  const handleChange = (name: string, value: any) => {
     setFormValues(prev => ({
       ...prev,
       [name]: value,
     }))
   }
 
-  /* -------------------- SUBMIT -------------------- */
+  /* -------------------- SUBMIT (CREATE & EDIT) -------------------- */
+
   const handleSubmit = async () => {
     setLoading(true)
 
@@ -131,29 +131,21 @@ const ProductsPage: React.FC = () => {
         return
       }
 
-      const productResponse = await api.post('/products', {
+      const payload = {
         name: formValues.name,
         description: formValues.description,
         inStock: Number(formValues.inStock || 0),
         price: normalizedPrice,
         categoryId: Number(formValues.categoryId),
-      })
-
-      const productId = productResponse.data.id
-
-      if (images.length > 0) {
-        const formData = new FormData()
-        images.forEach(image => formData.append('images', image))
-
-        await api.post(
-          `/products/${productId}/images`,
-          formData,
-          {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          }
-        )
       }
 
+      if (editingProduct) {
+        await api.put(`/products/${editingProduct.id}`, payload)
+      } else {
+        await api.post('/products', payload)
+      }
+
+      setEditingProduct(null)
       setFormValues({
         name: '',
         description: '',
@@ -161,19 +153,19 @@ const ProductsPage: React.FC = () => {
         price: '',
         categoryId: '',
       })
-      setImages([])
 
+      setDialogOpen(false)
       await fetchProducts()
-    } catch (error: any) {
-      console.error('Backend error:', error.response?.data)
-      handleApiError(error, router, 'Erro ao criar produto')
+    } catch (error) {
+      handleApiError(error, router, 'Erro ao salvar produto')
+      throw error
     } finally {
       setLoading(false)
     }
   }
 
-
   /* -------------------- DELETE -------------------- */
+
   const handleDelete = async (id: number) => {
     try {
       await api.delete(`/products/${id}`)
@@ -184,39 +176,96 @@ const ProductsPage: React.FC = () => {
     }
   }
 
+  /* -------------------- EDIT -------------------- */
+
+  const handleEdit = (id: number) => {
+    const product = products.find(p => p.id === id)
+    if (!product) return
+
+    setEditingProduct(product)
+    setFormValues({
+      name: product.name,
+      description: product.description,
+      inStock: String(product.inStock),
+      price: String(product.price),
+      categoryId: product.category?.id
+        ? String(product.category.id)
+        : '',
+    })
+
+    setDialogOpen(true)
+  }
+
+  /* -------------------- IMAGES (PLACEHOLDER) -------------------- */
+
+  const handleImages = (id: number) => {
+    console.log('Open image manager for product:', id)
+    toast.info('Gerenciamento de imagens em breve 👀')
+  }
+
   /* -------------------- RENDER -------------------- */
+
   return (
     <>
-      <NewItemDialog
-        title={title}
+      {/* Create button */}
+      <div className="flex justify-center mb-4">
+        <Button
+          onClick={() => {
+            setEditingProduct(null)
+            setFormValues({
+              name: '',
+              description: '',
+              inStock: '',
+              price: '',
+              categoryId: '',
+            })
+            setDialogOpen(true)
+          }}
+          className="bg-blue-500 text-white hover:bg-blue-600 font-bold cursor-pointer"
+        >
+          Novo produto +
+        </Button>
+      </div>
+
+      {/* Dialog */}
+      <DialogAction
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title={editingProduct ? 'Editar produto' : title}
         description={description}
         content={formSetup}
         handleSubmit={handleSubmit}
         loading={loading}
         values={formValues}
         onChange={handleChange}
-        successMessage="Produto criado com sucesso"
-        errorMessage="Erro ao criar produto"
+        successMessage={
+          editingProduct
+            ? 'Produto atualizado com sucesso'
+            : 'Produto criado com sucesso'
+        }
       />
 
+      {/* List */}
       <section>
-          {fetching ? (
-            <p>Carregando...</p>
-          ) : products.length === 0 ? (
-            <p>Nenhum produto encontrado.</p>
-          ) : (
-            <div className="space-y-2">
-              {products.map(prod => (
-                <ContentBox
-                  key={prod.id}
-                  id={prod.id}
-                  text={prod.name}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </div>
-          )}
-        </section>
+        {fetching ? (
+          <p>Carregando...</p>
+        ) : products.length === 0 ? (
+          <p>Nenhum produto encontrado.</p>
+        ) : (
+          <div className="space-y-2">
+            {products.map(prod => (
+              <ContentBox
+                key={prod.id}
+                id={prod.id}
+                text={prod.name}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onImages={handleImages}
+              />
+            ))}
+          </div>
+        )}
+      </section>
     </>
   )
 }
