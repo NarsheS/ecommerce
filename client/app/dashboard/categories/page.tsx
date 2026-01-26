@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import ContentBox from '@/components/content-box'
 import handleApiError from '@/app/utils/handleApiError'
 import { Button } from '@/components/ui/button'
+import LoadingCircle from '@/components/loading-circle'
 
 const title = 'Categorias'
 const description = 'Crie uma nova categoria.'
@@ -139,7 +140,7 @@ const CategoriesPage: React.FC = () => {
       {/* List */}
       <section>
         {fetching ? (
-          <p>Carregando...</p>
+          <LoadingCircle />
         ) : categories.length === 0 ? (
           <p>Nenhuma categoria encontrada.</p>
         ) : (

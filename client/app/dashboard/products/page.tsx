@@ -8,6 +8,7 @@ import ContentBox from '@/components/content-box'
 import { useRouter } from 'next/navigation'
 import DialogAction, { DialogField } from '@/components/dialog-action'
 import { Button } from '@/components/ui/button'
+import LoadingCircle from '@/components/loading-circle'
 
 const title = 'Produtos'
 const description =
@@ -46,6 +47,13 @@ const ProductsPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([])
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
 
+  /* -------------------- Images State -------------------- */
+
+  const [imageDialogOpen, setImageDialogOpen] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [selectedImages, setSelectedImages] = useState<File[]>([])
+  const [imagesLoading, setImagesLoading] = useState(false)
+
   const [formValues, setFormValues] = useState({
     name: '',
     description: '',
@@ -61,7 +69,6 @@ const ProductsPage: React.FC = () => {
       const response = await api.get('/categories')
       setCategories(response.data)
     } catch (error) {
-      console.error('Error fetching categories:', error)
       handleApiError(error, router, 'Erro ao buscar categorias')
     }
   }
@@ -72,7 +79,6 @@ const ProductsPage: React.FC = () => {
       const response = await api.get('/products')
       setProducts(response.data)
     } catch (error) {
-      console.error('Error fetching products:', error)
       handleApiError(error, router, 'Erro ao buscar produtos')
     } finally {
       setFetching(false)
@@ -107,26 +113,18 @@ const ProductsPage: React.FC = () => {
     [categories]
   )
 
-  /* -------------------- CHANGE HANDLER -------------------- */
+  /* -------------------- FORM -------------------- */
 
   const handleChange = (name: string, value: any) => {
-    setFormValues(prev => ({
-      ...prev,
-      [name]: value,
-    }))
+    setFormValues(prev => ({ ...prev, [name]: value }))
   }
-
-  /* -------------------- SUBMIT (CREATE & EDIT) -------------------- */
 
   const handleSubmit = async () => {
     setLoading(true)
 
     try {
-      const normalizedPrice = Number(
-        String(formValues.price).replace(',', '.')
-      )
-
-      if (isNaN(normalizedPrice) || normalizedPrice < 0) {
+      const price = Number(String(formValues.price).replace(',', '.'))
+      if (isNaN(price) || price < 0) {
         toast.error('Preço inválido')
         return
       }
@@ -135,16 +133,15 @@ const ProductsPage: React.FC = () => {
         name: formValues.name,
         description: formValues.description,
         inStock: Number(formValues.inStock || 0),
-        price: normalizedPrice,
+        price,
         categoryId: Number(formValues.categoryId),
       }
 
-      if (editingProduct) {
-        await api.put(`/products/${editingProduct.id}`, payload)
-      } else {
-        await api.post('/products', payload)
-      }
+      editingProduct
+        ? await api.put(`/products/${editingProduct.id}`, payload)
+        : await api.post('/products', payload)
 
+      setDialogOpen(false)
       setEditingProduct(null)
       setFormValues({
         name: '',
@@ -154,29 +151,24 @@ const ProductsPage: React.FC = () => {
         categoryId: '',
       })
 
-      setDialogOpen(false)
       await fetchProducts()
     } catch (error) {
       handleApiError(error, router, 'Erro ao salvar produto')
-      throw error
     } finally {
       setLoading(false)
     }
   }
 
-  /* -------------------- DELETE -------------------- */
+  /* -------------------- PRODUCTS -------------------- */
 
   const handleDelete = async (id: number) => {
     try {
       await api.delete(`/products/${id}`)
       await fetchProducts()
     } catch (error) {
-      console.error('Erro ao deletar produto:', error)
-      handleApiError(error, router, 'Falha ao tentar deletar produto')
+      handleApiError(error, router, 'Erro ao deletar produto')
     }
   }
-
-  /* -------------------- EDIT -------------------- */
 
   const handleEdit = (id: number) => {
     const product = products.find(p => p.id === id)
@@ -196,38 +188,77 @@ const ProductsPage: React.FC = () => {
     setDialogOpen(true)
   }
 
-  /* -------------------- IMAGES (PLACEHOLDER) -------------------- */
+  /* -------------------- IMAGES -------------------- */
 
   const handleImages = (id: number) => {
-    console.log('Open image manager for product:', id)
-    toast.info('Gerenciamento de imagens em breve 👀')
+    const product = products.find(p => p.id === id)
+    if (!product) return
+    setSelectedProduct(product)
+    setImageDialogOpen(true)
+  }
+
+  const handleAddImages = async () => {
+    if (!selectedProduct || selectedImages.length === 0) return
+
+    setImagesLoading(true)
+
+    try {
+      const formData = new FormData()
+      selectedImages.forEach(file => formData.append('images', file))
+
+      await api.post(
+        `/products/${selectedProduct.id}/images`,
+        formData
+      )
+
+      toast.success('Imagens adicionadas')
+
+      setSelectedImages([])
+      await fetchProducts()
+
+      // Atualiza produto selecionado
+      const updated = products.find(p => p.id === selectedProduct.id)
+      if (updated) setSelectedProduct(updated)
+    } catch (error) {
+      handleApiError(error, router, 'Erro ao adicionar imagens')
+    } finally {
+      setImagesLoading(false)
+    }
+  }
+
+  const handleRemoveImage = async (imageId: number) => {
+    if (!selectedProduct) return
+
+    try {
+      await api.delete(
+        `/products/${selectedProduct.id}/images/${imageId}`
+      )
+
+      setSelectedProduct(prev =>
+        prev
+          ? { ...prev, images: prev.images.filter(i => i.id !== imageId) }
+          : prev
+      )
+
+      toast.success('Imagem removida')
+    } catch (error) {
+      handleApiError(error, router, 'Erro ao remover imagem')
+    }
   }
 
   /* -------------------- RENDER -------------------- */
 
   return (
     <>
-      {/* Create button */}
       <div className="flex justify-center mb-4">
         <Button
-          onClick={() => {
-            setEditingProduct(null)
-            setFormValues({
-              name: '',
-              description: '',
-              inStock: '',
-              price: '',
-              categoryId: '',
-            })
-            setDialogOpen(true)
-          }}
-          className="bg-blue-500 text-white hover:bg-blue-600 font-bold cursor-pointer"
+          className="cursor-pointer"
+          onClick={() => setDialogOpen(true)}
         >
           Novo produto +
         </Button>
       </div>
 
-      {/* Dialog */}
       <DialogAction
         open={dialogOpen}
         onOpenChange={setDialogOpen}
@@ -238,34 +269,80 @@ const ProductsPage: React.FC = () => {
         loading={loading}
         values={formValues}
         onChange={handleChange}
-        successMessage={
-          editingProduct
-            ? 'Produto atualizado com sucesso'
-            : 'Produto criado com sucesso'
-        }
       />
 
-      {/* List */}
       <section>
         {fetching ? (
-          <p>Carregando...</p>
-        ) : products.length === 0 ? (
-          <p>Nenhum produto encontrado.</p>
+          <LoadingCircle />
         ) : (
-          <div className="space-y-2">
-            {products.map(prod => (
-              <ContentBox
-                key={prod.id}
-                id={prod.id}
-                text={prod.name}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onImages={handleImages}
-              />
-            ))}
-          </div>
+          products.map(prod => (
+            <ContentBox
+              key={prod.id}
+              id={prod.id}
+              text={prod.name}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onImages={handleImages}
+            />
+          ))
         )}
       </section>
+
+      {/* Image Manager */}
+      {imageDialogOpen && selectedProduct && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-lg space-y-4">
+            <h2 className="font-bold">
+              Imagens — {selectedProduct.name}
+            </h2>
+
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="cursor-pointer"
+              onChange={e =>
+                setSelectedImages(
+                  e.target.files ? Array.from(e.target.files) : []
+                )
+              }
+            />
+
+            <Button
+              onClick={handleAddImages}
+              disabled={imagesLoading}
+              className="w-full cursor-pointer"
+            >
+              {imagesLoading ? 'Enviando...' : 'Adicionar imagens'}
+            </Button>
+
+            <div className="grid grid-cols-3 gap-2">
+              {selectedProduct.images.map(img => (
+                <div key={img.id} className="relative">
+                  <img
+                    src={img.url}
+                    className="w-full h-24 object-cover rounded"
+                  />
+                  <button
+                    className="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 rounded cursor-pointer"
+                    onClick={() => handleRemoveImage(img.id)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <Button
+              variant="outline"
+              className="w-full cursor-pointer"
+              onClick={() => setImageDialogOpen(false)}
+            >
+              Fechar
+            </Button>
+          </div>
+        </div>
+      )}
     </>
   )
 }
