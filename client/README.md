@@ -6,7 +6,7 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
-- Implementando serviço de imagens
+- display images no dashboard etc
 - Criar novo product, talvez eu refaça, ficou mt complexo
 
 

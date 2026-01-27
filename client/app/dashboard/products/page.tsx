@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { api } from '@/app/services/api'
 import { toast } from 'sonner'
 import handleApiError from '@/app/utils/handleApiError'
@@ -38,6 +38,7 @@ type Product = {
 
 const ProductsPage: React.FC = () => {
   const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -85,6 +86,11 @@ const ProductsPage: React.FC = () => {
     }
   }
 
+  const fetchProductById = async (productId: number) => {
+    const response = await api.get(`/products/${productId}`)
+    return response.data as Product
+  }
+
   useEffect(() => {
     fetchCategories()
     fetchProducts()
@@ -113,7 +119,7 @@ const ProductsPage: React.FC = () => {
     [categories]
   )
 
-  /* -------------------- FORM -------------------- */
+  /* -------------------- FORM HANDLERS -------------------- */
 
   const handleChange = (name: string, value: any) => {
     setFormValues(prev => ({ ...prev, [name]: value }))
@@ -121,7 +127,6 @@ const ProductsPage: React.FC = () => {
 
   const handleSubmit = async () => {
     setLoading(true)
-
     try {
       const price = Number(String(formValues.price).replace(',', '.'))
       if (isNaN(price) || price < 0) {
@@ -137,9 +142,11 @@ const ProductsPage: React.FC = () => {
         categoryId: Number(formValues.categoryId),
       }
 
-      editingProduct
-        ? await api.put(`/products/${editingProduct.id}`, payload)
-        : await api.post('/products', payload)
+      if (editingProduct) {
+        await api.put(`/products/${editingProduct.id}`, payload)
+      } else {
+        await api.post('/products', payload)
+      }
 
       setDialogOpen(false)
       setEditingProduct(null)
@@ -180,9 +187,7 @@ const ProductsPage: React.FC = () => {
       description: product.description,
       inStock: String(product.inStock),
       price: String(product.price),
-      categoryId: product.category?.id
-        ? String(product.category.id)
-        : '',
+      categoryId: product.category?.id ? String(product.category.id) : '',
     })
 
     setDialogOpen(true)
@@ -190,35 +195,30 @@ const ProductsPage: React.FC = () => {
 
   /* -------------------- IMAGES -------------------- */
 
-  const handleImages = (id: number) => {
-    const product = products.find(p => p.id === id)
-    if (!product) return
-    setSelectedProduct(product)
-    setImageDialogOpen(true)
+  const handleImages = async (id: number) => {
+    try {
+      const product = await fetchProductById(id)
+      setSelectedProduct(product)
+      setImageDialogOpen(true)
+    } catch (error) {
+      handleApiError(error, router, 'Erro ao buscar imagens do produto')
+    }
   }
 
   const handleAddImages = async () => {
     if (!selectedProduct || selectedImages.length === 0) return
 
     setImagesLoading(true)
-
     try {
       const formData = new FormData()
       selectedImages.forEach(file => formData.append('images', file))
 
-      await api.post(
-        `/products/${selectedProduct.id}/images`,
-        formData
-      )
+      await api.post(`/products/${selectedProduct.id}/images`, formData)
 
-      toast.success('Imagens adicionadas')
-
+      const updated = await fetchProductById(selectedProduct.id)
+      setSelectedProduct(updated)
       setSelectedImages([])
       await fetchProducts()
-
-      // Atualiza produto selecionado
-      const updated = products.find(p => p.id === selectedProduct.id)
-      if (updated) setSelectedProduct(updated)
     } catch (error) {
       handleApiError(error, router, 'Erro ao adicionar imagens')
     } finally {
@@ -230,19 +230,25 @@ const ProductsPage: React.FC = () => {
     if (!selectedProduct) return
 
     try {
-      await api.delete(
-        `/products/${selectedProduct.id}/images/${imageId}`
-      )
-
+      await api.delete(`/products/${selectedProduct.id}/images/${imageId}`)
       setSelectedProduct(prev =>
-        prev
-          ? { ...prev, images: prev.images.filter(i => i.id !== imageId) }
-          : prev
+        prev ? { ...prev, images: prev.images.filter(i => i.id !== imageId) } : prev
       )
-
-      toast.success('Imagem removida')
+      await fetchProducts()
     } catch (error) {
       handleApiError(error, router, 'Erro ao remover imagem')
+    }
+  }
+
+  const handleRemoveAllImages = async () => {
+    if (!selectedProduct) return
+
+    try {
+      await api.delete(`/products/${selectedProduct.id}/images`)
+      setSelectedProduct(prev => (prev ? { ...prev, images: [] } : prev))
+      await fetchProducts()
+    } catch (error) {
+      handleApiError(error, router, 'Erro ao remover imagens')
     }
   }
 
@@ -251,10 +257,7 @@ const ProductsPage: React.FC = () => {
   return (
     <>
       <div className="flex justify-center mb-4">
-        <Button
-          className="cursor-pointer"
-          onClick={() => setDialogOpen(true)}
-        >
+        <Button className="cursor-pointer" onClick={() => setDialogOpen(true)}>
           Novo produto +
         </Button>
       </div>
@@ -262,7 +265,7 @@ const ProductsPage: React.FC = () => {
       <DialogAction
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        title={editingProduct ? 'Editar produto' : title}
+        title={editingProduct ? 'Atualização' : title}
         description={description}
         content={formSetup}
         handleSubmit={handleSubmit}
@@ -292,25 +295,33 @@ const ProductsPage: React.FC = () => {
       {imageDialogOpen && selectedProduct && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-lg space-y-4">
-            <h2 className="font-bold">
-              Imagens — {selectedProduct.name}
-            </h2>
+            <h2 className="font-bold">Imagens — {selectedProduct.name}</h2>
 
             <input
+              ref={fileInputRef}
               type="file"
               accept="image/*"
               multiple
-              className="cursor-pointer"
+              className="hidden"
               onChange={e =>
-                setSelectedImages(
-                  e.target.files ? Array.from(e.target.files) : []
-                )
+                setSelectedImages(e.target.files ? Array.from(e.target.files) : [])
               }
             />
 
             <Button
+              className="w-full cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Selecionar imagens
+            </Button>
+
+            {selectedImages.length > 0 && (
+              <p className="text-sm text-gray-600">{selectedImages.length} imagem(ns) selecionada(s)</p>
+            )}
+
+            <Button
               onClick={handleAddImages}
-              disabled={imagesLoading}
+              disabled={imagesLoading || selectedImages.length === 0}
               className="w-full cursor-pointer"
             >
               {imagesLoading ? 'Enviando...' : 'Adicionar imagens'}
@@ -319,10 +330,7 @@ const ProductsPage: React.FC = () => {
             <div className="grid grid-cols-3 gap-2">
               {selectedProduct.images.map(img => (
                 <div key={img.id} className="relative">
-                  <img
-                    src={img.url}
-                    className="w-full h-24 object-cover rounded"
-                  />
+                  <img src={img.url} className="w-full h-24 object-cover rounded" />
                   <button
                     className="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 rounded cursor-pointer"
                     onClick={() => handleRemoveImage(img.id)}
@@ -332,6 +340,16 @@ const ProductsPage: React.FC = () => {
                 </div>
               ))}
             </div>
+
+            {selectedProduct.images.length > 0 && (
+              <Button
+                variant="destructive"
+                className="w-full cursor-pointer"
+                onClick={handleRemoveAllImages}
+              >
+                Remover todas as imagens
+              </Button>
+            )}
 
             <Button
               variant="outline"

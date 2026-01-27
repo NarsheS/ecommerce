@@ -116,7 +116,7 @@ const CategoriesPage: React.FC = () => {
             setFormValues({ name: '' })
             setDialogOpen(true)
           }}
-          className="bg-blue-500 text-white hover:bg-blue-600 font-bold cursor-pointer"
+          className=" cursor-pointer"
         >
           Nova categoria +
         </Button>
