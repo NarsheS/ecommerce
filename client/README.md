@@ -6,7 +6,7 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
-- display images no dashboard etc
+- implementar promoções agora ou mostrar os produtos na tela inicial
 - Criar novo product, talvez eu refaça, ficou mt complexo
 
 

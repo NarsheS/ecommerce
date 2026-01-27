@@ -9,12 +9,12 @@ import { useRouter } from 'next/navigation'
 import DialogAction, { DialogField } from '@/components/dialog-action'
 import { Button } from '@/components/ui/button'
 import LoadingCircle from '@/components/loading-circle'
+import { ProductCard } from '@/components/product-card'
+import ConfirmDialog from '@/components/confirm-dialog' // ✅ NOVO
 
 const title = 'Produtos'
 const description =
   'Aqui você pode criar produtos e gerenciar suas informações.'
-
-/* -------------------- Types -------------------- */
 
 type Category = {
   id: number
@@ -47,6 +47,12 @@ const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+
+  /* -------- DELETE CONFIRMATION -------- */
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [productToDelete, setProductToDelete] = useState<number | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   /* -------------------- Images State -------------------- */
 
@@ -166,16 +172,31 @@ const ProductsPage: React.FC = () => {
     }
   }
 
-  /* -------------------- PRODUCTS -------------------- */
+  /* -------------------- DELETE PRODUCT -------------------- */
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = (id: number) => {
+    setProductToDelete(id)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDeleteProduct = async () => {
+    if (!productToDelete) return
+
+    setDeleteLoading(true)
     try {
-      await api.delete(`/products/${id}`)
+      await api.delete(`/products/${productToDelete}`)
+      toast.success('Produto excluído com sucesso')
       await fetchProducts()
     } catch (error) {
       handleApiError(error, router, 'Erro ao deletar produto')
+    } finally {
+      setDeleteLoading(false)
+      setDeleteDialogOpen(false)
+      setProductToDelete(null)
     }
   }
+
+  /* -------------------- EDIT -------------------- */
 
   const handleEdit = (id: number) => {
     const product = products.find(p => p.id === id)
@@ -193,7 +214,7 @@ const ProductsPage: React.FC = () => {
     setDialogOpen(true)
   }
 
-  /* -------------------- IMAGES -------------------- */
+  /* -------------------- IMAGES (SEM CONFIRMAÇÃO) -------------------- */
 
   const handleImages = async (id: number) => {
     try {
@@ -228,7 +249,6 @@ const ProductsPage: React.FC = () => {
 
   const handleRemoveImage = async (imageId: number) => {
     if (!selectedProduct) return
-
     try {
       await api.delete(`/products/${selectedProduct.id}/images/${imageId}`)
       setSelectedProduct(prev =>
@@ -242,7 +262,6 @@ const ProductsPage: React.FC = () => {
 
   const handleRemoveAllImages = async () => {
     if (!selectedProduct) return
-
     try {
       await api.delete(`/products/${selectedProduct.id}/images`)
       setSelectedProduct(prev => (prev ? { ...prev, images: [] } : prev))
@@ -279,10 +298,9 @@ const ProductsPage: React.FC = () => {
           <LoadingCircle />
         ) : (
           products.map(prod => (
-            <ContentBox
+            <ProductCard
               key={prod.id}
-              id={prod.id}
-              text={prod.name}
+              product={prod}
               onEdit={handleEdit}
               onDelete={handleDelete}
               onImages={handleImages}
@@ -291,12 +309,26 @@ const ProductsPage: React.FC = () => {
         )}
       </section>
 
-      {/* Image Manager */}
+      {/* ✅ CONFIRM DIALOG REUTILIZÁVEL */}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Excluir produto"
+        description="Tem certeza que deseja excluir este produto? Essa ação não pode ser desfeita."
+        confirmText="Sim, excluir"
+        cancelText="Cancelar"
+        loading={deleteLoading}
+        onCancel={() => {
+          setDeleteDialogOpen(false)
+          setProductToDelete(null)
+        }}
+        onConfirm={confirmDeleteProduct}
+      />
+
+      {/* Image Manager continua igual */}
       {imageDialogOpen && selectedProduct && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-lg space-y-4">
             <h2 className="font-bold">Imagens — {selectedProduct.name}</h2>
-
             <input
               ref={fileInputRef}
               type="file"
@@ -307,16 +339,14 @@ const ProductsPage: React.FC = () => {
                 setSelectedImages(e.target.files ? Array.from(e.target.files) : [])
               }
             />
-
-            <Button
-              className="w-full cursor-pointer"
-              onClick={() => fileInputRef.current?.click()}
-            >
+            <Button className="w-full cursor-pointer" onClick={() => fileInputRef.current?.click()}>
               Selecionar imagens
             </Button>
 
             {selectedImages.length > 0 && (
-              <p className="text-sm text-gray-600">{selectedImages.length} imagem(ns) selecionada(s)</p>
+              <p className="text-sm text-gray-600">
+                {selectedImages.length} imagem(ns) selecionada(s)
+              </p>
             )}
 
             <Button
