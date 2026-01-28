@@ -87,7 +87,7 @@ const DialogAction: React.FC<DialogActionProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-106.25 max-h-[80vh] overflow-hidden flex flex-col">
         <form
           onSubmit={handleInternalSubmit}
           className="flex-1 min-h-0 flex flex-col"

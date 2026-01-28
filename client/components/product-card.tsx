@@ -32,15 +32,17 @@ type Product = {
 }
 
 type Props = {
+  dashboard?: boolean
   product: Product
-  onEdit: (id: number) => void
-  onDelete: (id: number) => void
-  onImages: (id: number) => void
+  onEdit?: (id: number) => void
+  onDelete?: (id: number) => void
+  onImages?: (id: number) => void
+  addToCart?: (id: number) => void
 }
 
-export function ProductCard({ product, onEdit, onDelete, onImages }: Props) {
+export function ProductCard({ product, dashboard = false, onEdit, onDelete, onImages, addToCart }: Props) {
   return (
-    <Card className="w-full max-w-[260px] flex flex-col overflow-visible">
+    <Card className="w-full max-w-65 flex flex-col overflow-visible">
       {/* Nome */}
       <div className="px-3 pt-1">
         <h3 className="text-sm font-semibold leading-tight line-clamp-1">
@@ -55,7 +57,7 @@ export function ProductCard({ product, onEdit, onDelete, onImages }: Props) {
             <CarouselContent>
               {product.images.map((img, index) => (
                 <CarouselItem key={img.id}>
-                  <div className="relative aspect-[4/3] w-full">
+                  <div className="relative aspect-4/3 w-full">
                     <Image
                       src={img.url}
                       alt={`${product.name} imagem ${index + 1}`}
@@ -72,7 +74,7 @@ export function ProductCard({ product, onEdit, onDelete, onImages }: Props) {
             <CarouselNext className="cursor-pointer right-1 scale-90" />
           </Carousel>
         ) : (
-          <div className="aspect-[4/3] w-full bg-muted flex items-center justify-center text-[11px] text-muted-foreground">
+          <div className="aspect-4/3 w-full bg-muted flex items-center justify-center text-[11px] text-muted-foreground">
             Sem imagens
           </div>
         )}
@@ -101,35 +103,51 @@ export function ProductCard({ product, onEdit, onDelete, onImages }: Props) {
         </div>
       </CardContent>
 
-      {/* Botões */}
-      <CardFooter className="grid grid-cols-3 gap-1.5 px-3 pb-3 pt-2">
-        <Button
-          size="sm"
-          variant="outline"
-          className="cursor-pointer h-8 text-[11px] px-2"
-          onClick={() => onImages(product.id)}
-        >
-          Imagens
-        </Button>
+      {dashboard ?
+       (
+        <CardFooter className="grid grid-cols-3 gap-1.5 px-3 pb-3 pt-2">
+          <Button
+            size="sm"
+            variant="outline"
+            className="cursor-pointer h-8 text-[11px] px-2"
+            onClick={() => onImages?.(product.id)}
+          >
+            Imagens
+          </Button>
 
-        <Button
-          size="sm"
-          variant="secondary"
-          className="cursor-pointer h-8 text-[11px] px-2"
-          onClick={() => onEdit(product.id)}
-        >
-          Editar
-        </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="cursor-pointer h-8 text-[11px] px-2"
+            onClick={() => onEdit?.(product.id)}
+          >
+            Editar
+          </Button>
 
-        <Button
-          size="sm"
-          variant="destructive"
-          className="cursor-pointer h-8 text-[11px] px-2"
-          onClick={() => onDelete(product.id)}
-        >
-          Excluir
-        </Button>
-      </CardFooter>
+          <Button
+            size="sm"
+            variant="destructive"
+            className="cursor-pointer h-8 text-[11px] px-2"
+            onClick={() => onDelete?.(product.id)}
+          >
+            Excluir
+          </Button>
+        </CardFooter>
+       ) : (
+        <CardFooter className="px-3 pb-3 pt-2">
+          <Button
+            size="sm"
+            variant="outline"
+            className="cursor-pointer h-8 text-[12px] w-full"
+            onClick={() => addToCart?.(product.id)}
+          >
+            Adicionar ao carrinho
+          </Button>
+        </CardFooter>
+
+       )
+      }
+
     </Card>
   )
 }

@@ -7,7 +7,9 @@ npm run dev
 
 !!!!! URGENTE !!!!!!
 - implementar promoções agora ou mostrar os produtos na tela inicial
-- Criar novo product, talvez eu refaça, ficou mt complexo
+
+!! QUALITY OF LIFE CHANGES !!
+- Toda vez que alguém finalizar uma compra, reduzir o estoque com base na compra
 
 
 # Endpoint

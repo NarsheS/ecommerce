@@ -299,6 +299,7 @@ const ProductsPage: React.FC = () => {
         ) : (
           products.map(prod => (
             <ProductCard
+              dashboard={true}
               key={prod.id}
               product={prod}
               onEdit={handleEdit}
