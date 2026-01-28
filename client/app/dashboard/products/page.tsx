@@ -4,37 +4,18 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { api } from '@/app/services/api'
 import { toast } from 'sonner'
 import handleApiError from '@/app/utils/handleApiError'
-import ContentBox from '@/components/content-box'
 import { useRouter } from 'next/navigation'
 import DialogAction, { DialogField } from '@/components/dialog-action'
 import { Button } from '@/components/ui/button'
 import LoadingCircle from '@/components/loading-circle'
 import { ProductCard } from '@/components/product-card'
 import ConfirmDialog from '@/components/confirm-dialog' // ✅ NOVO
+import type { Product } from '@/app/types/product'
+import type { Category } from '@/app/types/category'
 
 const title = 'Produtos'
 const description =
   'Aqui você pode criar produtos e gerenciar suas informações.'
-
-type Category = {
-  id: number
-  name: string
-}
-
-type ProductImage = {
-  id: number
-  url: string
-}
-
-type Product = {
-  id: number
-  name: string
-  description: string
-  inStock: number
-  price: number
-  category: Category | null
-  images: ProductImage[]
-}
 
 const ProductsPage: React.FC = () => {
   const router = useRouter()

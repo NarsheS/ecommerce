@@ -6,7 +6,8 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
-- implementar promoções agora ou mostrar os produtos na tela inicial
+- implementar promoções agora
+- carrinho
 
 !! QUALITY OF LIFE CHANGES !!
 - Toda vez que alguém finalizar uma compra, reduzir o estoque com base na compra

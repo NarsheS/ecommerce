@@ -6,8 +6,17 @@ import { useRouter } from "next/navigation"
 import UserMenu from "@/components/UserMenu"
 import { api, setAuthToken } from "./services/api"
 import { Navbar } from "@/components/ui/shadcn-io/navbar"
+import { useEffect, useState } from "react"
+import handleApiError from "./utils/handleApiError"
+import type { Product } from "./types/product"
+import LoadingCircle from "@/components/loading-circle"
+import { ProductCard } from "@/components/product-card"
+
+
 
 const Home = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [fetching, setFetching] = useState(false)
   const { accessToken, refresh, setAccessToken, user } = useAuth();
   const router = useRouter();
 
@@ -29,6 +38,30 @@ const Home = () => {
     }
   }
 
+  /*
+    - GET - api/products                                (Lista todos os produtos)
+    - GET - api/products/:id                            (Lista um produto)
+  */
+  const getProducts = async () => {
+    try {
+      setFetching(true)
+      const response = await api.get("/products")
+      setProducts(response.data)
+    } catch (error) {
+      handleApiError(error, router, "Falha ao obter informações sobre os produtos")
+    } finally {
+      setFetching(false)
+    }
+  }
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      await getProducts()
+    }
+
+    fetchProducts()
+  }, [])
+
   return (
     <div className="flex flex-col gap-4">
       <Navbar
@@ -47,6 +80,28 @@ const Home = () => {
           )
         }
       />
+
+
+      {/* mapping here */}
+      <section className="m-4">
+        {fetching ? (
+          <LoadingCircle />
+        ) : products.length === 0 ? (
+          <p className="text-center text-muted-foreground">
+            Nenhum produto disponível no momento
+          </p>
+        ) : (
+          <div className="grid gap-4">
+            {products.map(prod => (
+              <ProductCard
+                key={prod.id}
+                product={prod}
+                // addToCart={}
+              />
+            ))}
+          </div>
+        )}
+      </section>
 
       
     </div>

@@ -9,6 +9,7 @@ import ContentBox from '@/components/content-box'
 import handleApiError from '@/app/utils/handleApiError'
 import { Button } from '@/components/ui/button'
 import LoadingCircle from '@/components/loading-circle'
+import type { Category } from '@/app/types/category'
 
 const title = 'Categorias'
 const description = 'Crie uma nova categoria.'
@@ -36,9 +37,7 @@ const CategoriesPage: React.FC = () => {
     name: '',
   })
 
-  const [categories, setCategories] = useState<
-    Array<{ id: number; name: string }>
-  >([])
+  const [categories, setCategories] = useState<Category[]>([])
 
   /* ---------------------- FORM CHANGE ---------------------- */
 

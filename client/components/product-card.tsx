@@ -44,7 +44,7 @@ export function ProductCard({ product, dashboard = false, onEdit, onDelete, onIm
   return (
     <Card className="w-full max-w-65 flex flex-col overflow-visible">
       {/* Nome */}
-      <div className="px-3 pt-1">
+      <div className="px-3">
         <h3 className="text-sm font-semibold leading-tight line-clamp-1">
             {product.name}
         </h3>
