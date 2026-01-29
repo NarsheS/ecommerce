@@ -5,7 +5,7 @@ import { UpdateProductDto } from "./dto/update-product.dto";
 import { Roles } from "../common/roles/roles.decorator";
 import { Role } from "../user/user.entity";
 import { FilesInterceptor } from "@nestjs/platform-express";
-import { Public } from "src/common/decorators/public.decorator";
+import { Public } from "../common/decorators/public.decorator";
 
 @Controller('products')
 export class ProductsController {
