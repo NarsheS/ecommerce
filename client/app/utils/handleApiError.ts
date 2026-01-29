@@ -5,14 +5,18 @@ import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.share
 const handleApiError = (
   error: any,
   router: AppRouterInstance,
-  fallbackMessage: string
+  fallbackMessage: string,
+  options?: { redirectOn401?: boolean }
 ) => {
   if (error?.response) {
     if (error.response.status === 401) {
       setAuthToken(null)
       localStorage.removeItem('token')
-      toast.error('Sessão expirada. Faça login novamente.')
-      router.push('/login')
+
+      if (options?.redirectOn401) {
+        toast.error('Sessão expirada. Faça login novamente.')
+        router.push('/login')
+      }
     } else {
       toast.error(fallbackMessage)
     }
@@ -20,5 +24,6 @@ const handleApiError = (
     toast.error('Erro de rede')
   }
 }
+
 
 export default handleApiError

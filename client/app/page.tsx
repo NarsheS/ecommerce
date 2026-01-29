@@ -11,6 +11,7 @@ import handleApiError from "./utils/handleApiError"
 import type { Product } from "./types/product"
 import LoadingCircle from "@/components/loading-circle"
 import { ProductCard } from "@/components/product-card"
+import { toast } from "sonner"
 
 
 
@@ -51,6 +52,18 @@ const Home = () => {
       handleApiError(error, router, "Falha ao obter informações sobre os produtos")
     } finally {
       setFetching(false)
+    }
+  }
+
+  const addToCart = async (productId: number) => {
+    try {
+      await api.post("/cart", {
+        productId,
+        quantity: 1
+      })
+      toast.info("Produto adicionado ao carrinho!")
+    } catch (error) {
+      handleApiError(error, router, "Erro ao adicionar o produto ao carrinho.")
     }
   }
 
@@ -96,7 +109,7 @@ const Home = () => {
               <ProductCard
                 key={prod.id}
                 product={prod}
-                // addToCart={}
+                addToCart={() => addToCart(prod.id)}
               />
             ))}
           </div>

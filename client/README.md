@@ -7,7 +7,7 @@ npm run dev
 
 !!!!! URGENTE !!!!!!
 - implementar promoções agora
-- carrinho
+- carrinho (POST ja adicionado)
 
 !! QUALITY OF LIFE CHANGES !!
 - Toda vez que alguém finalizar uma compra, reduzir o estoque com base na compra

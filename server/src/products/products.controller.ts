@@ -5,6 +5,7 @@ import { UpdateProductDto } from "./dto/update-product.dto";
 import { Roles } from "../common/roles/roles.decorator";
 import { Role } from "../user/user.entity";
 import { FilesInterceptor } from "@nestjs/platform-express";
+import { Public } from "src/common/decorators/public.decorator";
 
 @Controller('products')
 export class ProductsController {
@@ -47,12 +48,14 @@ export class ProductsController {
 
   // GET - Lista todos os produtos no DB
   @Get()
+  @Public()
   findAll() {
     return this.productsService.getAllProducts();
   }
 
   // GET - Busca um produto específico pelo id
   @Get(':id')
+  @Public()
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.getOneProduct(id);
   }
