@@ -17,10 +17,7 @@ export default function DashboardLayout({
     const router = useRouter();
     
     useEffect(() => {
-        if (!user) router.replace("/");
-        if (user?.role !== "admin") {
-          router.replace("/");
-        }
+        if (!user || user.role !== "admin") router.replace("/");
       }, [user, router]);
     
       if (!user) return null

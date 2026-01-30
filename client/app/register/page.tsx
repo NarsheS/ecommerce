@@ -23,6 +23,7 @@ export default function Register() {
 
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setFormError(null);
 
     try{
       setLoading(true);

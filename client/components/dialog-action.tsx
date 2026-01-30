@@ -33,6 +33,7 @@ export type DialogField = {
   name: string
   label?: string
   type?: 'text' | 'number' | 'select'
+  inputType?: string 
   placeholder?: string
   options?: SelectOption[]
 }
@@ -130,7 +131,7 @@ const DialogAction: React.FC<DialogActionProps> = ({
                   </Select>
                 ) : (
                   <Input
-                    type={field.type ?? 'text'}
+                    type={field.inputType ?? field.type ?? 'text'}
                     placeholder={
                       field.placeholder ??
                       field.label ??

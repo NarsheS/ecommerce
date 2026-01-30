@@ -53,9 +53,6 @@ const CategoriesPage: React.FC = () => {
   const fetchCategories = async () => {
     setFetching(true)
     try {
-      const token = localStorage.getItem('token')
-      if (token) setAuthToken(token)
-
       const resp = await api.get('/categories')
       setCategories(resp.data)
     } catch (error: any) {
@@ -65,6 +62,7 @@ const CategoriesPage: React.FC = () => {
       setFetching(false)
     }
   }
+
 
   useEffect(() => {
     fetchCategories()

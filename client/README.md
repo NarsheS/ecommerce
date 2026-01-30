@@ -6,7 +6,7 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
-- implementar promoções agora
+- aplicar os descontos visuais nos itens (acho q na hora de pagar ele ja aplica)
 - carrinho (POST ja adicionado)
 
 !! QUALITY OF LIFE CHANGES !!

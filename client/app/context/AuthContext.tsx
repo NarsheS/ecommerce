@@ -1,4 +1,5 @@
 "use client"
+
 import { createContext, useContext, useEffect, useState } from "react"
 import { refreshAccessToken } from "../services/authRefresh"
 import { api, setAuthToken } from "../services/api"
@@ -15,39 +16,36 @@ type AuthContextType = {
   refresh: () => Promise<boolean>
 }
 
-
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null)
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
 
   const refresh = async () => {
     try {
-      // obtain a new access token using the refresh cookie
+      // pega novo access token usando refresh token via cookie
       const token = await refreshAccessToken()
-      // accept the token as success even if /auth/me fails
-      setAccessToken(token)
-      setAuthToken(token)
 
-      // try to fetch user info, but DON'T treat failure here as overall failure
+      setAccessToken(token)
+      setAuthToken(token) // injeta no axios
+
+      // busca dados do usuário, mas não quebra se falhar
       try {
         const me = await api.get("/auth/me")
         setUser(me.data)
-      } catch (meErr) {
-        console.warn("failed to fetch /auth/me after refresh — continuing with token", meErr)
-        // don't clear token/user — we still consider user authenticated by token
+      } catch (err) {
+        console.warn("Falha ao buscar /auth/me — mantendo token", err)
       }
 
       return true
-    } catch(err) {
-      // refresh token failed -> clear client state
+    } catch (err) {
       setAccessToken(null)
       setUser(null)
       setAuthToken(null)
-      console.error("ACCESS_TOKEN ERROR:", err);
-      return false;
+      console.error("Falha no refresh do token", err)
+      return false
     }
   }
 

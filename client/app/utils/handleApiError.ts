@@ -1,5 +1,4 @@
 import { toast } from 'sonner'
-import { setAuthToken } from '@/app/services/api'
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 
 type HandleApiErrorOptions = {
@@ -16,18 +15,7 @@ const handleApiError = (
     const status = error.response.status
 
     if (status === 401) {
-      // limpa autenticação
-      setAuthToken(null)
-      localStorage.removeItem('token')
-
-      // 🔥 toast SEMPRE aparece
-      toast.error('Você precisa estar logado para realizar essa ação.')
-
-      // redirect opcional
-      if (options?.redirectOn401) {
-        router.push('/login')
-      }
-
+      toast.error("Sessão expirada")
       return
     }
 
