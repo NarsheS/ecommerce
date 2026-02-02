@@ -11,6 +11,7 @@ npm run dev
 
 !! QUALITY OF LIFE CHANGES !!
 - Toda vez que alguém finalizar uma compra, reduzir o estoque com base na compra
+- LoadingSpinner em verify.tsx
 
 
 # Endpoint
