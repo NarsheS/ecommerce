@@ -1,20 +1,21 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import DialogAction, { DialogField } from '@/components/dialog-action'
-import { api, setAuthToken } from '@/app/services/api'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+
+import DialogAction, { DialogField } from '@/components/dialog-action'
 import ContentBox from '@/components/content-box'
-import handleApiError from '@/app/utils/handleApiError'
 import { Button } from '@/components/ui/button'
 import LoadingCircle from '@/components/loading-circle'
-import type { Category } from '@/app/types/category'
+
+
+import { categoryService } from '@/app/services/category.service'
+import handleApiError from '@/app/utils/handleApiError'
+import { useCategories } from '@/hooks/useCategories'
 
 const title = 'Categorias'
 const description = 'Crie uma nova categoria.'
-
-/* ---------------------- FORM CONFIG ---------------------- */
 
 const formSetup: DialogField[] = [
   {
@@ -28,98 +29,55 @@ const formSetup: DialogField[] = [
 
 const CategoriesPage: React.FC = () => {
   const router = useRouter()
+  const { categories, loading: fetching, refresh } = useCategories()
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [fetching, setFetching] = useState(false)
-
-  const [formValues, setFormValues] = useState({
-    name: '',
-  })
-
-  const [categories, setCategories] = useState<Category[]>([])
-
-  /* ---------------------- FORM CHANGE ---------------------- */
+  const [formValues, setFormValues] = useState({ name: '' })
 
   const handleChange = (name: string, value: any) => {
-    setFormValues(prev => ({
-      ...prev,
-      [name]: value,
-    }))
+    setFormValues(prev => ({ ...prev, [name]: value }))
   }
-
-  /* ---------------------- FETCH ---------------------------- */
-
-  const fetchCategories = async () => {
-    setFetching(true)
-    try {
-      const resp = await api.get('/categories')
-      setCategories(resp.data)
-    } catch (error: any) {
-      console.error('Error fetching categories:', error)
-      handleApiError(error, router, 'Erro ao buscar categorias')
-    } finally {
-      setFetching(false)
-    }
-  }
-
-
-  useEffect(() => {
-    fetchCategories()
-  }, [])
-
-  /* ---------------------- SUBMIT --------------------------- */
 
   const handleSubmit = async () => {
     setLoading(true)
-
     try {
-      await api.post('/categories', {
-        name: formValues.name,
-      })
+      await categoryService.create(formValues.name)
 
       setFormValues({ name: '' })
-      await fetchCategories()
+      setDialogOpen(false)
+      toast.success('Categoria criada com sucesso')
+      await refresh()
     } catch (error) {
-      console.error('Error creating category:', error)
       handleApiError(error, router, 'Erro ao criar categoria')
-      throw error
     } finally {
       setLoading(false)
     }
   }
 
-  /* ---------------------- DELETE --------------------------- */
-
   const handleDelete = async (id: number) => {
     try {
-      await api.delete(`/categories/${id}`)
+      await categoryService.remove(id)
       toast.success('Categoria deletada com sucesso')
-      await fetchCategories()
+      await refresh()
     } catch (error) {
-      console.error('Erro ao deletar categoria:', error)
       handleApiError(error, router, 'Falha ao tentar deletar categoria')
     }
   }
 
-  /* ---------------------- RENDER --------------------------- */
-
   return (
     <>
-      {/* Create button */}
       <div className="flex justify-center mb-4">
         <Button
           onClick={() => {
             setFormValues({ name: '' })
             setDialogOpen(true)
           }}
-          className=" cursor-pointer"
         >
           Nova categoria +
         </Button>
       </div>
 
-      {/* Dialog */}
       <DialogAction
         open={dialogOpen}
         onOpenChange={setDialogOpen}
@@ -130,11 +88,8 @@ const CategoriesPage: React.FC = () => {
         loading={loading}
         values={formValues}
         onChange={handleChange}
-        successMessage="Categoria criada com sucesso"
-        errorMessage="Falha ao criar categoria"
       />
 
-      {/* List */}
       <section>
         {fetching ? (
           <LoadingCircle />

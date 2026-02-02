@@ -1,5 +1,5 @@
 import axios from "axios"
-import { refreshAccessToken } from "./authRefresh"
+import { refreshAccessToken } from "./auth.refresh"
 
 export const api = axios.create({
   baseURL: "https://ecommerce-cyrl.onrender.com/api",

@@ -1,9 +1,9 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState } from "react"
-import { refreshAccessToken } from "../services/authRefresh"
+import { refreshAccessToken } from "../services/auth.refresh"
 import { api, setAuthToken } from "../services/api"
-import type { AuthContextType, User } from "../types/AuthContextTypes"
+import type { AuthContextType, User } from "../types/auth-context"
 
 
 

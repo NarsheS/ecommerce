@@ -7,7 +7,7 @@ import {
   createDiscount,
   updateDiscount,
   deleteDiscount,
-} from "../app/services/discountService"
+} from "../app/services/discount.service"
 
 export function useDiscounts() {
   const router = useRouter()
