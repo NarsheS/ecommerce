@@ -1,7 +1,7 @@
 import { api } from "@/app/services/api"
 import axios from "axios"
-import { RegisterDTO, RegisterResponse } from "../types/register"
-import { LoginDTO, LoginResponse } from "../types/login"
+import type { RegisterDTO, RegisterResponse } from "../types/register"
+import type { LoginDTO, LoginResponse } from "../types/login"
 
 
 export async function registerUser(data: RegisterDTO): Promise<RegisterResponse> {

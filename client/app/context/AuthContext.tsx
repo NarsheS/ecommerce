@@ -3,18 +3,9 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { refreshAccessToken } from "../services/authRefresh"
 import { api, setAuthToken } from "../services/api"
+import type { AuthContextType, User } from "../types/AuthContextTypes"
 
-type User = {
-  id: number,
-  role: string
-}
 
-type AuthContextType = {
-  accessToken: string | null
-  user: User | null
-  setAccessToken: (token: string | null) => void
-  refresh: () => Promise<boolean>
-}
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
