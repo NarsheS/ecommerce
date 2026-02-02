@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DiscountRule } from './discount-rules.entity';
+import type { DiscountRule } from './discount-rules.entity';
 import { DiscountService } from './discount.service';
 import { DiscountController } from './discount.controller';
 
