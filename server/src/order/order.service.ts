@@ -5,7 +5,7 @@ import { Order } from "./order.entity";
 import { OrderItem } from "./order-item.entity";
 import { Cart } from "../cart/cart.entity";
 import { CartItem } from "../cart/cart-item.entity";
-import { DiscountService } from "../products/sales/discount.service";
+import { PricingService } from "src/products/pricing/pricing.service";
 
 @Injectable()
 export class OrderService {
@@ -14,7 +14,7 @@ export class OrderService {
     @InjectRepository(OrderItem) private orderItemRepo: Repository<OrderItem>,
     @InjectRepository(Cart) private cartRepo: Repository<Cart>,
     @InjectRepository(CartItem) private cartItemRepo: Repository<CartItem>,
-    private readonly discountService: DiscountService,
+    private readonly pricingService: PricingService,
   ) {}
 
   async createOrder(userId: number) {
@@ -36,27 +36,24 @@ export class OrderService {
 
     let total = 0;
     let totalDiscount = 0;
-
     const orderItems: OrderItem[] = [];
 
     for (const item of cart.items) {
-      const productWithDiscount =
-        await this.discountService.applyAutomaticDiscount(item.product);
+      const pricing = await this.pricingService.calculate(item.product);
 
-      const originalPrice = Number(item.product.price);
-      const finalPrice = productWithDiscount.finalPrice ?? originalPrice;
-      const discountApplied = originalPrice - finalPrice;
-
+      const originalPrice = pricing.originalPrice;
+      const finalPrice = pricing.finalPrice;
+      const discountApplied = pricing.discountAmount;
       const subtotal = finalPrice * item.quantity;
 
       const orderItem = this.orderItemRepo.create({
-        order: order,
+        order,
         product: item.product,
         quantity: item.quantity,
         price: originalPrice,
-        finalPrice: finalPrice,
-        discountApplied: discountApplied,
-        subtotal: subtotal,
+        finalPrice,
+        discountApplied,
+        subtotal,
       });
 
       orderItems.push(orderItem);
@@ -67,12 +64,10 @@ export class OrderService {
 
     await this.orderItemRepo.save(orderItems);
 
-    order.total = total;
-    order.discountTotal = totalDiscount;
-
+    order.total = Number(total.toFixed(2));
+    order.discountTotal = Number(totalDiscount.toFixed(2));
     await this.orderRepo.save(order);
 
-    // limpa o carrinho
     await this.cartItemRepo.remove(cart.items);
 
     return this.orderRepo.findOne({
@@ -80,6 +75,7 @@ export class OrderService {
       relations: ['items', 'items.product'],
     });
   }
+
 
 
   async getUserOrders(userId: number) {

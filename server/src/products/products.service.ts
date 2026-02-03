@@ -7,7 +7,7 @@ import { UpdateProductDto } from "./dto/update-product.dto";
 import { Category } from "../category/category.entity";
 import { ProductImage } from "./cloudinary/productImage.entity";
 import { UploadService } from "./cloudinary/upload.service";
-import { DiscountService } from "./sales/discount.service";
+import { PricingService } from "./pricing/pricing.service";
 
 @Injectable()
 export class ProductsService {
@@ -19,7 +19,7 @@ export class ProductsService {
     @InjectRepository(ProductImage)
     private imageRepo: Repository<ProductImage>,
     private readonly uploadService: UploadService,
-    private readonly discountService: DiscountService,
+    private readonly pricingService: PricingService,
   ) {}
 
   // POST - CREATE
@@ -136,13 +136,14 @@ export class ProductsService {
   async getAllProducts() {
     const products = await this.productsRepo.find({ relations: ['category', 'images'] });
 
-    // Aplicar desconto em cada um
-    const productsWithDiscounts = await Promise.all(
-      products.map(p => this.discountService.applyAutomaticDiscount(p))
+    return Promise.all(
+      products.map(async (p) => ({
+        ...p,
+        pricing: await this.pricingService.calculate(p),
+      }))
     );
-
-    return productsWithDiscounts;
   }
+
 
   // GET - Lista apenas um produto
   async getOneProduct(id: number) {
@@ -154,9 +155,12 @@ export class ProductsService {
     if (!product) throw new NotFoundException("Produto não encontrado.");
 
     // AQUI entra o desconto
-    const productWithDiscount = await this.discountService.applyAutomaticDiscount(product);
+    const pricing = await this.pricingService.calculate(product);
 
-    return productWithDiscount;
+    return {
+      ...product,
+      pricing,
+    };
   }
 
   // UPDATE - Atualiza os campos desejados de um produto

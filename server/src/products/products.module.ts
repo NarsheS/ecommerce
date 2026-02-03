@@ -7,6 +7,7 @@ import { Category } from '../category/category.entity';
 import { ProductImage } from './cloudinary/productImage.entity';
 import { UploadModule } from './cloudinary/upload.module';
 import { DiscountModule } from './sales/discount.module';
+import { PricingService } from './pricing/pricing.service';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { DiscountModule } from './sales/discount.module';
     DiscountModule,
   ],
   controllers: [ProductsController],
-  providers: [ProductsService],
-  exports: [ProductsService], // optional if other modules need it
+  providers: [ProductsService, PricingService],
+  exports: [ProductsService, PricingService], // optional if other modules need it
 })
 export class ProductsModule {}
