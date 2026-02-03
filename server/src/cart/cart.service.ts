@@ -6,7 +6,7 @@ import { CartItem } from "./cart-item.entity";
 import { Products } from "../products/products.entity";
 import { AddCartItemDto } from "./dto/add-cart-item.dto";
 import { User } from "../user/user.entity";
-import { PricingService } from "src/products/pricing/pricing.service";
+import { PricingService } from "../products/pricing/pricing.service";
 
 @Injectable()
 export class CartService{

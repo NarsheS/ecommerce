@@ -5,7 +5,7 @@ import { Order } from "./order.entity";
 import { OrderItem } from "./order-item.entity";
 import { Cart } from "../cart/cart.entity";
 import { CartItem } from "../cart/cart-item.entity";
-import { PricingService } from "src/products/pricing/pricing.service";
+import { PricingService } from "../products/pricing/pricing.service";
 
 @Injectable()
 export class OrderService {

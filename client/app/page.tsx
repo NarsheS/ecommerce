@@ -48,6 +48,7 @@ const Home = () => {
       setFetching(true)
       const response = await api.get("/products")
       setProducts(response.data)
+      console.log(response.data)
     } catch (error) {
       handleApiError(error, router, "Falha ao obter informações sobre os produtos")
     } finally {
