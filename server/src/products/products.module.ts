@@ -8,12 +8,14 @@ import { ProductImage } from './cloudinary/productImage.entity';
 import { UploadModule } from './cloudinary/upload.module';
 import { DiscountModule } from './sales/discount.module';
 import { PricingService } from './pricing/pricing.service';
+import { PricingModule } from './pricing/pricing.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Products, ProductImage, Category]), 
     UploadModule,
     DiscountModule,
+    PricingModule,
   ],
   controllers: [ProductsController],
   providers: [ProductsService, PricingService],
