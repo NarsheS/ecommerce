@@ -6,7 +6,7 @@ import { Products } from "../products/products.entity";
 import { CartService } from "./cart.service";
 import { CartController } from "./cart.controller";
 import { User } from "../user/user.entity";
-import { PricingModule } from "src/products/pricing/pricing.module";
+import { PricingModule } from "../products/pricing/pricing.module";
 
 @Module({
     imports: [TypeOrmModule.forFeature([Cart, CartItem, Products, User]), PricingModule],

@@ -6,7 +6,7 @@ import { OrderService } from './order.service';
 import { Cart } from '../cart/cart.entity';
 import { CartItem } from '../cart/cart-item.entity';
 import { OrderController } from './order.controller';
-import { PricingModule } from 'src/products/pricing/pricing.module';
+import { PricingModule } from '../products/pricing/pricing.module';
 
 @Module({
   imports: [
