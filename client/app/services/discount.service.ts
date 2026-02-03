@@ -1,5 +1,5 @@
 import { api } from "@/app/services/api"
-import type { DiscountRule } from "@/app/types/discount-rule"
+import { DiscountRule } from "@/app/types/discount-rule"
 
 export async function getDiscounts(): Promise<DiscountRule[]> {
   const res = await api.get("/discounts")
