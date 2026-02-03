@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import handleApiError from "@/app/utils/handleApiError"
-import type { DiscountRule } from "@/app/types/discount-rule"
+import { DiscountRule } from "@/app/types/discount-rule"
 import {
   getDiscounts,
   createDiscount,
