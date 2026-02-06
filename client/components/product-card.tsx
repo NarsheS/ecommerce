@@ -16,20 +16,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import { Button } from "@/components/ui/button"
+import type { Product } from "@/app/types/product"
 
-type ProductImage = {
-  id: number
-  url: string
-}
-
-type Product = {
-  id: number
-  name: string
-  description: string
-  inStock: number
-  price: number
-  images: ProductImage[]
-}
 
 type Props = {
   dashboard?: boolean
@@ -41,21 +29,23 @@ type Props = {
 }
 
 export function ProductCard({ product, dashboard = false, onEdit, onDelete, onImages, addToCart }: Props) {
+  const images = product.images ?? []
+
+  const priceFormatter = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+  })
+
   return (
     <Card className="w-full max-w-65 flex flex-col overflow-visible">
-      {/* Nome */}
-      <div className="px-3">
-        <h3 className="text-sm font-semibold leading-tight line-clamp-1">
-            {product.name}
-        </h3>
-      </div>
 
       <CardContent className="flex-1 pt-0 px-0 space-y-2">
         {/* Carrossel */}
-        {product.images.length > 0 ? (
+        {images.length > 0 ? (
           <Carousel className="w-full">
             <CarouselContent>
-              {product.images.map((img, index) => (
+              {images.map((img, index) => (
                 <CarouselItem key={img.id}>
                   <div className="relative aspect-4/3 w-full">
                     <Image
@@ -79,10 +69,21 @@ export function ProductCard({ product, dashboard = false, onEdit, onDelete, onIm
           </div>
         )}
 
+        {/* Nome */}
+        <div className="px-3 pt-1">
+          <h3 className="text-sm font-semibold leading-tight line-clamp-1">
+              {product.name}
+          </h3>
+        </div>
+
         {/* Info */}
         <div className="px-3 space-y-1">
-          <div className="flex justify-between items-center text-xs">
-            <span className="font-semibold">R$ {product.price}</span>
+          <div className="flex justify-between items-center text-xs"> 
+            {product.pricing.hasDiscount ? 
+            (<span className="font-semibold">{priceFormatter.format(product.pricing.finalPrice)}</span>) 
+            : (<span className="font-semibold">{priceFormatter.format(product.pricing.originalPrice)}</span>)
+            }
+            
 
             <span
               className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${

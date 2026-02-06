@@ -5,12 +5,21 @@ export type ProductImage = {
   url: string
 }
 
+type Pricing = {
+  originalPrice: number
+  finalPrice: number
+  discountAmount: number
+  disocuntPercentage: number
+  hasDiscount: boolean
+}
+
 export type Product = {
   id: number
   name: string
-  description: string
+  description?: string
   inStock: number
   price: number
-  category: Category | null
-  images: ProductImage[]
+  pricing: Pricing
+  category?: Category | null
+  images?: ProductImage[]
 }
