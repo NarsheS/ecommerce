@@ -36,6 +36,7 @@ export type DialogField = {
   inputType?: string 
   placeholder?: string
   options?: SelectOption[]
+  disabled?: boolean
 }
 
 type DialogActionProps = {
@@ -108,13 +109,15 @@ const DialogAction: React.FC<DialogActionProps> = ({
                 {field.type === 'select' ? (
                   <Select
                     value={values[field.name] ?? ''}
-                    onValueChange={value =>
-                      onChange?.(field.name, value)
-                    }
+                    onValueChange={value => onChange?.(field.name, value)}
+                    disabled={field.disabled}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger disabled={field.disabled}>
                       <SelectValue
-                        placeholder={field.placeholder}
+                        placeholder={
+                          field.placeholder ??
+                          `Selecione ${field.label?.toLowerCase() ?? field.name}`
+                        }
                       />
                     </SelectTrigger>
 

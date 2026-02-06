@@ -3,6 +3,7 @@
 import React from 'react'
 import { DiscountRule, DiscountType } from '@/app/types/discount-rule'
 import { Button } from './ui/button'
+import { useCategories } from '@/hooks/useCategories'
 
 interface DiscountCardProps {
   discount: DiscountRule
@@ -10,11 +11,15 @@ interface DiscountCardProps {
   onDelete: (id: number) => void
 }
 
-export const DiscountCard: React.FC<DiscountCardProps> = ({
-  discount,
-  onEdit,
-  onDelete,
-}) => {
+
+export const DiscountCard: React.FC<DiscountCardProps> = ({  discount,  onEdit, onDelete }) => {
+  const { categories } = useCategories()
+
+  const getCategoryName = (id?: number) => {
+    if (!id) return '-'
+    return categories.find(c => c.id === id)?.name ?? `#${id}`
+  }
+
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '-'
     try {
@@ -28,14 +33,16 @@ export const DiscountCard: React.FC<DiscountCardProps> = ({
     } catch {
         return dateStr
     }
-    }
+  }
+
+
 
   const typeLabel = () => {
     switch (discount.type) {
       case DiscountType.GLOBAL:
         return 'Global'
       case DiscountType.CATEGORY:
-        return `Categoria (#${discount.categoryId})`
+        return `Categoria - ${getCategoryName(discount.categoryId)}`
       case DiscountType.PRODUCT:
         return `Produto (#${discount.productId})`
       case DiscountType.PRICE_MIN:

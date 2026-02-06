@@ -9,6 +9,7 @@ import ConfirmDialog from '@/components/confirm-dialog'
 import { DiscountRule, DiscountType } from '@/app/types/discount-rule'
 import { DiscountCard } from '@/components/discount-card'
 import { useDiscounts } from '@/hooks/useDiscounts'
+import { useCategories } from '@/hooks/useCategories'
 
 const title = 'Promoções'
 const description = 'Crie e gerencie regras de desconto.'
@@ -22,6 +23,8 @@ const SalesPage: React.FC = () => {
     saveDiscount,
     removeDiscount,
   } = useDiscounts()
+
+  const { categories, loading: categoriesLoading } = useCategories()
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingDiscount, setEditingDiscount] = useState<DiscountRule | null>(null)
@@ -68,7 +71,17 @@ const SalesPage: React.FC = () => {
     ]
 
     if (formValues.type === DiscountType.CATEGORY) {
-      fields.push({ id: 4, name: 'categoryId', type: 'number', label: 'ID da categoria' })
+      fields.push({
+        id: 4,
+        name: 'categoryId',
+        type: 'select',
+        label: 'Categoria',
+        disabled: categoriesLoading,
+        options: categories.map(category => ({
+          value: String(category.id),
+          label: category.name,
+        })),
+      })
     }
 
     if (formValues.type === DiscountType.PRODUCT) {

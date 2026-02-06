@@ -136,6 +136,7 @@ const ProductsPage: React.FC = () => {
     }
   }
 
+
   return (
     <>
       <div className="flex justify-center mb-4">
@@ -176,7 +177,7 @@ const ProductsPage: React.FC = () => {
                 setEditingProduct(prod)
                 setFormValues({
                   name: prod.name,
-                  description: prod.description,
+                  description: prod.description ?? '',
                   inStock: String(prod.inStock),
                   price: String(prod.price),
                   categoryId: prod.category?.id ? String(prod.category.id) : '',
@@ -250,7 +251,7 @@ const ProductsPage: React.FC = () => {
             )}
 
             <div className="grid grid-cols-3 gap-2">
-              {selectedProduct.images.map(img => (
+              {(selectedProduct.images ?? []).map(img => (
                 <div key={img.id} className="relative">
                   <img src={img.url} className="w-full h-24 object-cover rounded" />
                   <button
@@ -258,7 +259,7 @@ const ProductsPage: React.FC = () => {
                     onClick={async () => {
                       await productService.removeImage(selectedProduct.id, img.id)
                       setSelectedProduct(prev =>
-                        prev ? { ...prev, images: prev.images.filter(i => i.id !== img.id) } : prev
+                        prev ? { ...prev, images: (prev.images ?? []).filter(i => i.id !== img.id) } : prev
                       )
                       await refresh()
                     }}
@@ -269,7 +270,7 @@ const ProductsPage: React.FC = () => {
               ))}
             </div>
 
-            {selectedProduct.images.length > 0 && (
+            {(selectedProduct.images ?? []).length > 0 && (
               <Button
                 variant="destructive"
                 className="w-full cursor-pointer"
