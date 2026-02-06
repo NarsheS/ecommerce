@@ -80,8 +80,12 @@ export function ProductCard({ product, dashboard = false, onEdit, onDelete, onIm
         <div className="px-3 space-y-1">
           <div className="flex justify-between items-center text-xs"> 
             {product.pricing.hasDiscount ? 
-            (<span className="font-semibold">{priceFormatter.format(product.pricing.finalPrice)}</span>) 
-            : (<span className="font-semibold">{priceFormatter.format(product.pricing.originalPrice)}</span>)
+            (
+              <div className="flex flex-col">
+                <span className="font-semibold line-through text-xs text-gray-500">{`De: ${priceFormatter.format(product.pricing.originalPrice)}`}</span>
+                <span className="font-semibold text-sm">{`Por: ${priceFormatter.format(product.pricing.finalPrice)}`}</span>
+              </div>
+          ) : (<span className="font-semibold text-sm">{`De: ${priceFormatter.format(product.pricing.originalPrice)}`}</span>)
             }
             
 
