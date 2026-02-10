@@ -168,29 +168,31 @@ const ProductsPage: React.FC = () => {
         {fetching ? (
           <LoadingCircle />
         ) : (
-          products.map(prod => (
-            <ProductCard
-              dashboard
-              key={prod.id}
-              product={prod}
-              onEdit={() => {
-                setEditingProduct(prod)
-                setFormValues({
-                  name: prod.name,
-                  description: prod.description ?? '',
-                  inStock: String(prod.inStock),
-                  price: String(prod.price),
-                  categoryId: prod.category?.id ? String(prod.category.id) : '',
-                })
-                setDialogOpen(true)
-              }}
-              onDelete={(id) => {
-                setProductToDelete(id)
-                setDeleteDialogOpen(true)
-              }}
-              onImages={openImageManager}
-            />
-          ))
+          <div className="gap-4 flex flex-row">
+            {products.map(prod => (
+              <ProductCard
+                dashboard
+                key={prod.id}
+                product={prod}
+                onEdit={() => {
+                  setEditingProduct(prod)
+                  setFormValues({
+                    name: prod.name,
+                    description: prod.description ?? '',
+                    inStock: String(prod.inStock),
+                    price: String(prod.price),
+                    categoryId: prod.category?.id ? String(prod.category.id) : '',
+                  })
+                  setDialogOpen(true)
+                }}
+                onDelete={(id) => {
+                  setProductToDelete(id)
+                  setDeleteDialogOpen(true)
+                }}
+                onImages={openImageManager}
+              />
+            ))}
+          </div>
         )}
       </section>
 

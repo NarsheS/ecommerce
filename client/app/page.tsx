@@ -105,7 +105,7 @@ const Home = () => {
             Nenhum produto disponível no momento
           </p>
         ) : (
-          <div className="grid gap-4">
+          <div className="flex flex-row gap-5 p-2">
             {products.map(prod => (
               <ProductCard
                 key={prod.id}
