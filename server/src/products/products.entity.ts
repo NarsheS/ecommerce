@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Category } from '../category/category.entity';
 import { ProductImage } from './cloudinary/productImage.entity';
 
@@ -8,9 +8,11 @@ export class Products {
   id: number;
 
   @Column({ unique: true })
+  @Index()
   name: string;
 
   @Column()
+  @Index()
   description: string;
 
   @Column({ default: 0 }) // Se não for dado um valor, o mesmo será 0.

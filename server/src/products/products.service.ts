@@ -133,8 +133,20 @@ export class ProductsService {
   }
 
   // GET - Lista todos os produtos
-  async getAllProducts() {
-    const products = await this.productsRepo.find({ relations: ['category', 'images'] });
+  async getAllProducts(search?: string) {
+    const query = this.productsRepo
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .leftJoinAndSelect('product.images', 'images');
+
+    if (search){
+      // estamos usando supabase/postgresql entao podemos usar ILIKE
+      query.where('product.name ILIKE :search OR product.description ILIKE :search', 
+        { search: `%${search.trim()}%` }
+      );
+    }
+
+    const products = await query.getMany();
 
     return Promise.all(
       products.map(async (p) => ({

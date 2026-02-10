@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UploadedFiles, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UploadedFiles, UseInterceptors } from "@nestjs/common";
 import { ProductsService } from "./products.service";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
@@ -49,8 +49,8 @@ export class ProductsController {
   // GET - Lista todos os produtos no DB
   @Get()
   @Public()
-  findAll() {
-    return this.productsService.getAllProducts();
+  findAll(@Query('search') search?: string) {
+    return this.productsService.getAllProducts(search);
   }
 
   // GET - Busca um produto específico pelo id
