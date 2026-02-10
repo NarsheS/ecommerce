@@ -12,11 +12,13 @@ import type { Product } from "./types/product"
 import LoadingCircle from "@/components/loading-circle"
 import { ProductCard } from "@/components/product-card"
 import { toast } from "sonner"
+import { Cart } from "./types/cart"
 
 
 
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [cart, setCart] = useState<Cart | null>(null);
   const [fetching, setFetching] = useState(false)
   const { accessToken, refresh, setAccessToken, user } = useAuth();
   const router = useRouter();
@@ -65,6 +67,20 @@ const Home = () => {
       toast.info("Produto adicionado ao carrinho!")
     } catch (error) {
       handleApiError(error, router, "Erro ao adicionar o produto ao carrinho.")
+    } finally {
+      getCart()
+    }
+  }
+
+  const getCart = async () => {
+    try {
+      if (!accessToken) return
+
+      const response = await api.get("/cart")
+      setCart(response.data)
+      console.log(response.data)
+    } catch (error) {
+      handleApiError(error, router, "Falha ao obter informações sobre o carrinho")
     }
   }
 
@@ -73,13 +89,19 @@ const Home = () => {
       await getProducts()
     }
 
+    const fetchCart = async () => {
+      await getCart()
+    }
+
     fetchProducts()
+    if(accessToken) fetchCart()
   }, [])
 
   return (
     <div className="flex flex-col gap-4">
       <Navbar
         cartText="Carrinho"
+        cartCount={cart?.items?.reduce((total, item) => total + item.quantity, 0) ?? 0}
         searchPlaceholder="Buscar..."
         rightSlot={
           isAuthenticated ? (
