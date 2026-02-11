@@ -48,6 +48,29 @@ export class UserService {
       .getOne();
   }
 
+  // GET Current user
+  async getCurrentUser(userId: number) {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: ['addresses', 'orders'],
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        isVerified: true,
+        createdAt: true,
+        updatedAt: true,
+        addresses: true,
+        orders: true,
+      }
+    });
+
+    if(!user) throw new NotFoundException('Usuário não encontrado.');
+
+    return user;
+  }
+
   // GET USER - Encontra usuário por ID
   async findById(userId: number) {
     return this.userRepo.findOne({ where: { id: userId } });

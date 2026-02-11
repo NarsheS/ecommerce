@@ -24,6 +24,8 @@
 # Users:
 # (username, email, password)
 
+- GET - api/users/debug                             (so pra ver se o server ta on)
+- GET - api/users/me                                (perfil do usuario)
 - PATCH - api/users/update                          (Atualiza a própria conta)
 - DELETE - api/users/remove                         (Deleta a própria conta)    
 - DELETE - api/users/remove/:id                     (Deleta uma conta por id, somente admin)

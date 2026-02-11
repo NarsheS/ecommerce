@@ -50,6 +50,13 @@ export class UserController {
     };
   }
 
+  // GET LOGGED USER
+  @Get('me')
+  getMe(@Req() req: any) {
+    const userId = req.user.id;
+    return this.userService.getCurrentUser(userId);
+  }
+
   // DELETE USER – Deletar a própria conta
   @Delete('remove')
   @UsePipes(new ValidationPipe({ whitelist: true }))
