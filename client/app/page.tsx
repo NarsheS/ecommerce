@@ -19,7 +19,8 @@ import { Cart } from "./types/cart"
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<Cart | null>(null);
-  const [fetching, setFetching] = useState(false)
+  const [search, setSearch] = useState("");
+  const [fetching, setFetching] = useState(false);
   const { accessToken, refresh, setAccessToken, user } = useAuth();
   const router = useRouter();
 
@@ -45,12 +46,14 @@ const Home = () => {
     - GET - api/products                                (Lista todos os produtos)
     - GET - api/products/:id                            (Lista um produto)
   */
-  const getProducts = async () => {
+  const getProducts = async (searchTerm?: string) => {
     try {
       setFetching(true)
-      const response = await api.get("/products")
+      const response = await api.get("/products", {
+        params: searchTerm ? { search: searchTerm } : {}
+      })
+
       setProducts(response.data)
-      console.log(response.data)
     } catch (error) {
       handleApiError(error, router, "Falha ao obter informações sobre os produtos")
     } finally {
@@ -84,18 +87,29 @@ const Home = () => {
     }
   }
 
+  // 1 - Carregamento inicial
   useEffect(() => {
-    const fetchProducts = async () => {
-      await getProducts()
-    }
-
-    const fetchCart = async () => {
-      await getCart()
-    }
-
-    fetchProducts()
-    if(accessToken) fetchCart()
+    getProducts()
   }, [])
+
+  // 2 - Busca com debounce
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      getProducts(search)
+    }, 400)
+
+    return () => clearTimeout(timeout)
+  }, [search])
+
+  // 3 - Carrinho quando loga
+  useEffect(() => {
+    if (accessToken) {
+      getCart()
+    }
+  }, [accessToken])
+
+
+
 
   return (
     <div className="flex flex-col gap-4">
@@ -103,6 +117,8 @@ const Home = () => {
         cartText="Carrinho"
         cartCount={cart?.items?.reduce((total, item) => total + item.quantity, 0) ?? 0}
         searchPlaceholder="Buscar..."
+        searchValue={search}
+        onSearchChange={setSearch}
         rightSlot={
           isAuthenticated ? (
             <UserMenu

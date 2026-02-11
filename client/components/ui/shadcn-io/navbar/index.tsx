@@ -92,7 +92,8 @@ export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   searchPlaceholder?: string;
   onSignInClick?: () => void;
   onCartClick?: () => void;
-  onSearchSubmit?: (query: string) => void;
+  searchValue?: string;
+  onSearchChange?: (query: string) => void;
   rightSlot?: React.ReactNode; // 👈 NOVO
 }
 
@@ -118,7 +119,8 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
       searchPlaceholder = 'Search...',
       onSignInClick,
       onCartClick,
-      onSearchSubmit,
+      searchValue,
+      onSearchChange,
       rightSlot, // 👈 NOVO
       ...props
     },
@@ -158,14 +160,6 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
       }
     }, [ref]);
 
-    const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      const query = formData.get('search') as string;
-      if (onSearchSubmit) {
-        onSearchSubmit(query);
-      }
-    };
 
     return (
       <header
@@ -195,9 +189,10 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                   <NavigationMenu className="max-w-none">
                     <NavigationMenuList className="flex-col items-start gap-0">
                       <NavigationMenuItem className="w-full px-2 py-1.5">
-                        <form onSubmit={handleSearchSubmit} className="relative w-full">
+                        <div className="relative w-full">
                           <Input
-                            name="search"
+                            value={searchValue ?? ''}
+                            onChange={(e) => onSearchChange?.(e.target.value)}
                             className="peer h-9 w-full ps-8 pe-2"
                             placeholder={searchPlaceholder}
                             type="search"
@@ -205,7 +200,7 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                           <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-2">
                             <SearchIcon size={16} />
                           </div>
-                        </form>
+                        </div>
                       </NavigationMenuItem>
 
                       <NavigationMenuItem
@@ -275,10 +270,11 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
               )}
               {/* Search form */}
               {!isMobile && (
-                <form onSubmit={handleSearchSubmit} className="relative">
+                <div className="relative">
                   <Input
                     id={searchId}
-                    name="search"
+                    value={searchValue ?? ''}
+                    onChange={(e) => onSearchChange?.(e.target.value)}
                     className="peer h-8 ps-8 pe-2"
                     placeholder={searchPlaceholder}
                     type="search"
@@ -286,7 +282,7 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                   <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-2 peer-disabled:opacity-50">
                     <SearchIcon size={16} />
                   </div>
-                </form>
+                </div>
               )}
             </div>
           </div>
