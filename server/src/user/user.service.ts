@@ -52,7 +52,6 @@ export class UserService {
   async getCurrentUser(userId: number) {
     const user = await this.userRepo.findOne({
       where: { id: userId },
-      relations: ['addresses', 'orders'],
       select: {
         id: true,
         username: true,
@@ -61,8 +60,6 @@ export class UserService {
         isVerified: true,
         createdAt: true,
         updatedAt: true,
-        addresses: true,
-        orders: true,
       }
     });
 
