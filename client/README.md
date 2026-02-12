@@ -6,7 +6,9 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
-- Criei um jeito do usuario conseguir suas infos, pra implementar perfil
+- Deletar / Editar conta
+- Adicionar endereços ou remover
+- Botão com router para homepage
 - customize!!! - aplicar os descontos visuais nos itens (acho q na hora de pagar ele ja aplica)
 - carrinho (POST ja adicionado)
 

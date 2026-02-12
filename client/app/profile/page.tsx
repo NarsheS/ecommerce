@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -9,18 +10,26 @@ import { Badge } from "@/components/ui/badge"
 
 import type { Profile } from "../types/profile"
 import { profileService } from "../services/profile.service"
-
+import LoadingCircle from "@/components/loading-circle"
 
 export default function ProfilePage() {
   const [user, setUser] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+
+  const router = useRouter()
 
   useEffect(() => {
     async function fetchUser() {
       try {
         const data = await profileService.getMe()
         setUser(data)
-      } catch (error) {
+      } catch (error: any) {
+        // Se for 401, redireciona
+        if (error?.response?.status === 401) {
+          router.replace("/")
+          return
+        }
+
         console.error("Erro ao buscar usuário", error)
       } finally {
         setLoading(false)
@@ -28,15 +37,17 @@ export default function ProfilePage() {
     }
 
     fetchUser()
-  }, [])
+  }, [router])
 
   if (loading) {
-    return <div className="container mx-auto py-10">Carregando...</div>
+    return (
+      <div className="container mx-auto py-10 flex justify-center">
+        <LoadingCircle />
+      </div>
+    )
   }
 
-  if (!user) {
-    return <div className="container mx-auto py-10">Erro ao carregar perfil.</div>
-  }
+  if (!user) return null
 
   return (
     <div className="container mx-auto py-10">
