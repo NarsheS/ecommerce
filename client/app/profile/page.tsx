@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge"
 import type { Profile } from "../types/profile"
 import { profileService } from "../services/profile.service"
 import LoadingCircle from "@/components/loading-circle"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
 
 export default function ProfilePage() {
   const [user, setUser] = useState<Profile | null>(null)
@@ -50,55 +52,68 @@ export default function ProfilePage() {
   if (!user) return null
 
   return (
-    <div className="container mx-auto py-10">
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader className="flex flex-row items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarFallback>
-              {user.username.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+    <>
+      {/* Botão fixo */}
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => router.push("/")}
+        className="fixed top-4 left-4 z-50 rounded-full shadow-lg backdrop-blur cursor-pointer border-gray-400 border-2"
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </Button>
 
-          <div>
-            <CardTitle className="text-2xl">
-              {user.username}
-            </CardTitle>
-            <p className="text-muted-foreground">{user.email}</p>
-          </div>
-        </CardHeader>
+      <div className="container mx-auto py-10">
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader className="flex flex-row items-center gap-4">
+            <Avatar className="h-16 w-16">
+              <AvatarFallback>
+                {user.username.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
 
-        <Separator />
+            <div>
+              <CardTitle className="text-2xl">
+                {user.username}
+              </CardTitle>
+              <p className="text-muted-foreground">{user.email}</p>
+            </div>
+          </CardHeader>
 
-        <CardContent className="space-y-4 pt-6">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Qualificação</span>
-            <Badge variant={user.role === "admin" ? "default" : "secondary"}>
-              {user.role}
-            </Badge>
-          </div>
+          <Separator />
 
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Verificado</span>
-            <Badge variant={user.isVerified ? "default" : "destructive"}>
-              {user.isVerified ? "Sim" : "Não"}
-            </Badge>
-          </div>
+          <CardContent className="space-y-4 pt-6">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Qualificação</span>
+              <Badge variant={user.role === "admin" ? "default" : "secondary"}>
+                {user.role}
+              </Badge>
+            </div>
 
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Criado em</span>
-            <span className="font-medium">
-              {new Date(user.createdAt).toLocaleDateString("pt-BR")}
-            </span>
-          </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Verificado</span>
+              <Badge variant={user.isVerified ? "default" : "destructive"}>
+                {user.isVerified ? "Sim" : "Não"}
+              </Badge>
+            </div>
 
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Última atualização</span>
-            <span className="font-medium">
-              {new Date(user.updatedAt).toLocaleDateString("pt-BR")}
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Criado em</span>
+              <span className="font-medium">
+                {new Date(user.createdAt).toLocaleDateString("pt-BR")}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Última atualização</span>
+              <span className="font-medium">
+                {new Date(user.updatedAt).toLocaleDateString("pt-BR")}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   )
+
 }
