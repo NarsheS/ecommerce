@@ -8,7 +8,7 @@ npm run dev
 !!!!! URGENTE !!!!!!
 - Deletar / Editar conta
 - Adicionar endereços ou remover
-- Botão com router para homepage
+
 - customize!!! - aplicar os descontos visuais nos itens (acho q na hora de pagar ele ja aplica)
 - carrinho (POST ja adicionado)
 

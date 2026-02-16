@@ -12,13 +12,67 @@ import type { Profile } from "../types/profile"
 import { profileService } from "../services/profile.service"
 import LoadingCircle from "@/components/loading-circle"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Pencil } from "lucide-react"
+import DialogAction, { DialogField } from "@/components/dialog-action"
+import handleApiError from "../utils/handleApiError"
+import { toast } from "sonner"
 
 export default function ProfilePage() {
   const [user, setUser] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const [formValues, setFormValues] = useState({
+    username: "",
+    email: "",
+    password: "",
+  })
+
+  const formSetup: DialogField[] = [
+    { id: 1, name: "username", label: "Username", type: "text" },
+    { id: 2, name: "email", label: "Email", type: "text" },
+    { id: 3, name: "password", label: "Nova senha", inputType: "password" },
+  ]
+
   const router = useRouter()
+
+  const handleChange = (name: string, value: any) =>
+  setFormValues(prev => ({ ...prev, [name]: value }))
+
+  const handleSubmit = async () => {
+    if (!user) return
+
+    setSaving(true)
+
+    try {
+      const payload: any = {
+        username: formValues.username,
+        email: formValues.email,
+      }
+
+      if (formValues.password) {
+        payload.password = formValues.password
+      }
+
+      const updatedUser = await profileService.update(payload)
+
+      setUser(updatedUser)
+      setDialogOpen(false)
+      setFormValues({
+        username: updatedUser.username,
+        email: updatedUser.email,
+        password: "",
+      })
+    } catch (error) {
+      handleApiError(error, router, "Erro ao atualizar perfil")
+      throw error
+    } finally {
+      setSaving(false)
+    }
+  }
+
 
   useEffect(() => {
     async function fetchUser() {
@@ -78,6 +132,25 @@ export default function ProfilePage() {
               </CardTitle>
               <p className="text-muted-foreground">{user.email}</p>
             </div>
+
+
+            <Button
+              variant="outline"
+              size="icon"
+              className="ml-auto cursor-pointer rounded-full"
+              onClick={() => {
+                setFormValues({
+                  username: user.username,
+                  email: user.email,
+                  password: "",
+                })
+                setDialogOpen(true)
+              }}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+
+
           </CardHeader>
 
           <Separator />
@@ -113,6 +186,20 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       </div>
+
+
+      <DialogAction
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title="Perfil"
+        description="Atualize suas informações"
+        content={formSetup}
+        handleSubmit={handleSubmit}
+        loading={saving}
+        values={formValues}
+        onChange={handleChange}
+      />
+
     </>
   )
 
