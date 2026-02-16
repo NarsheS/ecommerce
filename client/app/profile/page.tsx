@@ -12,10 +12,11 @@ import type { Profile } from "../types/profile"
 import { profileService } from "../services/profile.service"
 import LoadingCircle from "@/components/loading-circle"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Pencil } from "lucide-react"
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react"
 import DialogAction, { DialogField } from "@/components/dialog-action"
 import handleApiError from "../utils/handleApiError"
-import { toast } from "sonner"
+import ConfirmDialog from "@/components/confirm-dialog"
+
 
 export default function ProfilePage() {
   const [user, setUser] = useState<Profile | null>(null)
@@ -23,6 +24,10 @@ export default function ProfilePage() {
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [saving, setSaving] = useState(false)
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+
 
   const [formValues, setFormValues] = useState({
     username: "",
@@ -72,6 +77,24 @@ export default function ProfilePage() {
       setSaving(false)
     }
   }
+
+  const confirmDelete = async () => {
+    setDeleteLoading(true)
+
+    try {
+      await profileService.remove()
+
+      // Redireciona para home depois de deletar
+      router.replace("/")
+      router.refresh()
+    } catch (error) {
+      console.error("Erro ao deletar conta", error)
+    } finally {
+      setDeleteLoading(false)
+      setDeleteDialogOpen(false)
+    }
+  }
+
 
 
   useEffect(() => {
@@ -150,6 +173,16 @@ export default function ProfilePage() {
               <Pencil className="h-4 w-4" />
             </Button>
 
+            <Button
+              variant="destructive"
+              size="icon"
+              className="cursor-pointer rounded-full"
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+
+
 
           </CardHeader>
 
@@ -199,6 +232,18 @@ export default function ProfilePage() {
         values={formValues}
         onChange={handleChange}
       />
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Excluir conta"
+        description="Tem certeza que deseja excluir sua conta? Essa ação não pode ser desfeita."
+        confirmText="Sim, excluir"
+        cancelText="Cancelar"
+        loading={deleteLoading}
+        onCancel={() => setDeleteDialogOpen(false)}
+        onConfirm={confirmDelete}
+      />
+
 
     </>
   )

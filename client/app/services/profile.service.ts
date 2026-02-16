@@ -21,4 +21,8 @@ export const profileService = {
       updatedAt: new Date(response.updatedAt),
     }
   },
+
+  async remove(): Promise<void>{
+    await api.delete("users/remove")
+  }
 }
