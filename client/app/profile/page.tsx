@@ -16,6 +16,7 @@ import { ArrowLeft, Pencil, Trash2 } from "lucide-react"
 import DialogAction, { DialogField } from "@/components/dialog-action"
 import handleApiError from "../utils/handleApiError"
 import ConfirmDialog from "@/components/confirm-dialog"
+import { addressService } from "../services/address.service"
 
 
 export default function ProfilePage() {
@@ -115,6 +116,8 @@ export default function ProfilePage() {
       }
     }
 
+    console.log(addressService.getAddresses())
+    
     fetchUser()
   }, [router])
 
