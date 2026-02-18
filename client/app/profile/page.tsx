@@ -12,11 +12,12 @@ import type { Profile } from "../types/profile"
 import { profileService } from "../services/profile.service"
 import LoadingCircle from "@/components/loading-circle"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react"
+import { ArrowLeft, Pencil, Trash2, Plus } from "lucide-react"
 import DialogAction, { DialogField } from "@/components/dialog-action"
 import handleApiError from "../utils/handleApiError"
 import ConfirmDialog from "@/components/confirm-dialog"
 import { addressService } from "../services/address.service"
+import type { Address } from "../types/Address"
 
 
 export default function ProfilePage() {
@@ -29,7 +30,6 @@ export default function ProfilePage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
 
-
   const [formValues, setFormValues] = useState({
     username: "",
     email: "",
@@ -41,6 +41,30 @@ export default function ProfilePage() {
     { id: 2, name: "email", label: "Email", type: "text" },
     { id: 3, name: "password", label: "Nova senha", inputType: "password" },
   ]
+
+  const [addresses, setAddresses] = useState<Address[]>([])
+  const [addressDialogOpen, setAddressDialogOpen] = useState(false)
+  const [addressDeleteOpen, setAddressDeleteOpen] = useState(false)
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
+  const [addressSaving, setAddressSaving] = useState(false)
+  const [addressDeleting, setAddressDeleting] = useState(false)
+
+  const [addressForm, setAddressForm] = useState({
+    street: "",
+    number: "",
+    city: "",
+    state: "",
+    zipcode: "",
+  })
+
+  const addressFormSetup: DialogField[] = [
+    { id: 1, name: "street", label: "Rua", type: "text" },
+    { id: 2, name: "number", label: "Número", type: "text" },
+    { id: 3, name: "city", label: "Cidade", type: "text" },
+    { id: 4, name: "state", label: "Estado", type: "text" },
+    { id: 5, name: "zipcode", label: "CEP", type: "text" },
+  ]
+
 
   const router = useRouter()
 
@@ -96,6 +120,65 @@ export default function ProfilePage() {
     }
   }
 
+  const handleAddressSubmit = async () => {
+    setAddressSaving(true)
+
+    try {
+      if (selectedAddress) {
+        const updated = await addressService.update(
+          selectedAddress.id,
+          addressForm
+        )
+
+        setAddresses(prev =>
+          prev.map(addr =>
+            addr.id === updated.id ? updated : addr
+          )
+        )
+      } else {
+        const created = await addressService.create(addressForm)
+        setAddresses(prev => [...prev, created])
+      }
+
+      setAddressDialogOpen(false)
+      setSelectedAddress(null)
+      setAddressForm({
+        street: "",
+        number: "",
+        city: "",
+        state: "",
+        zipcode: "",
+      })
+    } catch (error) {
+      handleApiError(error, router, "Erro ao salvar endereço")
+      throw error
+    } finally {
+      setAddressSaving(false)
+    }
+  }
+
+  const confirmDeleteAddress = async () => {
+    if (!selectedAddress) return
+
+    setAddressDeleting(true)
+
+    try {
+      await addressService.delete(selectedAddress.id)
+
+      setAddresses(prev =>
+        prev.filter(addr => addr.id !== selectedAddress.id)
+      )
+
+      setAddressDeleteOpen(false)
+      setSelectedAddress(null)
+    } catch (error) {
+      handleApiError(error, router, "Erro ao deletar endereço")
+    } finally {
+      setAddressDeleting(false)
+    }
+  }
+
+
 
 
   useEffect(() => {
@@ -116,9 +199,18 @@ export default function ProfilePage() {
       }
     }
 
-    console.log(addressService.getAddresses())
+    async function fetchAddress() {
+      try {
+        const data = await addressService.read()
+        setAddresses(data)
+      } catch (error) {
+        handleApiError(error, router, "erro ao buscar endereços")
+        throw error
+      }
+    }
     
     fetchUser()
+    fetchAddress()
   }, [router])
 
   if (loading) {
@@ -221,6 +313,92 @@ export default function ProfilePage() {
             </div>
           </CardContent>
         </Card>
+
+        <Card className="max-w-2xl mx-auto mt-6">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Endereços</CardTitle>
+
+            <Button
+              size="icon"
+              variant="outline"
+              className="rounded-full cursor-pointer"
+              onClick={() => {
+                setSelectedAddress(null)
+                setAddressForm({
+                  street: "",
+                  number: "",
+                  city: "",
+                  state: "",
+                  zipcode: "",
+                })
+                setAddressDialogOpen(true)
+              }}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </CardHeader>
+
+          <Separator />
+
+          <CardContent className="space-y-4 pt-6">
+            {addresses.length === 0 && (
+              <p className="text-muted-foreground text-sm">
+                Nenhum endereço cadastrado.
+              </p>
+            )}
+
+            {addresses.map(address => (
+              <div
+                key={address.id}
+                className="border rounded-lg p-4 flex justify-between items-start"
+              >
+                <div className="space-y-1 text-sm">
+                  <p className="font-medium">
+                    {address.street}, {address.number}
+                  </p>
+                  <p>
+                    {address.city} - {address.state}
+                  </p>
+                  <p>{address.zipcode}</p>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="rounded-full cursor-pointer"
+                    onClick={() => {
+                      setSelectedAddress(address)
+                      setAddressForm({
+                        street: address.street,
+                        number: address.number,
+                        city: address.city,
+                        state: address.state,
+                        zipcode: address.zipcode,
+                      })
+                      setAddressDialogOpen(true)
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+
+                  <Button
+                    size="icon"
+                    variant="destructive"
+                    className="rounded-full cursor-pointer"
+                    onClick={() => {
+                      setSelectedAddress(address)
+                      setAddressDeleteOpen(true)
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
       </div>
 
 
@@ -246,6 +424,32 @@ export default function ProfilePage() {
         onCancel={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
       />
+
+
+      <DialogAction
+        open={addressDialogOpen}
+        onOpenChange={setAddressDialogOpen}
+        title={selectedAddress ? "Editar endereço" : "Novo endereço"}
+        content={addressFormSetup}
+        handleSubmit={handleAddressSubmit}
+        loading={addressSaving}
+        values={addressForm}
+        onChange={(name, value) =>
+          setAddressForm(prev => ({ ...prev, [name]: value }))
+        }
+      />
+
+      <ConfirmDialog
+        open={addressDeleteOpen}
+        title="Excluir endereço"
+        description="Tem certeza que deseja excluir este endereço?"
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        loading={addressDeleting}
+        onCancel={() => setAddressDeleteOpen(false)}
+        onConfirm={confirmDeleteAddress}
+      />
+
 
 
     </>
