@@ -1,131 +1,27 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-
 import { ArrowLeft, Pencil, Trash2, Plus } from "lucide-react"
 
-import type { Profile } from "../types/profile"
-import { profileService } from "../services/profile.service"
-import LoadingCircle from "@/components/loading-circle"
-import DialogAction, { DialogField } from "@/components/dialog-action"
+import DialogAction from "@/components/dialog-action"
 import ConfirmDialog from "@/components/confirm-dialog"
-import handleApiError from "../utils/handleApiError"
+import LoadingCircle from "@/components/loading-circle"
+
+import { useProfile } from "@/hooks/useProfile"
 import { useAddress } from "@/hooks/useAddress"
 
 export default function ProfilePage() {
   const router = useRouter()
 
-  /* ---------------- PROFILE ---------------- */
-
-  const [user, setUser] = useState<Profile | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [saving, setSaving] = useState(false)
-
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState(false)
-
-  const [formValues, setFormValues] = useState({
-    username: "",
-    email: "",
-    password: "",
-  })
-
-  const formSetup: DialogField[] = [
-    { id: 1, name: "username", label: "Username", type: "text" },
-    { id: 2, name: "email", label: "Email", type: "text" },
-    { id: 3, name: "password", label: "Nova senha", inputType: "password" },
-  ]
-
-  /* ---------------- ADDRESS HOOK ---------------- */
-
+  const profile = useProfile()
   const address = useAddress()
 
-  /* ---------------- PROFILE LOGIC ---------------- */
-
-  const handleChange = (name: string, value: any) =>
-    setFormValues(prev => ({ ...prev, [name]: value }))
-
-  const handleSubmit = async () => {
-    if (!user) return
-
-    setSaving(true)
-
-    try {
-      const payload: any = {
-        username: formValues.username,
-        email: formValues.email,
-      }
-
-      if (formValues.password) {
-        payload.password = formValues.password
-      }
-
-      const updatedUser = await profileService.update(payload)
-
-      setUser(updatedUser)
-      setDialogOpen(false)
-      setFormValues({
-        username: updatedUser.username,
-        email: updatedUser.email,
-        password: "",
-      })
-    } catch (error) {
-      handleApiError(error, router, "Erro ao atualizar perfil")
-      throw error
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const confirmDelete = async () => {
-    setDeleteLoading(true)
-
-    try {
-      await profileService.remove()
-      router.replace("/")
-      router.refresh()
-    } catch (error) {
-      console.error("Erro ao deletar conta", error)
-    } finally {
-      setDeleteLoading(false)
-      setDeleteDialogOpen(false)
-    }
-  }
-
-  /* ---------------- FETCH PROFILE ---------------- */
-
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const data = await profileService.getMe()
-        setUser(data)
-      } catch (error: any) {
-        if (error?.response?.status === 401) {
-          router.replace("/")
-          return
-        }
-
-        console.error("Erro ao buscar usuário", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchUser()
-  }, [router])
-
-  /* ---------------- LOADING ---------------- */
-
-  if (loading || address.loading) {
+  if (profile.loading || address.loading) {
     return (
       <div className="container mx-auto py-10 flex justify-center">
         <LoadingCircle />
@@ -133,60 +29,54 @@ export default function ProfilePage() {
     )
   }
 
-  if (!user) return null
-
-  /* ---------------- UI ---------------- */
+  if (!profile.user) return null
 
   return (
     <>
-      {/* Botão voltar */}
+      {/* VOLTAR */}
       <Button
         variant="outline"
         size="icon"
         onClick={() => router.push("/")}
-        className="fixed top-4 left-4 z-50 rounded-full shadow-lg backdrop-blur cursor-pointer border-gray-400 border-2"
+        className="fixed top-4 left-4 z-50 rounded-full shadow-md cursor-pointer"
       >
         <ArrowLeft className="h-5 w-5" />
       </Button>
 
-      <div className="container mx-auto py-10">
-        {/* ---------------- PROFILE CARD ---------------- */}
+      <div className="container mx-auto py-10 space-y-8">
+        
+        {/* PERFIL */}
         <Card className="max-w-2xl mx-auto">
           <CardHeader className="flex flex-row items-center gap-4">
             <Avatar className="h-16 w-16">
               <AvatarFallback>
-                {user.username.charAt(0).toUpperCase()}
+                {profile.user.username.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
 
             <div>
               <CardTitle className="text-2xl">
-                {user.username}
+                {profile.user.username}
               </CardTitle>
-              <p className="text-muted-foreground">{user.email}</p>
+              <p className="text-muted-foreground">
+                {profile.user.email}
+              </p>
             </div>
 
             <Button
-              variant="outline"
               size="icon"
-              className="ml-auto rounded-full"
-              onClick={() => {
-                setFormValues({
-                  username: user.username,
-                  email: user.email,
-                  password: "",
-                })
-                setDialogOpen(true)
-              }}
+              variant="outline"
+              className="ml-auto rounded-full cursor-pointer"
+              onClick={profile.openEdit}
             >
               <Pencil className="h-4 w-4" />
             </Button>
 
             <Button
-              variant="destructive"
               size="icon"
-              className="rounded-full"
-              onClick={() => setDeleteDialogOpen(true)}
+              variant="destructive"
+              className="rounded-full cursor-pointer"
+              onClick={() => profile.setDeleteDialogOpen(true)}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -195,45 +85,57 @@ export default function ProfilePage() {
           <Separator />
 
           <CardContent className="space-y-4 pt-6">
+
+            {/* ID */}
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Qualificação</span>
-              <Badge variant={user.role === "admin" ? "default" : "secondary"}>
-                {user.role}
+              <span className="text-muted-foreground">ID</span>
+              <span className="font-medium">{profile.user.id}</span>
+            </div>
+
+            {/* ROLE */}
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Função</span>
+              <Badge variant={profile.user.role === "admin" ? "default" : "secondary"}>
+                {profile.user.role}
               </Badge>
             </div>
 
+            {/* VERIFIED */}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Verificado</span>
-              <Badge variant={user.isVerified ? "default" : "destructive"}>
-                {user.isVerified ? "Sim" : "Não"}
+              <Badge variant={profile.user.isVerified ? "default" : "destructive"}>
+                {profile.user.isVerified ? "Sim" : "Não"}
               </Badge>
             </div>
 
+            {/* CREATED */}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Criado em</span>
               <span className="font-medium">
-                {new Date(user.createdAt).toLocaleDateString("pt-BR")}
+                {new Date(profile.user.createdAt).toLocaleDateString("pt-BR")}
               </span>
             </div>
 
+            {/* UPDATED */}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Última atualização</span>
               <span className="font-medium">
-                {new Date(user.updatedAt).toLocaleDateString("pt-BR")}
+                {new Date(profile.user.updatedAt).toLocaleDateString("pt-BR")}
               </span>
             </div>
+
           </CardContent>
         </Card>
 
-        {/* ---------------- ADDRESS CARD ---------------- */}
-        <Card className="max-w-2xl mx-auto mt-6">
-          <CardHeader className="flex flex-row items-center justify-between">
+        {/* ENDEREÇOS */}
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader className="flex items-center justify-between">
             <CardTitle>Endereços</CardTitle>
 
             <Button
               size="icon"
               variant="outline"
-              className="rounded-full"
+              className="rounded-full cursor-pointer"
               onClick={address.openCreate}
             >
               <Plus className="h-4 w-4" />
@@ -243,33 +145,43 @@ export default function ProfilePage() {
           <Separator />
 
           <CardContent className="space-y-4 pt-6">
+
             {address.addresses.length === 0 && (
               <p className="text-muted-foreground text-sm">
                 Nenhum endereço cadastrado.
               </p>
             )}
 
-            {address.addresses.map(addressItem => (
+            {address.addresses.map((addr) => (
               <div
-                key={addressItem.id}
-                className="border rounded-lg p-4 flex justify-between items-start"
+                key={addr.id}
+                className="border rounded-xl p-5 flex justify-between items-start hover:shadow-sm transition"
               >
-                <div className="space-y-1 text-sm">
-                  <p className="font-medium">
-                    {addressItem.street}, {addressItem.number}
-                  </p>
-                  <p>
-                    {addressItem.city} - {addressItem.state}
-                  </p>
-                  <p>{addressItem.zipcode}</p>
+                <div className="space-y-2">
+
+                  {/* Rua e Número */}
+                  <div className="font-semibold text-lg">
+                    {addr.street}, {addr.number}
+                  </div>
+
+                  {/* Cidade e Estado */}
+                  <div className="text-sm text-muted-foreground">
+                    {addr.city} - {addr.state}
+                  </div>
+
+                  {/* CEP */}
+                  <div className="text-sm text-muted-foreground">
+                    CEP: {addr.zipcode}
+                  </div>
                 </div>
 
+                {/* AÇÕES */}
                 <div className="flex gap-2">
                   <Button
                     size="icon"
                     variant="outline"
-                    className="rounded-full"
-                    onClick={() => address.openEdit(addressItem)}
+                    className="rounded-full cursor-pointer"
+                    onClick={() => address.openEdit(addr)}
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
@@ -277,9 +189,9 @@ export default function ProfilePage() {
                   <Button
                     size="icon"
                     variant="destructive"
-                    className="rounded-full"
+                    className="rounded-full cursor-pointer"
                     onClick={() => {
-                      address.setSelected(addressItem)
+                      address.setSelected(addr)
                       address.setDeleteOpen(true)
                     }}
                   >
@@ -290,43 +202,21 @@ export default function ProfilePage() {
             ))}
           </CardContent>
         </Card>
+
+
       </div>
 
-      {/* ---------------- PROFILE DIALOGS ---------------- */}
-      <DialogAction
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        title="Perfil"
-        description="Atualize suas informações"
-        content={formSetup}
-        handleSubmit={handleSubmit}
-        loading={saving}
-        values={formValues}
-        onChange={handleChange}
-      />
-
-      <ConfirmDialog
-        open={deleteDialogOpen}
-        title="Excluir conta"
-        description="Tem certeza que deseja excluir sua conta?"
-        confirmText="Sim, excluir"
-        cancelText="Cancelar"
-        loading={deleteLoading}
-        onCancel={() => setDeleteDialogOpen(false)}
-        onConfirm={confirmDelete}
-      />
-
-      {/* ---------------- ADDRESS DIALOGS ---------------- */}
+      {/* DIALOG ADDRESS (CREATE + EDIT) */}
       <DialogAction
         open={address.dialogOpen}
         onOpenChange={address.setDialogOpen}
-        title={address.selected ? "Editar endereço" : "Novo endereço"}
+        title={address.selected ? "Editar Endereço" : "Novo Endereço"}
         content={[
-          { id: 1, name: "street", label: "Rua", type: "text" },
-          { id: 2, name: "number", label: "Número", type: "text" },
-          { id: 3, name: "city", label: "Cidade", type: "text" },
-          { id: 4, name: "state", label: "Estado", type: "text" },
-          { id: 5, name: "zipcode", label: "CEP", type: "text" },
+          { id: 1, name: "street", label: "Rua" },
+          { id: 2, name: "number", label: "Número" },
+          { id: 3, name: "city", label: "Cidade" },
+          { id: 4, name: "state", label: "Estado" },
+          { id: 5, name: "zipcode", label: "CEP" },
         ]}
         handleSubmit={address.submit}
         loading={address.saving}
@@ -336,6 +226,7 @@ export default function ProfilePage() {
         }
       />
 
+      {/* CONFIRM DELETE ADDRESS */}
       <ConfirmDialog
         open={address.deleteOpen}
         title="Excluir endereço"
@@ -345,6 +236,18 @@ export default function ProfilePage() {
         loading={address.deleting}
         onCancel={() => address.setDeleteOpen(false)}
         onConfirm={address.confirmDelete}
+      />
+
+      {/* CONFIRM DELETE PROFILE */}
+      <ConfirmDialog
+        open={profile.deleteDialogOpen}
+        title="Excluir conta"
+        description="Essa ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        loading={profile.deleteLoading}
+        onCancel={() => profile.setDeleteDialogOpen(false)}
+        onConfirm={profile.confirmDelete}
       />
     </>
   )

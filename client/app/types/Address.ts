@@ -1,5 +1,3 @@
-import { Profile } from "./profile"
-
 export type Address = {
     id: number
     street: string
@@ -7,5 +5,4 @@ export type Address = {
     city: string
     state: string
     zipcode: string
-    user: Profile
 }
