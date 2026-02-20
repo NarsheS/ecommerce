@@ -7,20 +7,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+
+import { ArrowLeft, Pencil, Trash2, Plus } from "lucide-react"
 
 import type { Profile } from "../types/profile"
 import { profileService } from "../services/profile.service"
 import LoadingCircle from "@/components/loading-circle"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Pencil, Trash2, Plus } from "lucide-react"
 import DialogAction, { DialogField } from "@/components/dialog-action"
-import handleApiError from "../utils/handleApiError"
 import ConfirmDialog from "@/components/confirm-dialog"
-import { addressService } from "../services/address.service"
-import type { Address } from "../types/Address"
-
+import handleApiError from "../utils/handleApiError"
+import { useAddress } from "@/hooks/useAddress"
 
 export default function ProfilePage() {
+  const router = useRouter()
+
+  /* ---------------- PROFILE ---------------- */
+
   const [user, setUser] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -42,34 +45,14 @@ export default function ProfilePage() {
     { id: 3, name: "password", label: "Nova senha", inputType: "password" },
   ]
 
-  const [addresses, setAddresses] = useState<Address[]>([])
-  const [addressDialogOpen, setAddressDialogOpen] = useState(false)
-  const [addressDeleteOpen, setAddressDeleteOpen] = useState(false)
-  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
-  const [addressSaving, setAddressSaving] = useState(false)
-  const [addressDeleting, setAddressDeleting] = useState(false)
+  /* ---------------- ADDRESS HOOK ---------------- */
 
-  const [addressForm, setAddressForm] = useState({
-    street: "",
-    number: "",
-    city: "",
-    state: "",
-    zipcode: "",
-  })
+  const address = useAddress()
 
-  const addressFormSetup: DialogField[] = [
-    { id: 1, name: "street", label: "Rua", type: "text" },
-    { id: 2, name: "number", label: "Número", type: "text" },
-    { id: 3, name: "city", label: "Cidade", type: "text" },
-    { id: 4, name: "state", label: "Estado", type: "text" },
-    { id: 5, name: "zipcode", label: "CEP", type: "text" },
-  ]
-
-
-  const router = useRouter()
+  /* ---------------- PROFILE LOGIC ---------------- */
 
   const handleChange = (name: string, value: any) =>
-  setFormValues(prev => ({ ...prev, [name]: value }))
+    setFormValues(prev => ({ ...prev, [name]: value }))
 
   const handleSubmit = async () => {
     if (!user) return
@@ -108,8 +91,6 @@ export default function ProfilePage() {
 
     try {
       await profileService.remove()
-
-      // Redireciona para home depois de deletar
       router.replace("/")
       router.refresh()
     } catch (error) {
@@ -120,66 +101,7 @@ export default function ProfilePage() {
     }
   }
 
-  const handleAddressSubmit = async () => {
-    setAddressSaving(true)
-
-    try {
-      if (selectedAddress) {
-        const updated = await addressService.update(
-          selectedAddress.id,
-          addressForm
-        )
-
-        setAddresses(prev =>
-          prev.map(addr =>
-            addr.id === updated.id ? updated : addr
-          )
-        )
-      } else {
-        const created = await addressService.create(addressForm)
-        setAddresses(prev => [...prev, created])
-      }
-
-      setAddressDialogOpen(false)
-      setSelectedAddress(null)
-      setAddressForm({
-        street: "",
-        number: "",
-        city: "",
-        state: "",
-        zipcode: "",
-      })
-    } catch (error) {
-      handleApiError(error, router, "Erro ao salvar endereço")
-      throw error
-    } finally {
-      setAddressSaving(false)
-    }
-  }
-
-  const confirmDeleteAddress = async () => {
-    if (!selectedAddress) return
-
-    setAddressDeleting(true)
-
-    try {
-      await addressService.delete(selectedAddress.id)
-
-      setAddresses(prev =>
-        prev.filter(addr => addr.id !== selectedAddress.id)
-      )
-
-      setAddressDeleteOpen(false)
-      setSelectedAddress(null)
-    } catch (error) {
-      handleApiError(error, router, "Erro ao deletar endereço")
-    } finally {
-      setAddressDeleting(false)
-    }
-  }
-
-
-
+  /* ---------------- FETCH PROFILE ---------------- */
 
   useEffect(() => {
     async function fetchUser() {
@@ -187,7 +109,6 @@ export default function ProfilePage() {
         const data = await profileService.getMe()
         setUser(data)
       } catch (error: any) {
-        // Se for 401, redireciona
         if (error?.response?.status === 401) {
           router.replace("/")
           return
@@ -199,21 +120,12 @@ export default function ProfilePage() {
       }
     }
 
-    async function fetchAddress() {
-      try {
-        const data = await addressService.read()
-        setAddresses(data)
-      } catch (error) {
-        handleApiError(error, router, "erro ao buscar endereços")
-        throw error
-      }
-    }
-    
     fetchUser()
-    fetchAddress()
   }, [router])
 
-  if (loading) {
+  /* ---------------- LOADING ---------------- */
+
+  if (loading || address.loading) {
     return (
       <div className="container mx-auto py-10 flex justify-center">
         <LoadingCircle />
@@ -223,9 +135,11 @@ export default function ProfilePage() {
 
   if (!user) return null
 
+  /* ---------------- UI ---------------- */
+
   return (
     <>
-      {/* Botão fixo */}
+      {/* Botão voltar */}
       <Button
         variant="outline"
         size="icon"
@@ -236,6 +150,7 @@ export default function ProfilePage() {
       </Button>
 
       <div className="container mx-auto py-10">
+        {/* ---------------- PROFILE CARD ---------------- */}
         <Card className="max-w-2xl mx-auto">
           <CardHeader className="flex flex-row items-center gap-4">
             <Avatar className="h-16 w-16">
@@ -251,11 +166,10 @@ export default function ProfilePage() {
               <p className="text-muted-foreground">{user.email}</p>
             </div>
 
-
             <Button
               variant="outline"
               size="icon"
-              className="ml-auto cursor-pointer rounded-full"
+              className="ml-auto rounded-full"
               onClick={() => {
                 setFormValues({
                   username: user.username,
@@ -271,14 +185,11 @@ export default function ProfilePage() {
             <Button
               variant="destructive"
               size="icon"
-              className="cursor-pointer rounded-full"
+              className="rounded-full"
               onClick={() => setDeleteDialogOpen(true)}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
-
-
-
           </CardHeader>
 
           <Separator />
@@ -314,6 +225,7 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
+        {/* ---------------- ADDRESS CARD ---------------- */}
         <Card className="max-w-2xl mx-auto mt-6">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Endereços</CardTitle>
@@ -321,18 +233,8 @@ export default function ProfilePage() {
             <Button
               size="icon"
               variant="outline"
-              className="rounded-full cursor-pointer"
-              onClick={() => {
-                setSelectedAddress(null)
-                setAddressForm({
-                  street: "",
-                  number: "",
-                  city: "",
-                  state: "",
-                  zipcode: "",
-                })
-                setAddressDialogOpen(true)
-              }}
+              className="rounded-full"
+              onClick={address.openCreate}
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -341,43 +243,33 @@ export default function ProfilePage() {
           <Separator />
 
           <CardContent className="space-y-4 pt-6">
-            {addresses.length === 0 && (
+            {address.addresses.length === 0 && (
               <p className="text-muted-foreground text-sm">
                 Nenhum endereço cadastrado.
               </p>
             )}
 
-            {addresses.map(address => (
+            {address.addresses.map(addressItem => (
               <div
-                key={address.id}
+                key={addressItem.id}
                 className="border rounded-lg p-4 flex justify-between items-start"
               >
                 <div className="space-y-1 text-sm">
                   <p className="font-medium">
-                    {address.street}, {address.number}
+                    {addressItem.street}, {addressItem.number}
                   </p>
                   <p>
-                    {address.city} - {address.state}
+                    {addressItem.city} - {addressItem.state}
                   </p>
-                  <p>{address.zipcode}</p>
+                  <p>{addressItem.zipcode}</p>
                 </div>
 
                 <div className="flex gap-2">
                   <Button
                     size="icon"
                     variant="outline"
-                    className="rounded-full cursor-pointer"
-                    onClick={() => {
-                      setSelectedAddress(address)
-                      setAddressForm({
-                        street: address.street,
-                        number: address.number,
-                        city: address.city,
-                        state: address.state,
-                        zipcode: address.zipcode,
-                      })
-                      setAddressDialogOpen(true)
-                    }}
+                    className="rounded-full"
+                    onClick={() => address.openEdit(addressItem)}
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
@@ -385,10 +277,10 @@ export default function ProfilePage() {
                   <Button
                     size="icon"
                     variant="destructive"
-                    className="rounded-full cursor-pointer"
+                    className="rounded-full"
                     onClick={() => {
-                      setSelectedAddress(address)
-                      setAddressDeleteOpen(true)
+                      address.setSelected(addressItem)
+                      address.setDeleteOpen(true)
                     }}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -398,10 +290,9 @@ export default function ProfilePage() {
             ))}
           </CardContent>
         </Card>
-
       </div>
 
-
+      {/* ---------------- PROFILE DIALOGS ---------------- */}
       <DialogAction
         open={dialogOpen}
         onOpenChange={setDialogOpen}
@@ -417,7 +308,7 @@ export default function ProfilePage() {
       <ConfirmDialog
         open={deleteDialogOpen}
         title="Excluir conta"
-        description="Tem certeza que deseja excluir sua conta? Essa ação não pode ser desfeita."
+        description="Tem certeza que deseja excluir sua conta?"
         confirmText="Sim, excluir"
         cancelText="Cancelar"
         loading={deleteLoading}
@@ -425,34 +316,36 @@ export default function ProfilePage() {
         onConfirm={confirmDelete}
       />
 
-
+      {/* ---------------- ADDRESS DIALOGS ---------------- */}
       <DialogAction
-        open={addressDialogOpen}
-        onOpenChange={setAddressDialogOpen}
-        title={selectedAddress ? "Editar endereço" : "Novo endereço"}
-        content={addressFormSetup}
-        handleSubmit={handleAddressSubmit}
-        loading={addressSaving}
-        values={addressForm}
+        open={address.dialogOpen}
+        onOpenChange={address.setDialogOpen}
+        title={address.selected ? "Editar endereço" : "Novo endereço"}
+        content={[
+          { id: 1, name: "street", label: "Rua", type: "text" },
+          { id: 2, name: "number", label: "Número", type: "text" },
+          { id: 3, name: "city", label: "Cidade", type: "text" },
+          { id: 4, name: "state", label: "Estado", type: "text" },
+          { id: 5, name: "zipcode", label: "CEP", type: "text" },
+        ]}
+        handleSubmit={address.submit}
+        loading={address.saving}
+        values={address.form}
         onChange={(name, value) =>
-          setAddressForm(prev => ({ ...prev, [name]: value }))
+          address.setForm(prev => ({ ...prev, [name]: value }))
         }
       />
 
       <ConfirmDialog
-        open={addressDeleteOpen}
+        open={address.deleteOpen}
         title="Excluir endereço"
         description="Tem certeza que deseja excluir este endereço?"
         confirmText="Excluir"
         cancelText="Cancelar"
-        loading={addressDeleting}
-        onCancel={() => setAddressDeleteOpen(false)}
-        onConfirm={confirmDeleteAddress}
+        loading={address.deleting}
+        onCancel={() => address.setDeleteOpen(false)}
+        onConfirm={address.confirmDelete}
       />
-
-
-
     </>
   )
-
 }
