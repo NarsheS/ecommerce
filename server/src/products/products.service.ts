@@ -141,7 +141,7 @@ export class ProductsService {
 
     if (search){
       // estamos usando supabase/postgresql entao podemos usar ILIKE
-      query.where('product.name ILIKE :search OR product.description ILIKE :search', 
+      query.where('product.name ILIKE :search OR category.name ILIKE :search OR product.description ILIKE :search', 
         { search: `%${search.trim()}%` }
       );
     }
