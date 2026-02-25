@@ -22,10 +22,10 @@ const Home = () => {
   const { accessToken, refresh, setAccessToken, user } = useAuth()
   const router = useRouter()
 
-  const [deal, setDeal] = useState(false)
+  const [sale, setSale] = useState(false)
 
-  const handleDealsClick = () => {
-    setDeal(prev => !prev)
+  const handleSaleClick = () => {
+    setSale(prev => !prev)
   }
 
   const isAuthenticated = !!accessToken
@@ -79,7 +79,6 @@ const Home = () => {
   const getCart = async () => {
     try {
       if (!accessToken) return
-
       const response = await api.get("/cart")
       setCart(response.data)
     } catch (error) {
@@ -87,11 +86,11 @@ const Home = () => {
     }
   }
 
-  // 🔥 FILTRO DE DEALS
+  // 🔥 Filtro Sale
   const filteredProducts = useMemo(() => {
-    if (!deal) return products
+    if (!sale) return products
     return products.filter(p => p.pricing?.hasDiscount === true)
-  }, [products, deal])
+  }, [products, sale])
 
   // 1 - Carregamento inicial
   useEffect(() => {
@@ -125,9 +124,9 @@ const Home = () => {
         navigationLinks={[
           { label: "Products" },
           { label: "Categories" },
-          { label: "Deals" }
+          { label: "Ofertas" }
         ]}
-        onDealsClick={handleDealsClick}
+        onSaleClick={handleSaleClick}
         rightSlot={
           isAuthenticated ? (
             <UserMenu
@@ -147,7 +146,7 @@ const Home = () => {
           <LoadingCircle />
         ) : filteredProducts.length === 0 ? (
           <p className="text-center text-muted-foreground">
-            {deal
+            {sale
               ? "Nenhum produto em promoção no momento"
               : "Nenhum produto disponível no momento"}
           </p>

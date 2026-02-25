@@ -95,14 +95,14 @@ export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   searchValue?: string;
   onSearchChange?: (query: string) => void;
   rightSlot?: React.ReactNode; 
-  onDealsClick?: () => void;
+  onSaleClick?: () => void; // 🔥 alterado aqui
 }
 
 // Default navigation links
 const defaultNavigationLinks: NavbarNavItem[] = [
   { href: '#', label: 'Products' },
   { href: '#', label: 'Categories' },
-  { href: '#', label: 'Deals' },
+  { href: '#', label: 'Sale' }, // 🔥 alterado aqui
 ];
 
 export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
@@ -123,7 +123,7 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
       searchValue,
       onSearchChange,
       rightSlot,
-      onDealsClick,
+      onSaleClick, // 🔥 alterado aqui
       ...props
     },
     ref
@@ -136,7 +136,7 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
       const checkWidth = () => {
         if (containerRef.current) {
           const width = containerRef.current.offsetWidth;
-          setIsMobile(width < 768); // 768px is md breakpoint
+          setIsMobile(width < 768);
         }
       };
 
@@ -152,7 +152,6 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
       };
     }, []);
 
-    // Combine refs
     const combinedRef = React.useCallback((node: HTMLElement | null) => {
       containerRef.current = node;
       if (typeof ref === 'function') {
@@ -161,7 +160,6 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
         ref.current = node;
       }
     }, [ref]);
-
 
     return (
       <header
@@ -173,9 +171,7 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
         {...(props as any)}
       >
         <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-4">
-          {/* Left side */}
           <div className="flex flex-1 items-center gap-2">
-            {/* Mobile menu trigger */}
             {isMobile && (
               <Popover>
                 <PopoverTrigger asChild>
@@ -205,20 +201,17 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                         </div>
                       </NavigationMenuItem>
 
-                      <NavigationMenuItem
-                        className="w-full"
-                        role="presentation"
-                        aria-hidden
-                      >
+                      <NavigationMenuItem className="w-full" role="presentation" aria-hidden>
                         <div className="bg-border -mx-1 my-1 h-px" />
                       </NavigationMenuItem>
+
                       {navigationLinks.map((link, index) => (
                         <NavigationMenuItem key={index} className="w-full">
                           <button
                             onClick={(e) => {
                               e.preventDefault();
-                              if(link.label === "Deals"){
-                                onDealsClick?.();
+                              if (link.label === "Ofertas") { // 🔥 alterado aqui
+                                onSaleClick?.(); // 🔥 alterado aqui
                               }
                             }}
                             className="flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer no-underline"
@@ -227,7 +220,7 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                           </button>
                         </NavigationMenuItem>
                       ))}
-                      
+
                       <NavigationMenuItem
                         className="w-full"
                         role="presentation"
@@ -239,14 +232,13 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                           className="bg-border -mx-1 my-1 h-px"
                         />
                       </NavigationMenuItem>
-                      
-                      
+
                     </NavigationMenuList>
                   </NavigationMenu>
                 </PopoverContent>
               </Popover>
             )}
-            {/* Main nav */}
+
             <div className="flex flex-1 items-center gap-6 max-md:justify-between">
               <button
                 onClick={(e) => e.preventDefault()}
@@ -257,7 +249,7 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                 </div>
                 <span className="hidden font-bold text-xl sm:inline-block">shadcn.io</span>
               </button>
-              {/* Navigation menu */}
+
               {!isMobile && (
                 <NavigationMenu className="flex">
                   <NavigationMenuList className="gap-1">
@@ -267,8 +259,8 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                           href={link.href}
                           onClick={(e) => {
                             e.preventDefault();
-                            if(link.label === "Deals"){
-                              onDealsClick?.();
+                            if (link.label === "Ofertas") { // 🔥 alterado aqui
+                              onSaleClick?.(); // 🔥 alterado aqui
                             }
                           }}
                           className="text-muted-foreground hover:text-primary py-1.5 font-medium transition-colors cursor-pointer group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50"
@@ -280,7 +272,7 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                   </NavigationMenuList>
                 </NavigationMenu>
               )}
-              {/* Search form */}
+
               {!isMobile && (
                 <div className="relative">
                   <Input
@@ -298,42 +290,40 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
               )}
             </div>
           </div>
-          {/* Right side */}
+
           <div className="flex items-center gap-2">
-          {/* rightSlot SEMPRE visível (mobile + desktop) */}
-          {rightSlot ? (
-            rightSlot
-          ) : (
+            {rightSlot ? (
+              rightSlot
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-sm font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (onSignInClick) onSignInClick();
+                }}
+              >
+                {signInText}
+              </Button>
+            )}
+
             <Button
-              variant="ghost"
               size="sm"
-              className="text-sm font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer"
+              className="text-sm font-medium px-4 h-9 rounded-md shadow-sm cursor-pointer"
               onClick={(e) => {
                 e.preventDefault();
-                if (onSignInClick) onSignInClick();
+                if (onCartClick) onCartClick();
               }}
             >
-              {signInText}
-            </Button>
-          )}
-
-          {/* Carrinho só no desktop (mantém comportamento atual) */}
-          <Button
-            size="sm"
-            className="text-sm font-medium px-4 h-9 rounded-md shadow-sm cursor-pointer"
-            onClick={(e) => {
-              e.preventDefault();
-              if (onCartClick) onCartClick();
-            }}
-          >
-            <span className="flex items-baseline gap-2">
-              {cartText}
-              <span className="text-primary-foreground/60 text-xs">
-                {cartCount}
+              <span className="flex items-baseline gap-2">
+                {cartText}
+                <span className="text-primary-foreground/60 text-xs">
+                  {cartCount}
+                </span>
               </span>
-            </span>
-          </Button>
-        </div>
+            </Button>
+          </div>
         </div>
       </header>
     );
