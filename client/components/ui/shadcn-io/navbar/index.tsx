@@ -94,7 +94,8 @@ export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   onCartClick?: () => void;
   searchValue?: string;
   onSearchChange?: (query: string) => void;
-  rightSlot?: React.ReactNode; // 👈 NOVO
+  rightSlot?: React.ReactNode; 
+  onDealsClick?: () => void;
 }
 
 // Default navigation links
@@ -121,7 +122,8 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
       onCartClick,
       searchValue,
       onSearchChange,
-      rightSlot, // 👈 NOVO
+      rightSlot,
+      onDealsClick,
       ...props
     },
     ref
@@ -213,7 +215,12 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                       {navigationLinks.map((link, index) => (
                         <NavigationMenuItem key={index} className="w-full">
                           <button
-                            onClick={(e) => e.preventDefault()}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if(link.label === "Deals"){
+                                onDealsClick?.();
+                              }
+                            }}
                             className="flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer no-underline"
                           >
                             {link.label}
@@ -258,7 +265,12 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                       <NavigationMenuItem key={index}>
                         <NavigationMenuLink
                           href={link.href}
-                          onClick={(e) => e.preventDefault()}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if(link.label === "Deals"){
+                              onDealsClick?.();
+                            }
+                          }}
                           className="text-muted-foreground hover:text-primary py-1.5 font-medium transition-colors cursor-pointer group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50"
                         >
                           {link.label}
