@@ -117,6 +117,7 @@ const Home = () => {
     <div className="flex flex-col gap-4">
       <Navbar
         cartText="Carrinho"
+        onCartClick={() => router.push("/cart")}
         cartCount={cart?.items?.reduce((total, item) => total + item.quantity, 0) ?? 0}
         searchPlaceholder="Buscar..."
         searchValue={search}

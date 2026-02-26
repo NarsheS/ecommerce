@@ -6,7 +6,7 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
-- refatorar endereços, ta mt grande
+- finalizar compra e atualizar quantidade carrinho
 
 - Painel de Controle (REMOVER QUALQUER CONTA - delete("users/remove/:id"))
 - customize!!! - aplicar os descontos visuais nos itens (acho q na hora de pagar ele ja aplica)
