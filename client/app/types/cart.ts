@@ -1,13 +1,11 @@
-type Pricing = {
-  basePrice: number
-  finalPrice: number
-  discount?: number
-}
+import { Product } from "./product"
 
-type Product = {
-  id: number
-  name: string
-  image?: string
+type Pricing = {
+  originalPrice: number
+  finalPrice: number
+  discountAmount: number
+  discountPercentage: number
+  hasDiscount: boolean
 }
 
 type CartItem = {

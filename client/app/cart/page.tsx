@@ -14,10 +14,15 @@ export default function CartPage() {
   const router = useRouter()
   const { cart, loading, removeItem, clearCart } = useCart()
 
+  const formatPrice = (value: number) =>
+    value.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    })
+
   if (loading) {
     return (
       <>
-        {/* VOLTAR */}
         <Button
           variant="outline"
           size="icon"
@@ -37,7 +42,6 @@ export default function CartPage() {
   if (!cart || cart.items.length === 0) {
     return (
       <>
-        {/* VOLTAR */}
         <Button
           variant="outline"
           size="icon"
@@ -48,7 +52,7 @@ export default function CartPage() {
         </Button>
 
         <div className="container mx-auto py-10 space-y-6">
-          <h1 className="text-2xl font-bold mb-4 text-center">
+          <h1 className="text-2xl font-bold text-center">
             Seu carrinho está vazio
           </h1>
           <p className="text-muted-foreground text-center">
@@ -61,7 +65,6 @@ export default function CartPage() {
 
   return (
     <>
-      {/* VOLTAR */}
       <Button
         variant="outline"
         size="icon"
@@ -71,89 +74,112 @@ export default function CartPage() {
         <ArrowLeft className="h-5 w-5" />
       </Button>
 
-      <div className="container mx-auto py-10 pt-18 space-y-6">
+      <div className="container mx-auto py-10 pt-20 space-y-6">
         <h1 className="text-3xl font-bold">Carrinho</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          {/* Lista de Itens */}
+          {/* LISTA DE ITENS */}
           <div className="lg:col-span-2 space-y-4">
-            {cart.items.map(item => (
-              <Card key={item.id}>
-                <CardContent className="flex items-center justify-between p-4 gap-4">
+            {cart.items.map(item => {
+              console.log(item.pricing)
+              const unitPrice = item.pricing.finalPrice
+              const hasDiscount = item.pricing.hasDiscount
 
-                  <div className="flex items-center gap-4">
-                    {item.product.image && (
-                      <img
-                        src={item.product.image}
-                        alt={item.product.name}
-                        className="w-20 h-20 object-cover rounded-md"
-                      />
-                    )}
+              return (
+                <Card key={item.id}>
+                  <CardContent className="flex items-center justify-between p-4 gap-4">
 
-                    <div>
-                      <p className="font-semibold">
-                        {item.product.name}
-                      </p>
-
-                      <p className="text-sm text-muted-foreground">
-                        R$ {item.pricing.finalPrice.toFixed(2)}
-                      </p>
-
-                      {item.pricing.discount && (
-                        <p className="text-xs text-green-600">
-                          {item.pricing.discount}% OFF
-                        </p>
+                    <div className="flex items-center gap-4">
+                      {item.product.images?.[0] && (
+                        <img
+                          src={item.product.images[0].url}
+                          alt={item.product.name}
+                          className="w-20 h-20 object-cover rounded-md"
+                        />
                       )}
+
+                      <div>
+                        <p className="font-semibold">
+                          {item.product.name}
+                        </p>
+
+                        {/* PREÇO UNITÁRIO */}
+                        <div className="mt-1">
+                          {hasDiscount && (
+                            <p className="text-sm line-through text-muted-foreground">
+                              {formatPrice(item.pricing.originalPrice)}
+                            </p>
+                          )}
+
+                          <p className={`text-sm font-semibold ${hasDiscount ? "text-green-600" : ""}`}>
+                            {formatPrice(unitPrice)}
+                          </p>
+
+                          {hasDiscount && (
+                            <p className="text-xs text-green-600">
+                              {item.pricing.discountPercentage}% OFF
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center gap-4">
-                    <Input
-                      type="number"
-                      min={1}
-                      value={item.quantity}
-                      readOnly
-                      className="w-16"
-                    />
+                    {/* QUANTIDADE + SUBTOTAL */}
+                    <div className="flex items-center gap-4">
+                      <Input
+                        type="number"
+                        min={1}
+                        value={item.quantity}
+                        readOnly
+                        className="w-16"
+                      />
 
-                    <div className="text-right">
-                      <p className="font-semibold">
-                        R$ {item.subtotal.toFixed(2)}
-                      </p>
+                      <div className="text-right">
+                        <p className="font-semibold">
+                          {formatPrice(unitPrice * item.quantity)}
+                        </p>
 
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="mt-2 cursor-pointer"
-                        onClick={() => removeItem(item.product.id)}
-                      >
-                        Remover
-                      </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="mt-2 cursor-pointer"
+                          onClick={() => removeItem(item.product.id)}
+                        >
+                          Remover
+                        </Button>
+                      </div>
                     </div>
-                  </div>
 
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
 
-          {/* Resumo */}
+          {/* RESUMO */}
           <Card className="h-fit">
             <CardHeader>
               <CardTitle>Resumo do Pedido</CardTitle>
             </CardHeader>
+
             <Separator />
+
             <CardContent className="space-y-4 pt-4">
 
               <div className="flex justify-between text-sm">
                 <span>Itens</span>
-                <span>{cart.items.length}</span>
+                <span>
+                  {cart.items.reduce(
+                    (total, item) => total + item.quantity,
+                    0
+                  )}
+                </span>
               </div>
 
               <div className="flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>R$ {cart.total.toFixed(2)}</span>
+                <span>{formatPrice(cart.total)}</span>
               </div>
 
               <Button className="w-full cursor-pointer">
