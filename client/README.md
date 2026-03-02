@@ -7,6 +7,7 @@ npm run dev
 
 !!!!! URGENTE !!!!!!
 - finalizar compra e atualizar quantidade carrinho
+- criar um endpoint para vizualizar todas as orders pelo painel de controle
 
 - Painel de Controle (REMOVER QUALQUER CONTA - delete("users/remove/:id"))
 - customize!!! - aplicar os descontos visuais nos itens (acho q na hora de pagar ele ja aplica)

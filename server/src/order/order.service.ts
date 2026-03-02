@@ -20,7 +20,7 @@ export class OrderService {
   async createOrder(userId: number) {
     const cart = await this.cartRepo.findOne({
       where: { user: { id: userId } },
-      relations: ['items', 'items.product'],
+      relations: ['items', 'items.product', 'items.product.category'],
     });
 
     if (!cart) throw new NotFoundException('Cart not found');
