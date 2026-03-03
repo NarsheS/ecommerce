@@ -6,7 +6,6 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
-- finalizar compra e atualizar quantidade carrinho
 - criar um endpoint para vizualizar todas as orders pelo painel de controle
 
 - Painel de Controle (REMOVER QUALQUER CONTA - delete("users/remove/:id"))

@@ -12,7 +12,8 @@ import LoadingCircle from "@/components/loading-circle"
 
 export default function CartPage() {
   const router = useRouter()
-  const { cart, loading, removeItem, clearCart } = useCart()
+  const { cart, loading, removeItem, clearCart, createOrderPayment } = useCart()
+
 
   const formatPrice = (value: number) =>
     value.toLocaleString("pt-BR", {
@@ -182,7 +183,10 @@ export default function CartPage() {
                 <span>{formatPrice(cart.total)}</span>
               </div>
 
-              <Button className="w-full cursor-pointer">
+              <Button 
+                className="w-full cursor-pointer"
+                onClick={createOrderPayment}
+              >
                 Finalizar Compra
               </Button>
 
