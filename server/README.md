@@ -71,6 +71,9 @@
 
 - POST - api/orders/checkout                        (Cria uma order)
 - GET - api/orders                                  (Lista todas as orders do usuário)
+- GET - api/orders/admin                            (Lista todas as orders no dashboard)
+- Patch - api/orders/admin/:id/status               (Muda o estado do item)
+- GET - api/orders/admin/:id                        (Informa os detalhes sobre o pedido)
 
 
 # Payment:

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Order } from "./order.entity";
+import { Order, OrderStatus } from "./order.entity";
 import { OrderItem } from "./order-item.entity";
 import { Cart } from "../cart/cart.entity";
 import { CartItem } from "../cart/cart-item.entity";
@@ -85,4 +85,60 @@ export class OrderService {
       order: { createdAt: 'DESC' },
     });
   }
+
+  async getAllOrders(page = 1, limit = 10) {
+    const [orders, total] = await this.orderRepo
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.user', 'user')
+      .orderBy('order.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return {
+      data: orders,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
+  }
+
+  async updateStatus(orderId: number, status: OrderStatus) {
+    const order = await this.orderRepo.findOne({
+      where: { id: orderId },
+    });
+
+    if (!order) throw new NotFoundException('Order not found');
+
+    // regra básica de transição
+    if (order.status === OrderStatus.CANCELLED) {
+      throw new BadRequestException('Cannot change cancelled order');
+    }
+
+    if (order.status === OrderStatus.PENDING && status !== OrderStatus.CANCELLED) {
+      throw new BadRequestException('Pending order must be paid first');
+    }
+
+    order.status = status;
+
+    return this.orderRepo.save(order);
+  }
+
+  async getOrderDetails(orderId: number) {
+    const order = await this.orderRepo.findOne({
+      where: { id: orderId },
+      relations: [
+        'user',
+        'items',
+        'items.product',
+      ],
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    return order;
+  }
+
 }
