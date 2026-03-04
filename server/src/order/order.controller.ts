@@ -1,7 +1,7 @@
 import { Controller, Post, Req, Get, Query, Patch, Param, Body, ParseIntPipe } from "@nestjs/common";
 import { OrderService } from "./order.service";
-import { Roles } from "src/common/roles/roles.decorator";
-import { Role } from "src/user/user.entity";
+import { Roles } from "../common/roles/roles.decorator";
+import { Role } from "../user/user.entity";
 import { OrderStatus } from "./order.entity";
 
 @Controller('orders')

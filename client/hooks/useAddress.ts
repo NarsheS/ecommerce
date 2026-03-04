@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import type { Address } from "@/app/types/Address"
 import { addressService } from "@/app/services/address.service"
 import handleApiError from "@/app/utils/handleApiError"
+import type { Address } from "@/app/types/Address"
 
 export function useAddress() {
   const router = useRouter()

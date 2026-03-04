@@ -1,4 +1,5 @@
-import { Address } from "../types/Address";
+
+import type { Address } from "../types/Address";
 import { api } from "./api";
 
 export const addressService = {
