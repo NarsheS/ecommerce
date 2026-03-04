@@ -6,7 +6,6 @@ import { ArrowLeft } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Input } from "@/components/ui/input"
 import useCart from "@/hooks/useCart"
 import LoadingCircle from "@/components/loading-circle"
 
@@ -83,7 +82,6 @@ export default function CartPage() {
           {/* LISTA DE ITENS */}
           <div className="lg:col-span-2 space-y-4">
             {cart.items.map(item => {
-              console.log(item.pricing)
               const unitPrice = item.pricing.finalPrice
               const hasDiscount = item.pricing.hasDiscount
 
@@ -182,7 +180,15 @@ export default function CartPage() {
 
               <div className="flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>{formatPrice(cart.total)}</span>
+                <span>
+                  {formatPrice(
+                    cart.items.reduce(
+                      (total, item) =>
+                        total + item.pricing.finalPrice * item.quantity,
+                      0
+                    )
+                  )}
+                </span>
               </div>
 
               <Button 

@@ -35,12 +35,25 @@ export default function useCart() {
   }
 
   const updateItemQuantity = async (productId: number, quantity: number) => {
-    const { data } = await api.patch(`/cart/item/${productId}`, {
-      quantity,
+    setCart(prev => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        items: prev.items.map(item =>
+          item.product.id === productId
+            ? { ...item, quantity }
+            : item
+        ),
+      };
     });
 
-    setCart(data);
-  }
+    try {
+      await api.patch(`/cart/item/${productId}`, { quantity });
+    } catch (error) {
+      await fetchCart();
+    }
+  };
 
   // Order & Payments
   const createOrderPayment = async () => {
@@ -50,8 +63,6 @@ export default function useCart() {
       const paymentUrl = paymentResponse.data.url
 
       window.location.href = paymentUrl
-
-      console.log(paymentResponse)
 
     }catch(error){
       handleApiError(error, router, "Erro ao redirecionar para o pagamento")
