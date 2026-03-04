@@ -10,12 +10,12 @@ export class OrderController {
 
   @Post('checkout')
   createOrder(@Req() req) {
-    return this.orderService.createOrder(req.user.userId);
+    return this.orderService.createOrder(req.user.id);
   }
 
   @Get()
   getUserOrders(@Req() req) {
-    return this.orderService.getUserOrders(req.user.userId);
+    return this.orderService.getUserOrders(req.user.id);
   }
 
   @Roles(Role.ADMIN)

@@ -30,7 +30,7 @@ export class AuthController {
   @Get('me')
   getMe(@Req() req) {
     return {
-      id: req.user.sub,
+      id: req.user.id,
       role: req.user.role,
     };
   }
