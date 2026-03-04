@@ -15,7 +15,7 @@ export class Order{
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @ManyToOne(() => User, user => user.orders)
+    @ManyToOne(() => User, user => user.orders, { nullable: false, onDelete: 'CASCADE' })
     user: User;
 
     @OneToMany(() => OrderItem, item => item.order, { cascade: ['insert'] })

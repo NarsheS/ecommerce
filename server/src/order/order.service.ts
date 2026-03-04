@@ -18,6 +18,10 @@ export class OrderService {
   ) {}
 
   async createOrder(userId: number) {
+    if (!userId) {
+      throw new BadRequestException('Invalid user');
+    }
+    
     const cart = await this.cartRepo.findOne({
       where: { user: { id: userId } },
       relations: ['items', 'items.product', 'items.product.category'],

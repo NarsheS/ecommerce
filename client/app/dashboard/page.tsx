@@ -74,7 +74,10 @@ export default function Dashboard() {
           }}
         >
           <p><strong>Pedido:</strong> #{order.id}</p>
-          <p><strong>Cliente:</strong> {order.user.email}</p>
+          <p>
+            <strong>Cliente:</strong>{" "}
+            {order.user?.email ?? "Usuário removido"}
+          </p>
           <p><strong>Total:</strong> R$ {Number(order.total).toFixed(2)}</p>
           <p><strong>Status:</strong> {order.status}</p>
           <p>
