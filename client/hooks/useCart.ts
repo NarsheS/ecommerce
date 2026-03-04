@@ -34,6 +34,14 @@ export default function useCart() {
     fetchCart()
   }
 
+  const updateItemQuantity = async (productId: number, quantity: number) => {
+    const { data } = await api.patch(`/cart/item/${productId}`, {
+      quantity,
+    });
+
+    setCart(data);
+  }
+
   // Order & Payments
   const createOrderPayment = async () => {
     try{
@@ -56,6 +64,7 @@ export default function useCart() {
     removeItem,
     clearCart,
     refetch: fetchCart,
+    updateItemQuantity,
     createOrderPayment,
   }
 }

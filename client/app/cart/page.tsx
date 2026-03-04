@@ -12,7 +12,7 @@ import LoadingCircle from "@/components/loading-circle"
 
 export default function CartPage() {
   const router = useRouter()
-  const { cart, loading, removeItem, clearCart, createOrderPayment } = useCart()
+  const { cart, loading, removeItem, clearCart, updateItemQuantity, createOrderPayment } = useCart()
 
 
   const formatPrice = (value: number) =>
@@ -128,13 +128,15 @@ export default function CartPage() {
 
                     {/* QUANTIDADE + SUBTOTAL */}
                     <div className="flex items-center gap-4">
-                      <Input
-                        type="number"
-                        min={1}
-                        value={item.quantity}
-                        readOnly
-                        className="w-16"
-                      />
+                      <Button onClick={() =>
+                        updateItemQuantity(item.product.id, item.quantity - 1)
+                      }>-</Button>
+
+                      <span>{item.quantity}</span>
+
+                      <Button onClick={() =>
+                        updateItemQuantity(item.product.id, item.quantity + 1)
+                      }>+</Button>
 
                       <div className="text-right">
                         <p className="font-semibold">

@@ -6,7 +6,7 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
-- criar um endpoint para vizualizar todas as orders pelo painel de controle
+- Adicionar mais informações nas orders do dashboard
 
 - Painel de Controle (REMOVER QUALQUER CONTA - delete("users/remove/:id"))
 - customize!!! - aplicar os descontos visuais nos itens (acho q na hora de pagar ele ja aplica)

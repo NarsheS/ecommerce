@@ -107,4 +107,25 @@ export class CartService{
         await this.itemRepo.remove(cart.items);
         return this.getUserCart(userId);
     }
+
+    // UPDATE - Muda a quantidade de X item no carrinho
+    async updateItemQuantity(userId: number, productId: number, quantity: number) {
+        const cart = await this.getUserCart(userId);
+
+        const item = cart.items.find(i => i.product.id === productId);
+
+        if (!item) {
+            throw new NotFoundException("Item não encontrado no carrinho!");
+        }
+
+        if (quantity <= 0) {
+            await this.itemRepo.remove(item);
+            return this.getUserCart(userId);
+        }
+
+        item.quantity = quantity;
+        await this.itemRepo.save(item);
+
+        return this.getUserCart(userId);
+        }
 }

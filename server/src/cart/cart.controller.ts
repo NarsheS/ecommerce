@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Req } from "@nestjs/common";
 import { CartService } from "./cart.service";
 import { AddCartItemDto } from "./dto/add-cart-item.dto";
 
@@ -32,5 +32,14 @@ export class CartController{
     clearCart(@Req() req) {
         const userId = req.user.userId;
         return this.cartService.clearCart(userId);
+    }
+
+    @Patch('item/:productId')
+    updateQuantity(
+    @Req() req,
+    @Param('productId', ParseIntPipe) productId: number,
+    @Body('quantity') quantity: number,
+    ) {
+        return this.cartService.updateItemQuantity(req.user.id, productId, quantity);
     }
 }

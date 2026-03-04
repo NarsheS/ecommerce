@@ -37,7 +37,7 @@ export function useProfile() {
           return
         }
 
-        console.error("Erro ao buscar usuário", error)
+        
       } finally {
         setLoading(false)
       }
@@ -101,7 +101,7 @@ export function useProfile() {
       router.replace("/")
       router.refresh()
     } catch (error) {
-      console.error("Erro ao deletar conta", error)
+      handleApiError(error, router, "erro ao deletar a conta")
     } finally {
       setDeleteLoading(false)
       setDeleteDialogOpen(false)
