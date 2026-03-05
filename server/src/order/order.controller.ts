@@ -9,8 +9,8 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post('checkout')
-  createOrder(@Req() req) {
-    return this.orderService.createOrder(req.user.id);
+  createOrder(@Req() req, @Body('addressId') addressId: number) {
+    return this.orderService.createOrder(req.user.id, addressId);
   }
 
   @Get()

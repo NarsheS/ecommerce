@@ -11,7 +11,9 @@ import { Separator } from "@/components/ui/separator"
 
 import { api } from "../services/api"
 import handleApiError from "../utils/handleApiError"
-import type { Order, OrdersResponse } from "../types/order"
+import type { Order, OrdersApiResponse } from "../types/order"
+
+
 
 export default function Dashboard() {
   const router = useRouter()
@@ -25,7 +27,7 @@ export default function Dashboard() {
     try {
       setLoading(true)
 
-      const { data } = await api.get<OrdersResponse>(
+      const { data } = await api.get<OrdersApiResponse>(
         `/orders/admin?page=${currentPage}&limit=10`
       )
 
@@ -76,6 +78,12 @@ export default function Dashboard() {
     }
   }
 
+  const formatPrice = (value: string | number) =>
+    Number(value).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    })
+
   return (
     <div className="container mx-auto py-10 space-y-6">
       <h1 className="text-3xl font-bold">Dashboard Admin</h1>
@@ -103,15 +111,29 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
 
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-3">
+
             <p>
               <strong>Cliente:</strong>{" "}
               {order.user?.email ?? "Usuário removido"}
             </p>
 
+            {order.address && (
+              <div className="text-sm text-muted-foreground">
+                <p>
+                  <strong>Endereço:</strong>{" "}
+                  {order.address.street}, {order.address.number}
+                </p>
+                <p>
+                  {order.address.city} - {order.address.state}
+                </p>
+                <p>CEP: {order.address.zipcode}</p>
+              </div>
+            )}
+
             <p>
               <strong>Total:</strong>{" "}
-              R$ {Number(order.total).toFixed(2)}
+              {formatPrice(order.total)}
             </p>
 
             <p>
@@ -121,10 +143,20 @@ export default function Dashboard() {
 
             <Separator />
 
+            <div className="space-y-1">
+              <p className="font-semibold">Produtos:</p>
+
+              {order.items?.map(item => (
+                <p key={item.id} className="text-sm text-muted-foreground">
+                  {item.quantity}x {item.product.name}
+                </p>
+              ))}
+            </div>
+
+            <Separator />
+
             {order.status === "paid" && (
-              <Button
-                onClick={() => markAsShipped(order.id)}
-              >
+              <Button onClick={() => markAsShipped(order.id)}>
                 Marcar como Enviado
               </Button>
             )}
@@ -134,11 +166,11 @@ export default function Dashboard() {
                 ✅ Já enviado
               </p>
             )}
+
           </CardContent>
         </Card>
       ))}
 
-      {/* Paginação */}
       {!loading && orders.length > 0 && (
         <div className="flex items-center justify-center gap-4 pt-6">
           <Button

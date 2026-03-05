@@ -1,6 +1,23 @@
+import { Product } from "./product"
+
+type Address = {
+  street: string
+  number: string
+  city: string
+  state: string
+  zipcode: string
+}
+
 type User = {
   id: number
   email: string
+}
+
+export type OrderItem = {
+  id: number
+  quantity: number
+  finalPrice: string
+  product: Product
 }
 
 export type Order = {
@@ -9,9 +26,11 @@ export type Order = {
   status: string
   createdAt: string
   user: User
+  address: Address
+  items: OrderItem[]
 }
 
-export type OrdersResponse = {
+export type OrdersApiResponse = {
   data: Order[]
   total: number
   page: number

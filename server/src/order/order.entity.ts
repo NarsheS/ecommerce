@@ -1,6 +1,7 @@
 import { User } from "../user/user.entity";
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { OrderItem } from "./order-item.entity";
+import { Address } from "../address/address.entity";
 
 export enum OrderStatus{
     PENDING = 'pending',
@@ -17,6 +18,9 @@ export class Order{
 
     @ManyToOne(() => User, user => user.orders, { nullable: false, onDelete: 'CASCADE' })
     user: User;
+
+    @ManyToOne(() => Address, { nullable: true })
+    address: Address;
 
     @OneToMany(() => OrderItem, item => item.order, { cascade: ['insert'] })
     items: OrderItem[];

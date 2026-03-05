@@ -6,6 +6,7 @@ import { OrderItem } from "./order-item.entity";
 import { Cart } from "../cart/cart.entity";
 import { CartItem } from "../cart/cart-item.entity";
 import { PricingService } from "../products/pricing/pricing.service";
+import { Address } from "../address/address.entity";
 
 @Injectable()
 export class OrderService {
@@ -14,12 +15,24 @@ export class OrderService {
     @InjectRepository(OrderItem) private orderItemRepo: Repository<OrderItem>,
     @InjectRepository(Cart) private cartRepo: Repository<Cart>,
     @InjectRepository(CartItem) private cartItemRepo: Repository<CartItem>,
+    @InjectRepository(Address) private addressRepo: Repository<Address>,
     private readonly pricingService: PricingService,
   ) {}
 
-  async createOrder(userId: number) {
+  async createOrder(userId: number, addressId: number) {
     if (!userId) {
       throw new BadRequestException('Invalid user');
+    }
+
+    const address = await this.addressRepo.findOne({
+      where: {
+        id: addressId,
+        user: { id: userId }
+      }
+    });
+
+    if (!address) {
+      throw new NotFoundException('Address not found');
     }
     
     const cart = await this.cartRepo.findOne({
@@ -33,6 +46,7 @@ export class OrderService {
     const order = await this.orderRepo.save(
       this.orderRepo.create({
         user: { id: userId } as any,
+        address,
         total: 0,
         discountTotal: 0,
       })
@@ -94,6 +108,9 @@ export class OrderService {
     const [orders, total] = await this.orderRepo
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.user', 'user')
+      .leftJoinAndSelect('order.address', 'address')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product')
       .orderBy('order.createdAt', 'DESC')
       .skip((page - 1) * limit)
       .take(limit)
