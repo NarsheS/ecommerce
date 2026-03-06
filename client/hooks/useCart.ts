@@ -1,4 +1,5 @@
 import { api } from "@/app/services/api"
+import type { Address } from "@/app/types/Address"
 import { Cart } from "@/app/types/cart"
 import handleApiError from "@/app/utils/handleApiError"
 import { useRouter } from "next/navigation"
@@ -6,7 +7,10 @@ import { useEffect, useState } from "react"
 
 export default function useCart() {
   const [cart, setCart] = useState<Cart | null>(null)
+  const [addresses, setAddresses] = useState<Address[]>([])
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
+
   const router = useRouter()
 
   const fetchCart = async () => {
@@ -15,13 +19,34 @@ export default function useCart() {
       setCart(response.data)
     } catch (error) {
       handleApiError(error, router, "Erro ao buscar o carrinho")
-    } finally {
-      setLoading(false)
     }
   }
 
+  const fetchAddresses = async () => {
+    try {
+      const response = await api.get("addresses")
+      setAddresses(response.data)
+
+      if (response.data.length > 0) {
+        setSelectedAddressId(response.data[0].id)
+      }
+
+    } catch (error) {
+      handleApiError(error, router, "Erro ao buscar endereços")
+    }
+  }
+
+  const fetchAll = async () => {
+    setLoading(true)
+    await Promise.all([
+      fetchCart(),
+      fetchAddresses()
+    ])
+    setLoading(false)
+  }
+
   useEffect(() => {
-    fetchCart()
+    fetchAll()
   }, [])
 
   const removeItem = async (productId: number) => {
@@ -36,7 +61,7 @@ export default function useCart() {
 
   const updateItemQuantity = async (productId: number, quantity: number) => {
     setCart(prev => {
-      if (!prev) return prev;
+      if (!prev) return prev
 
       return {
         ...prev,
@@ -44,33 +69,46 @@ export default function useCart() {
           item.product.id === productId
             ? { ...item, quantity }
             : item
-        ),
-      };
-    });
+        )
+      }
+    })
 
     try {
-      await api.patch(`/cart/item/${productId}`, { quantity });
-    } catch (error) {
-      await fetchCart();
+      await api.patch(`/cart/item/${productId}`, { quantity })
+    } catch {
+      await fetchCart()
     }
-  };
+  }
 
-  // Order & Payments
+  // ORDER + PAYMENT
   const createOrderPayment = async () => {
-    try{
-      const { data } = await api.post("orders/checkout")
+    try {
+
+      if (!selectedAddressId) {
+        alert("Selecione um endereço antes de continuar")
+        return
+      }
+
+      const { data } = await api.post("orders/checkout", {
+        addressId: selectedAddressId
+      })
+
       const paymentResponse = await api.post(`/payments/create/${data.id}`)
+
       const paymentUrl = paymentResponse.data.url
 
       window.location.href = paymentUrl
 
-    }catch(error){
+    } catch (error) {
       handleApiError(error, router, "Erro ao redirecionar para o pagamento")
     }
   }
 
   return {
     cart,
+    addresses,
+    selectedAddressId,
+    setSelectedAddressId,
     loading,
     removeItem,
     clearCart,

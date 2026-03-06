@@ -24,17 +24,17 @@ export class OrderService {
       throw new BadRequestException('Invalid user');
     }
 
+    // busca o endereço
     const address = await this.addressRepo.findOne({
-      where: {
-        id: addressId,
-        user: { id: userId }
-      }
+      where: { id: addressId },
+      relations: ['user']
     });
 
-    if (!address) {
+    // garante que o endereço pertence ao usuário
+    if (!address || address.user.id !== userId) {
       throw new NotFoundException('Address not found');
     }
-    
+
     const cart = await this.cartRepo.findOne({
       where: { user: { id: userId } },
       relations: ['items', 'items.product', 'items.product.category'],
@@ -46,7 +46,7 @@ export class OrderService {
     const order = await this.orderRepo.save(
       this.orderRepo.create({
         user: { id: userId } as any,
-        address,
+        address: { id: address.id } as any,
         total: 0,
         discountTotal: 0,
       })
@@ -65,8 +65,8 @@ export class OrderService {
       const subtotal = finalPrice * item.quantity;
 
       const orderItem = this.orderItemRepo.create({
-        order,
-        product: item.product,
+        order: { id: order.id } as any,
+        product: { id: item.product.id } as any,
         quantity: item.quantity,
         price: originalPrice,
         finalPrice,
@@ -84,17 +84,16 @@ export class OrderService {
 
     order.total = Number(total.toFixed(2));
     order.discountTotal = Number(totalDiscount.toFixed(2));
+
     await this.orderRepo.save(order);
 
     await this.cartItemRepo.remove(cart.items);
 
     return this.orderRepo.findOne({
       where: { id: order.id },
-      relations: ['items', 'items.product'],
+      relations: ['items', 'items.product', 'address'],
     });
   }
-
-
 
   async getUserOrders(userId: number) {
     return this.orderRepo.find({

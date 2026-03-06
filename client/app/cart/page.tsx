@@ -11,8 +11,18 @@ import LoadingCircle from "@/components/loading-circle"
 
 export default function CartPage() {
   const router = useRouter()
-  const { cart, loading, removeItem, clearCart, updateItemQuantity, createOrderPayment } = useCart()
 
+  const {
+    cart,
+    addresses,
+    selectedAddressId,
+    setSelectedAddressId,
+    loading,
+    removeItem,
+    clearCart,
+    updateItemQuantity,
+    createOrderPayment
+  } = useCart()
 
   const formatPrice = (value: number) =>
     value.toLocaleString("pt-BR", {
@@ -55,6 +65,7 @@ export default function CartPage() {
           <h1 className="text-2xl font-bold text-center">
             Seu carrinho está vazio
           </h1>
+
           <p className="text-muted-foreground text-center">
             Adicione produtos para continuar.
           </p>
@@ -79,9 +90,10 @@ export default function CartPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          {/* LISTA DE ITENS */}
+          {/* ITENS */}
           <div className="lg:col-span-2 space-y-4">
             {cart.items.map(item => {
+
               const unitPrice = item.pricing.finalPrice
               const hasDiscount = item.pricing.hasDiscount
 
@@ -90,6 +102,7 @@ export default function CartPage() {
                   <CardContent className="flex items-center justify-between p-4 gap-4">
 
                     <div className="flex items-center gap-4">
+
                       {item.product.images?.[0] && (
                         <img
                           src={item.product.images[0].url}
@@ -103,40 +116,46 @@ export default function CartPage() {
                           {item.product.name}
                         </p>
 
-                        {/* PREÇO UNITÁRIO */}
-                        <div className="mt-1">
-                          {hasDiscount && (
-                            <p className="text-sm line-through text-muted-foreground">
-                              {formatPrice(item.pricing.originalPrice)}
-                            </p>
-                          )}
-
-                          <p className={`text-sm font-semibold ${hasDiscount ? "text-green-600" : ""}`}>
-                            {formatPrice(unitPrice)}
+                        {hasDiscount && (
+                          <p className="text-sm line-through text-muted-foreground">
+                            {formatPrice(item.pricing.originalPrice)}
                           </p>
+                        )}
 
-                          {hasDiscount && (
-                            <p className="text-xs text-green-600">
-                              {item.pricing.discountPercentage}% OFF
-                            </p>
-                          )}
-                        </div>
+                        <p className="text-sm font-semibold text-green-600">
+                          {formatPrice(unitPrice)}
+                        </p>
+
+                        {hasDiscount && (
+                          <p className="text-xs text-green-600">
+                            {item.pricing.discountPercentage}% OFF
+                          </p>
+                        )}
                       </div>
                     </div>
 
-                    {/* QUANTIDADE + SUBTOTAL */}
                     <div className="flex items-center gap-4">
-                      <Button onClick={() =>
-                        updateItemQuantity(item.product.id, item.quantity - 1)
-                      }>-</Button>
+
+                      <Button
+                        onClick={() =>
+                          updateItemQuantity(item.product.id, item.quantity - 1)
+                        }
+                      >
+                        -
+                      </Button>
 
                       <span>{item.quantity}</span>
 
-                      <Button onClick={() =>
-                        updateItemQuantity(item.product.id, item.quantity + 1)
-                      }>+</Button>
+                      <Button
+                        onClick={() =>
+                          updateItemQuantity(item.product.id, item.quantity + 1)
+                        }
+                      >
+                        +
+                      </Button>
 
                       <div className="text-right">
+
                         <p className="font-semibold">
                           {formatPrice(unitPrice * item.quantity)}
                         </p>
@@ -149,7 +168,9 @@ export default function CartPage() {
                         >
                           Remover
                         </Button>
+
                       </div>
+
                     </div>
 
                   </CardContent>
@@ -167,6 +188,25 @@ export default function CartPage() {
             <Separator />
 
             <CardContent className="space-y-4 pt-4">
+
+              {/* ENDEREÇOS */}
+              <div>
+                <p className="font-semibold mb-2">Endereço de entrega</p>
+
+                <select
+                  value={selectedAddressId ?? ""}
+                  onChange={(e) => setSelectedAddressId(Number(e.target.value))}
+                  className="w-full border rounded-md p-2"
+                >
+                  {addresses.map(address => (
+                    <option key={address.id} value={address.id}>
+                      {address.street}, {address.number} - {address.city}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <Separator />
 
               <div className="flex justify-between text-sm">
                 <span>Itens</span>
@@ -191,7 +231,7 @@ export default function CartPage() {
                 </span>
               </div>
 
-              <Button 
+              <Button
                 className="w-full cursor-pointer"
                 onClick={createOrderPayment}
               >
