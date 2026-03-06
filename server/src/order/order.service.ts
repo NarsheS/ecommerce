@@ -20,33 +20,37 @@ export class OrderService {
   ) {}
 
   async createOrder(userId: number, addressId: number) {
+
     if (!userId) {
-      throw new BadRequestException('Invalid user');
+      throw new BadRequestException("Invalid user");
     }
 
-    // busca o endereço
     const address = await this.addressRepo.findOne({
       where: { id: addressId },
-      relations: ['user']
+      relations: ["user"],
     });
 
-    // garante que o endereço pertence ao usuário
     if (!address || address.user.id !== userId) {
-      throw new NotFoundException('Address not found');
+      throw new NotFoundException("Address not found");
     }
 
     const cart = await this.cartRepo.findOne({
       where: { user: { id: userId } },
-      relations: ['items', 'items.product', 'items.product.category'],
+      relations: ["items", "items.product", "items.product.category"],
     });
 
-    if (!cart) throw new NotFoundException('Cart not found');
-    if (cart.items.length === 0) throw new BadRequestException('Cart is empty');
+    if (!cart) {
+      throw new NotFoundException("Cart not found");
+    }
+
+    if (!cart.items || cart.items.length === 0) {
+      throw new BadRequestException("Cart is empty");
+    }
 
     const order = await this.orderRepo.save(
       this.orderRepo.create({
         user: { id: userId } as any,
-        address: { id: address.id } as any,
+        address: address,
         total: 0,
         discountTotal: 0,
       })
@@ -57,7 +61,12 @@ export class OrderService {
     const orderItems: OrderItem[] = [];
 
     for (const item of cart.items) {
+
       const pricing = await this.pricingService.calculate(item.product);
+
+      if (!pricing) {
+        throw new BadRequestException("Pricing error");
+      }
 
       const originalPrice = pricing.originalPrice;
       const finalPrice = pricing.finalPrice;
@@ -65,13 +74,13 @@ export class OrderService {
       const subtotal = finalPrice * item.quantity;
 
       const orderItem = this.orderItemRepo.create({
-        order: { id: order.id } as any,
-        product: { id: item.product.id } as any,
+        order: order,
+        product: item.product,
         quantity: item.quantity,
         price: originalPrice,
-        finalPrice,
-        discountApplied,
-        subtotal,
+        finalPrice: finalPrice,
+        discountApplied: discountApplied,
+        subtotal: subtotal,
       });
 
       orderItems.push(orderItem);
@@ -91,7 +100,7 @@ export class OrderService {
 
     return this.orderRepo.findOne({
       where: { id: order.id },
-      relations: ['items', 'items.product', 'address'],
+      relations: ["items", "items.product"],
     });
   }
 

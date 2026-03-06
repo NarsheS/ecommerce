@@ -1,5 +1,5 @@
 import { User } from "../user/user.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { OrderItem } from "./order-item.entity";
 import { Address } from "../address/address.entity";
 
@@ -20,6 +20,7 @@ export class Order{
     user: User;
 
     @ManyToOne(() => Address, { nullable: true })
+    @JoinColumn({ name: "addressId" })
     address: Address;
 
     @OneToMany(() => OrderItem, item => item.order, { cascade: ['insert'] })

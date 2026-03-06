@@ -24,7 +24,7 @@ export default function useCart() {
 
   const fetchAddresses = async () => {
     try {
-      const response = await api.get("addresses")
+      const response = await api.get("users/address")
       setAddresses(response.data)
 
       if (response.data.length > 0) {

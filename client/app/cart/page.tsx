@@ -181,11 +181,6 @@ export default function CartPage() {
 
           {/* RESUMO */}
           <Card className="h-fit">
-            <CardHeader>
-              <CardTitle>Resumo do Pedido</CardTitle>
-            </CardHeader>
-
-            <Separator />
 
             <CardContent className="space-y-4 pt-4">
 
