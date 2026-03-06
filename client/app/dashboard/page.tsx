@@ -115,11 +115,15 @@ export default function Dashboard() {
 
             <p>
               <strong>Cliente:</strong>{" "}
+              {order.user?.username ?? "Usuário removido"}
+            </p>
+            <p>
+              <strong>Email:</strong>{" "}
               {order.user?.email ?? "Usuário removido"}
             </p>
 
             {order.address && (
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm">
                 <p>
                   <strong>Endereço:</strong>{" "}
                   {order.address.street}, {order.address.number}

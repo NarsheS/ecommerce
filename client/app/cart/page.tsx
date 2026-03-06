@@ -195,7 +195,7 @@ export default function CartPage() {
                 >
                   {addresses.map(address => (
                     <option key={address.id} value={address.id}>
-                      {address.street}, {address.number} - {address.city}
+                      {address.street},número: {address.number} - {address.zipcode}
                     </option>
                   ))}
                 </select>
