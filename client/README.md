@@ -6,6 +6,7 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
+- ver como ficou a logo
 - Adicionar Botao para update da situação da order
 
 - Painel de Controle (REMOVER QUALQUER CONTA - delete("users/remove/:id"))

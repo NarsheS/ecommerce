@@ -13,7 +13,9 @@ export default function Footer() {
 
           {/* LOGO / ABOUT */}
           <div className="space-y-3">
-            <h2 className="text-xl font-bold">MyStore</h2>
+            <h2 className="text-xl font-bold tracking-tight">
+                My<span className="text-primary">Store</span>
+            </h2>
             <p className="text-sm text-muted-foreground">
               Loja online criada com Next.js, NestJS e Stripe.
             </p>
