@@ -76,6 +76,11 @@ export class PaymentService implements OnModuleInit {
       metadata: {
         orderId: String(order.id),
       },
+      payment_intent_data: {
+        metadata: {
+          orderId: String(order.id),
+        },
+      },
     });
 
     // Salva sessionId no DB por segurança
@@ -89,7 +94,6 @@ export class PaymentService implements OnModuleInit {
       url: session.url,
     };
   }
-
 
    // Stripe Webhook Handler
   async handleWebhook(rawBody: Buffer, signature: string) {
@@ -116,65 +120,105 @@ export class PaymentService implements OnModuleInit {
 
     // Processa event
     switch (event.type) {
-      case 'checkout.session.completed':
-        await this.handlePaymentCompleted(event);
+      case 'payment_intent.succeeded':
+        await this.handlePaymentSucceeded(event);
+        break;
+
+      case 'checkout.session.expired':
+        await this.handlePaymentExpired(event);
+        break;
+
+      case 'payment_intent.payment_failed':
+        await this.handlePaymentFailed(event);
         break;
 
       default:
         this.logger.debug(`Unhandled Stripe event: ${event.type}`);
-        break;
     }
 
     return true;
   }
 
+  private async handlePaymentSucceeded(event: Stripe.Event) {
+    const paymentIntent = event.data.object as Stripe.PaymentIntent;
 
-  // Processa pagamento bem-sucedido
-  private async handlePaymentCompleted(event: Stripe.Event) {
-    const session = event.data.object as Stripe.Checkout.Session;
+    const orderId = paymentIntent.metadata?.orderId;
 
-    const orderId = Number(session.metadata?.orderId);
     if (!orderId) {
-      this.logger.error('Missing orderId in Stripe session metadata');
+      this.logger.error('Missing orderId in payment_intent metadata');
       return;
     }
 
-    const order = await this.orderRepo.findOne({ where: { id: orderId } });
+    const order = await this.orderRepo.findOne({
+      where: { id: Number(orderId) },
+    });
+
     if (!order) {
       this.logger.error(`Order ${orderId} not found`);
       return;
     }
 
-    // Evita processar a mesma order 2x
+    // Evita processar duas vezes
     if (order.status === OrderStatus.PAID) {
-      this.logger.warn(`Order ${orderId} already marked as paid`);
+      this.logger.warn(`Order ${orderId} already marked as PAID`);
       return;
-    }
-
-    // Opcional: Validar moeda
-    if (session.currency !== 'brl') {
-      this.logger.error(
-        `Invalid currency for order ${orderId}: expected BRL but got ${session.currency}`,
-      );
-      return;
-    }
-
-    // Opcional: validar montante recebido vs esperado
-    // (Stripe retorna o total (montante final) em centavos)
-    if (session.amount_total && order.total) {
-      const expected = Math.round(order.total * 100);
-      if (session.amount_total !== expected) {
-        this.logger.error(
-          `Payment mismatch on order ${orderId}. Expected ${expected}, got ${session.amount_total}`,
-        );
-        return;
-      }
     }
 
     order.status = OrderStatus.PAID;
-    order.stripeSessionId = session.id;
+
     await this.orderRepo.save(order);
 
-    this.logger.log(`Order ${orderId} successfully marked as PAID`);
+    this.logger.log(`Payment confirmed for order ${orderId}`);
   }
+
+  private async handlePaymentExpired(event: Stripe.Event) {
+    const session = event.data.object as Stripe.Checkout.Session
+
+    const orderId = Number(session.metadata?.orderId)
+    if (!orderId) return
+
+    const order = await this.orderRepo.findOne({ where: { id: orderId } })
+    if (!order) return
+
+    if (order.status === OrderStatus.PAID) return
+
+    order.status = OrderStatus.CANCELLED
+    await this.orderRepo.save(order)
+
+    this.logger.log(`Order ${orderId} marked as CANCELLED`)
+  }
+
+  private async handlePaymentFailed(event: Stripe.Event) {
+    const paymentIntent = event.data.object as Stripe.PaymentIntent;
+
+    const sessionId = paymentIntent.metadata?.sessionId;
+    const orderId = paymentIntent.metadata?.orderId;
+
+    if (!orderId) {
+      this.logger.error('Missing orderId in payment_intent metadata');
+      return;
+    }
+
+    const order = await this.orderRepo.findOne({
+      where: { id: Number(orderId) },
+    });
+
+    if (!order) {
+      this.logger.error(`Order ${orderId} not found`);
+      return;
+    }
+
+    // Evita sobrescrever pedido pago
+    if (order.status === OrderStatus.PAID) {
+      this.logger.warn(`Order ${orderId} already paid`);
+      return;
+    }
+
+    order.status = OrderStatus.CANCELLED;
+
+    await this.orderRepo.save(order);
+
+    this.logger.warn(`Payment failed for order ${orderId}`);
+  }
+
 }

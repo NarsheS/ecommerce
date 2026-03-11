@@ -6,12 +6,8 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
-- ver como ficou a logo
-- Adicionar Botao para update da situação da order
 
 - Painel de Controle (REMOVER QUALQUER CONTA - delete("users/remove/:id"))
-- customize!!! - aplicar os descontos visuais nos itens (acho q na hora de pagar ele ja aplica)
-- carrinho (POST ja adicionado)
 
 !! QUALITY OF LIFE CHANGES !!
 - Toda vez que alguém finalizar uma compra, reduzir o estoque com base na compra
