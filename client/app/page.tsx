@@ -123,9 +123,9 @@ const Home = () => {
         searchValue={search}
         onSearchChange={setSearch}
         navigationLinks={[
-          { label: "Products" },
-          { label: "Categories" },
-          { label: "Ofertas" }
+          { label: "Ofertas" },
+          { label: "Contato" },
+          { label: "Sobre" },
         ]}
         onSaleClick={handleSaleClick}
         rightSlot={

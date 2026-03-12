@@ -1,13 +1,60 @@
-# Server com Nestjs
-- npm run start:dev
-
-- Lembrando que para os tokens funcionarem é necessario o prefixo: Bearer <token>
-
-- Método GET para Debug adicionado em users para teste nginx (http://localhost/api/users/debug)
-
 # Falta fazer
 - Talvez adicionar redis para cache
 
+# Server com Nestjs
+Install everything:
+- npm i
+
+Start the server locally as dev:
+- npm run start:dev
+
+To see if its working:
+- Método GET para Debug (http://localhost/api/users/debug)
+- Quick reminder, for tokens to work they need the prefix: Bearer <token>
+
+OBS: Some functionalities may not work without the frontend, since it's needed as I thought about this as 
+a whole web app
+
+
+# .ENV
+----------------------------------------------------------------------------------------------------------
+# Porta
+PORT=3000
+
+# Cookie
+NODE_ENV=production
+
+# Info banco de dados postgres
+DB_HOST=???
+DB_PORT=???
+DB_USER=???
+DB_PASS=???
+DB_NAME=???
+
+# Tokens
+JWT_SECRET=super_hyper_mega_secret_key
+JWT_EXPIRES_IN= how much time token till token expires
+REFRESH_TTL_DAYS= how many days refresh token will lasts
+
+# Resend - emails
+RESEND_API_KEY=???
+MAIL_FROM=???
+APP_URL=???
+
+# Stripe - payments
+FRONTEND_URL=???
+STRIPE_SECRET_KEY=???
+STRIPE_WEBHOOK_SECRET=???
+
+# Cloudinary - images
+CLOUDINARY_NAME=???
+CLOUDINARY_KEY=???
+CLOUDINARY_SECRET=???
+
+# BRUTEFORCE PROTECTION CONFIG VALUES
+MAX_ATTEMPTS=5
+WINDOW_MS=15
+LOCK_MS=15
 
 # Endpoints
 -------------------------------------------------------------------------------------------

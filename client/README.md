@@ -6,7 +6,11 @@ npm run dev
 --- Sidebar implementada, falta customizar e adicionar funções 
 
 !!!!! URGENTE !!!!!!
+# Criar paginas:
+- Sobre
+- Contato
 
+# Talvez:
 - Painel de Controle (REMOVER QUALQUER CONTA - delete("users/remove/:id"))
 
 !! QUALITY OF LIFE CHANGES !!
