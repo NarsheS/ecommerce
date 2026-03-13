@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
-import { Github, Instagram, Twitter } from "lucide-react"
+import { Github, Instagram, X, Facebook } from "lucide-react"
 
 export default function Footer() {
   return (
@@ -45,7 +45,7 @@ export default function Footer() {
             <h3 className="font-semibold">Redes sociais</h3>
 
             <div className="flex gap-4">
-              <Link href="#">
+              <Link href="https://github.com/NarsheS/" target="_blank">
                 <Github className="h-5 w-5 hover:text-primary transition"/>
               </Link>
 
@@ -54,7 +54,11 @@ export default function Footer() {
               </Link>
 
               <Link href="#">
-                <Twitter className="h-5 w-5 hover:text-primary transition"/>
+                <X className="h-5 w-5 hover:text-primary transition"/>
+              </Link>
+
+              <Link href="#">
+                <Facebook className="h-5 w-5 hover:text-primary transition"/>
               </Link>
             </div>
           </div>

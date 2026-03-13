@@ -1,11 +1,11 @@
-npm run dev
+# Install everything:
+- npm i
 
-- Navbar praticamente feita (falta so colocar links etc)
-
-- Dashboard (Começar implementação de products)
---- Sidebar implementada, falta customizar e adicionar funções 
+# Run client as dev:
+- npm run dev
 
 !!!!! URGENTE !!!!!!
+- Navbar praticamente feita (falta so colocar links etc)
 # Criar paginas:
 - Sobre
 - Contato
