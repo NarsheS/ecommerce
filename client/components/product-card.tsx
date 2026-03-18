@@ -37,7 +37,7 @@ export function ProductCard({
 }: Props) {
   const images = product.images ?? []
 
-  const [quantity, setQuantity] = useState(1)
+  const [quantity, setQuantity] = useState("1")
   const [zoomOpen, setZoomOpen] = useState(false)
 
   const priceFormatter = new Intl.NumberFormat("pt-BR", {
@@ -46,14 +46,16 @@ export function ProductCard({
   })
 
   const increase = () => {
-    if (quantity < product.inStock) {
-      setQuantity(q => q + 1)
+    const value = Number(quantity) || 1
+    if (value < product.inStock) {
+      setQuantity(String(value + 1))
     }
   }
 
   const decrease = () => {
-    if (quantity > 1) {
-      setQuantity(q => q - 1)
+    const value = Number(quantity) || 1
+    if (value > 1) {
+      setQuantity(String(value - 1))
     }
   }
 
@@ -146,6 +148,7 @@ export function ProductCard({
 
             {/* QUANTIDADE */}
             <div className="flex items-center border rounded-md overflow-hidden">
+
               <button
                 onClick={decrease}
                 className="px-2 py-1 text-sm hover:bg-muted cursor-pointer"
@@ -153,9 +156,30 @@ export function ProductCard({
                 -
               </button>
 
-              <span className="px-3 text-sm font-medium">
-                {quantity}
-              </span>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={quantity}
+                placeholder="1"
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const value = e.target.value
+
+                  // permite só números
+                  if (!/^\d*$/.test(value)) return
+
+                  setQuantity(value)
+                }}
+                onBlur={() => {
+                  let value = Number(quantity)
+
+                  if (!value || value < 1) value = 1
+                  if (value > product.inStock) value = product.inStock
+
+                  setQuantity(String(value))
+                }}
+                className="w-12 text-center text-sm font-medium outline-none appearance-none"
+              />
 
               <button
                 onClick={increase}
@@ -163,13 +187,14 @@ export function ProductCard({
               >
                 +
               </button>
+
             </div>
 
             {/* BOTÃO */}
             <Button
               className="flex-1 cursor-pointer"
               disabled={product.inStock === 0}
-              onClick={() => addToCart?.(product.id, quantity)}
+              onClick={() => addToCart?.(product.id, Number(quantity) || 1)}
             >
               Adicionar
             </Button>
@@ -200,7 +225,6 @@ export function ProductCard({
       <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
         <DialogContent className="w-screen h-screen max-w-none p-0 bg-black border-none">
 
-          {/* FECHAR */}
           <button
             onClick={() => setZoomOpen(false)}
             className="absolute top-4 right-4 z-50 text-white text-xl"
@@ -210,7 +234,6 @@ export function ProductCard({
 
           <Carousel className="w-full h-full">
             <CarouselContent>
-
               {images.map(img => (
                 <CarouselItem key={img.id}>
                   <div className="relative w-full h-screen flex items-center justify-center">
@@ -223,7 +246,6 @@ export function ProductCard({
                   </div>
                 </CarouselItem>
               ))}
-
             </CarouselContent>
 
             <CarouselPrevious className="left-4 text-white" />
