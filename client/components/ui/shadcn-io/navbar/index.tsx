@@ -165,165 +165,172 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
       <header
         ref={combinedRef}
         className={cn(
-          'sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6 [&_*]:no-underline',
+          "sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6",
           className
         )}
         {...(props as any)}
       >
-        <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-4">
-          <div className="flex flex-1 items-center gap-2">
+        <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between">
+
+          {/* LEFT */}
+          <div className="flex items-center gap-8">
+
+            {/* MOBILE MENU */}
             {isMobile && (
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    className="group h-9 w-9 hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                    className="group h-9 w-9 hover:bg-accent cursor-pointer"
                     variant="ghost"
                     size="icon"
                   >
                     <HamburgerIcon />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent align="start" className="w-64 p-1">
+
+                <PopoverContent align="start" className="w-64 p-2">
                   <NavigationMenu className="max-w-none">
-                    <NavigationMenuList className="flex-col items-start gap-0">
+                    <NavigationMenuList className="flex-col items-start gap-1">
+
+                      {/* SEARCH */}
                       <NavigationMenuItem className="w-full px-2 py-1.5">
                         <div className="relative w-full">
                           <Input
-                            value={searchValue ?? ''}
+                            value={searchValue ?? ""}
                             onChange={(e) => onSearchChange?.(e.target.value)}
-                            className="peer h-9 w-full ps-8 pe-2"
+                            className="peer h-9 w-full ps-8"
                             placeholder={searchPlaceholder}
                             type="search"
                           />
-                          <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-2">
-                            <SearchIcon size={16} />
-                          </div>
+                          <SearchIcon
+                            size={16}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                          />
                         </div>
                       </NavigationMenuItem>
 
-                      <NavigationMenuItem className="w-full" role="presentation" aria-hidden>
-                        <div className="bg-border -mx-1 my-1 h-px" />
-                      </NavigationMenuItem>
+                      <div className="w-full h-px bg-border my-2" />
 
+                      {/* LINKS */}
                       {navigationLinks.map((link, index) => (
                         <NavigationMenuItem key={index} className="w-full">
                           <button
                             onClick={(e) => {
-                              e.preventDefault();
-                              if (link.label === "Ofertas") { // 🔥 alterado aqui
-                                onSaleClick?.(); // 🔥 alterado aqui
+                              e.preventDefault()
+                              if (link.label === "Ofertas") {
+                                onSaleClick?.()
                               }
                             }}
-                            className="flex w-full items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer no-underline"
+                            className="cursor-pointer w-full text-left px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition"
                           >
                             {link.label}
                           </button>
                         </NavigationMenuItem>
                       ))}
-
-                      <NavigationMenuItem
-                        className="w-full"
-                        role="presentation"
-                        aria-hidden={true}
-                      >
-                        <div
-                          role="separator"
-                          aria-orientation="horizontal"
-                          className="bg-border -mx-1 my-1 h-px"
-                        />
-                      </NavigationMenuItem>
-
                     </NavigationMenuList>
                   </NavigationMenu>
                 </PopoverContent>
               </Popover>
             )}
 
-            <div className="flex flex-1 items-center gap-6 max-md:justify-between">
-              <button
-                onClick={(e) => e.preventDefault()}
-                className="flex items-center space-x-2 text-primary hover:text-primary/90 transition-colors cursor-pointer"
-              >
-                  {logo}
-              </button>
+            {/* LOGO + NAV */}
+            <div className="flex items-center gap-8">
 
+              {/* LOGO */}
+              <div className="flex items-center text-primary">
+                {logo}
+              </div>
+
+              {/* DESKTOP NAV */}
               {!isMobile && (
-                <NavigationMenu className="flex">
-                  <NavigationMenuList className="gap-1">
+                <NavigationMenu>
+                  <NavigationMenuList className="flex gap-1 mt-1.5">
+
                     {navigationLinks.map((link, index) => (
                       <NavigationMenuItem key={index}>
                         <NavigationMenuLink
                           href={link.href}
                           onClick={(e) => {
-                            e.preventDefault();
-                            if (link.label === "Ofertas") { // 🔥 alterado aqui
-                              onSaleClick?.(); // 🔥 alterado aqui
+                            e.preventDefault()
+                            if (link.label === "Ofertas") {
+                              onSaleClick?.()
                             }
                           }}
-                          className="text-muted-foreground hover:text-primary py-1.5 font-medium transition-colors cursor-pointer group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50"
+                          className="cursor-pointer text-muted-foreground hover:text-primary font-medium transition-colors inline-flex items-center h-10 text-sm rounded-md hover:bg-accent/50"
                         >
                           {link.label}
                         </NavigationMenuLink>
                       </NavigationMenuItem>
                     ))}
+
                   </NavigationMenuList>
                 </NavigationMenu>
               )}
 
-              {!isMobile && (
-                <div className="relative">
-                  <Input
-                    id={searchId}
-                    value={searchValue ?? ''}
-                    onChange={(e) => onSearchChange?.(e.target.value)}
-                    className="peer h-8 ps-8 pe-2"
-                    placeholder={searchPlaceholder}
-                    type="search"
-                  />
-                  <div className="text-muted-foreground/80 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-2 peer-disabled:opacity-50">
-                    <SearchIcon size={16} />
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* RIGHT SIDE */}
+          <div className="flex items-center gap-3">
+
+            {/* SEARCH DESKTOP */}
+            {!isMobile && (
+              <div className="relative">
+                <Input
+                  id={searchId}
+                  value={searchValue ?? ""}
+                  onChange={(e) => onSearchChange?.(e.target.value)}
+                  className="h-9 w-56 pl-8"
+                  placeholder={searchPlaceholder}
+                  type="search"
+                />
+                <SearchIcon
+                  size={16}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+                />
+              </div>
+            )}
+
+            {/* LOGIN */}
             {rightSlot ? (
               rightSlot
             ) : (
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-sm font-medium hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                className="cursor-pointer"
                 onClick={(e) => {
-                  e.preventDefault();
-                  if (onSignInClick) onSignInClick();
+                  e.preventDefault()
+                  onSignInClick?.()
                 }}
               >
                 {signInText}
               </Button>
             )}
 
+            {/* CART */}
             <Button
               size="sm"
-              className="text-sm font-medium px-4 h-9 rounded-md shadow-sm cursor-pointer"
+              className="cursor-pointer relative"
               onClick={(e) => {
-                e.preventDefault();
-                if (onCartClick) onCartClick();
+                e.preventDefault()
+                onCartClick?.()
               }}
             >
-              <span className="flex items-baseline gap-2">
-                {cartText}
-                <span className="text-primary-foreground/60 text-xs">
+              {cartText}
+
+              {/* BADGE */}
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs px-1.5 rounded-full">
                   {cartCount}
                 </span>
-              </span>
+              )}
             </Button>
+
           </div>
         </div>
       </header>
-    );
+    )
   }
 );
 

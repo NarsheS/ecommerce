@@ -1,12 +1,11 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import {
   Card,
   CardContent,
   CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import {
   Carousel,
@@ -16,8 +15,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import type { Product } from "@/app/types/product"
-
 
 type Props = {
   dashboard?: boolean
@@ -25,134 +24,214 @@ type Props = {
   onEdit?: (id: number) => void
   onDelete?: (id: number) => void
   onImages?: (id: number) => void
-  addToCart?: (id: number) => void
+  addToCart?: (id: number, quantity: number) => void
 }
 
-export function ProductCard({ product, dashboard = false, onEdit, onDelete, onImages, addToCart }: Props) {
+export function ProductCard({
+  product,
+  dashboard = false,
+  onEdit,
+  onDelete,
+  onImages,
+  addToCart
+}: Props) {
   const images = product.images ?? []
+
+  const [quantity, setQuantity] = useState(1)
+  const [zoomOpen, setZoomOpen] = useState(false)
 
   const priceFormatter = new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-    minimumFractionDigits: 2,
   })
 
-  return (
-    <Card className="w-full max-w-65 flex flex-col overflow-visible">
+  const increase = () => {
+    if (quantity < product.inStock) {
+      setQuantity(q => q + 1)
+    }
+  }
 
-      <CardContent className="flex-1 pt-0 px-0 space-y-2">
-        {/* Carrossel */}
-        {images.length > 0 ? (
-          <Carousel className="w-full">
+  const decrease = () => {
+    if (quantity > 1) {
+      setQuantity(q => q - 1)
+    }
+  }
+
+  return (
+    <>
+      <Card className="w-full max-w-65 flex flex-col overflow-visible">
+
+        <CardContent className="flex-1 pt-0 px-0 space-y-2">
+
+          {/* CARROSSEL */}
+          {images.length > 0 ? (
+            <Carousel className="w-full">
+              <CarouselContent>
+                {images.map((img, index) => (
+                  <CarouselItem key={img.id}>
+                    <div
+                      className="relative aspect-4/3 w-full cursor-zoom-in"
+                      onClick={() => setZoomOpen(true)}
+                    >
+                      <Image
+                        src={img.url}
+                        alt={`${product.name} imagem ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="260px"
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+
+              <CarouselPrevious className="cursor-pointer left-1 scale-90" />
+              <CarouselNext className="cursor-pointer right-1 scale-90" />
+            </Carousel>
+          ) : (
+            <div className="aspect-4/3 w-full bg-muted flex items-center justify-center text-[11px] text-muted-foreground">
+              Sem imagens
+            </div>
+          )}
+
+          {/* NOME */}
+          <div className="px-3 pt-1">
+            <h3 className="text-sm font-semibold leading-tight line-clamp-1">
+              {product.name}
+            </h3>
+          </div>
+
+          {/* PREÇO */}
+          <div className="px-3 space-y-1">
+            <div className="flex justify-between items-center text-xs">
+
+              {product.pricing.hasDiscount ? (
+                <div className="flex flex-col">
+                  <span className="line-through text-gray-500 text-xs">
+                    {priceFormatter.format(product.pricing.originalPrice)}
+                  </span>
+                  <span className="font-semibold text-sm">
+                    {priceFormatter.format(product.pricing.finalPrice)}
+                  </span>
+                </div>
+              ) : (
+                <span className="font-semibold text-sm">
+                  {priceFormatter.format(product.pricing.originalPrice)}
+                </span>
+              )}
+
+              <span
+                className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                  product.inStock > 0
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+              >
+                {product.inStock > 0
+                  ? `${product.inStock} un.`
+                  : "Sem estoque"}
+              </span>
+            </div>
+
+            <p className="text-[11px] text-muted-foreground line-clamp-2">
+              {product.description || "Sem descrição disponível."}
+            </p>
+          </div>
+
+        </CardContent>
+
+        {/* FOOTER */}
+        {!dashboard && (
+          <CardFooter className="px-3 pb-3 pt-2 flex gap-2">
+
+            {/* QUANTIDADE */}
+            <div className="flex items-center border rounded-md overflow-hidden">
+              <button
+                onClick={decrease}
+                className="px-2 py-1 text-sm hover:bg-muted cursor-pointer"
+              >
+                -
+              </button>
+
+              <span className="px-3 text-sm font-medium">
+                {quantity}
+              </span>
+
+              <button
+                onClick={increase}
+                className="px-2 py-1 text-sm hover:bg-muted cursor-pointer"
+              >
+                +
+              </button>
+            </div>
+
+            {/* BOTÃO */}
+            <Button
+              className="flex-1 cursor-pointer"
+              disabled={product.inStock === 0}
+              onClick={() => addToCart?.(product.id, quantity)}
+            >
+              Adicionar
+            </Button>
+
+          </CardFooter>
+        )}
+
+        {/* DASHBOARD */}
+        {dashboard && (
+          <CardFooter className="grid grid-cols-3 gap-1.5 px-3 pb-3 pt-2">
+            <Button size="sm" variant="outline" onClick={() => onImages?.(product.id)}>
+              Imagens
+            </Button>
+
+            <Button size="sm" variant="secondary" onClick={() => onEdit?.(product.id)}>
+              Editar
+            </Button>
+
+            <Button size="sm" variant="destructive" onClick={() => onDelete?.(product.id)}>
+              Excluir
+            </Button>
+          </CardFooter>
+        )}
+
+      </Card>
+
+      {/* ZOOM FULLSCREEN */}
+      <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
+        <DialogContent className="w-screen h-screen max-w-none p-0 bg-black border-none">
+
+          {/* FECHAR */}
+          <button
+            onClick={() => setZoomOpen(false)}
+            className="absolute top-4 right-4 z-50 text-white text-xl"
+          >
+            ✕
+          </button>
+
+          <Carousel className="w-full h-full">
             <CarouselContent>
-              {images.map((img, index) => (
+
+              {images.map(img => (
                 <CarouselItem key={img.id}>
-                  <div className="relative aspect-4/3 w-full">
+                  <div className="relative w-full h-screen flex items-center justify-center">
                     <Image
                       src={img.url}
-                      alt={`${product.name} imagem ${index + 1}`}
+                      alt={product.name}
                       fill
-                      className="object-cover"
-                      sizes="260px"
+                      className="object-contain"
                     />
                   </div>
                 </CarouselItem>
               ))}
+
             </CarouselContent>
 
-            <CarouselPrevious className="cursor-pointer left-1 scale-90" />
-            <CarouselNext className="cursor-pointer right-1 scale-90" />
+            <CarouselPrevious className="left-4 text-white" />
+            <CarouselNext className="right-4 text-white" />
           </Carousel>
-        ) : (
-          <div className="aspect-4/3 w-full bg-muted flex items-center justify-center text-[11px] text-muted-foreground">
-            Sem imagens
-          </div>
-        )}
 
-        {/* Nome */}
-        <div className="px-3 pt-1">
-          <h3 className="text-sm font-semibold leading-tight line-clamp-1">
-              {product.name}
-          </h3>
-        </div>
-
-        {/* Info */}
-        <div className="px-3 space-y-1">
-          <div className="flex justify-between items-center text-xs"> 
-            {product.pricing.hasDiscount ? 
-            (
-              <div className="flex flex-col">
-                <span className="font-semibold line-through text-xs text-gray-500">{`De: ${priceFormatter.format(product.pricing.originalPrice)}`}</span>
-                <span className="font-semibold text-sm">{`Por: ${priceFormatter.format(product.pricing.finalPrice)}`}</span>
-              </div>
-          ) : (<span className="font-semibold text-sm">{`De: ${priceFormatter.format(product.pricing.originalPrice)}`}</span>)
-            }
-            
-
-            <span
-              className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                product.inStock > 0
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
-            >
-              {product.inStock > 0
-                ? `${product.inStock} un.`
-                : "Sem estoque"}
-            </span>
-          </div>
-
-          <p className="text-[11px] text-muted-foreground line-clamp-2">
-            {product.description || "Sem descrição disponível."}
-          </p>
-        </div>
-      </CardContent>
-
-      {dashboard ?
-       (
-        <CardFooter className="grid grid-cols-3 gap-1.5 px-3 pb-3 pt-2">
-          <Button
-            size="sm"
-            variant="outline"
-            className="cursor-pointer h-8 text-[11px] px-2"
-            onClick={() => onImages?.(product.id)}
-          >
-            Imagens
-          </Button>
-
-          <Button
-            size="sm"
-            variant="secondary"
-            className="cursor-pointer h-8 text-[11px] px-2"
-            onClick={() => onEdit?.(product.id)}
-          >
-            Editar
-          </Button>
-
-          <Button
-            size="sm"
-            variant="destructive"
-            className="cursor-pointer h-8 text-[11px] px-2"
-            onClick={() => onDelete?.(product.id)}
-          >
-            Excluir
-          </Button>
-        </CardFooter>
-       ) : (
-        <CardFooter className="px-3 pb-3 pt-2">
-          <Button
-            size="sm"
-            variant="outline"
-            className="cursor-pointer h-8 text-[12px] w-full"
-            onClick={() => addToCart?.(product.id)}
-          >
-            Adicionar ao carrinho
-          </Button>
-        </CardFooter>
-
-       )
-      }
-
-    </Card>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

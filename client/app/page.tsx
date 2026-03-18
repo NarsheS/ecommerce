@@ -62,11 +62,11 @@ const Home = () => {
     }
   }
 
-  const addToCart = async (productId: number) => {
+  const addToCart = async (productId: number, quantity: number) => {
     try {
       await api.post("/cart", {
         productId,
-        quantity: 1
+        quantity,
       })
       toast.info("Produto adicionado ao carrinho!")
     } catch (error) {
@@ -157,7 +157,7 @@ const Home = () => {
               <ProductCard
                 key={prod.id}
                 product={prod}
-                addToCart={() => addToCart(prod.id)}
+                addToCart={(id, quantity) => addToCart(id, quantity)}
               />
             ))}
           </div>
