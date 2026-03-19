@@ -17,7 +17,6 @@ import {
 
 // Menu items.
 const items = [
-  { title: "Inicío", url: "/", icon: Home },
   { title: "Pedidos", url: "/dashboard", icon: AppWindow },
   { title: "Produtos", url: "/dashboard/products", icon: Boxes },
   { title: "Promoções", url: "/dashboard/sales", icon: DollarSign },
@@ -32,7 +31,7 @@ export function AppSidebar({ onLogout }: AppSidebarProps) {
   const pathname = usePathname()
 
   return (
-    <Sidebar>
+    <Sidebar className="mt-2">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="mb-5 mt-1">Menu</SidebarGroupLabel>

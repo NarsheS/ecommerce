@@ -9,6 +9,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from '../../navigation-menu';
+import { useRouter } from "next/navigation";
 import {
   Popover,
   PopoverContent,
@@ -110,7 +111,7 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
     {
       className,
       logo = <h2 className="text-xl font-bold tracking-tight">My<span className="text-primary">Store</span></h2>,
-      logoHref = '#',
+      logoHref = '/',
       navigationLinks = defaultNavigationLinks,
       signInText = 'Sign In',
       signInHref = '#signin',
@@ -128,6 +129,8 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
     },
     ref
   ) => {
+    const router = useRouter()
+    
     const [isMobile, setIsMobile] = useState(false);
     const containerRef = useRef<HTMLElement>(null);
     const searchId = useId();
@@ -237,9 +240,12 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
             <div className="flex items-center gap-8">
 
               {/* LOGO */}
-              <div className="flex items-center text-primary">
+              <button
+                onClick={() => router.push(logoHref)}
+                className="flex items-center text-primary cursor-pointer"
+              >
                 {logo}
-              </div>
+              </button>
 
               {/* DESKTOP NAV */}
               {!isMobile && (
@@ -251,8 +257,8 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                         <NavigationMenuLink
                           href={link.href}
                           onClick={(e) => {
-                            e.preventDefault()
                             if (link.label === "Ofertas") {
+                              e.preventDefault()
                               onSaleClick?.()
                             }
                           }}

@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Pencil, Trash2, Plus } from "lucide-react"
+import { Pencil, Trash2, Plus } from "lucide-react"
 
 import DialogAction from "@/components/dialog-action"
 import ConfirmDialog from "@/components/confirm-dialog"
@@ -33,16 +33,6 @@ export default function ProfilePage() {
 
   return (
     <>
-      {/* VOLTAR */}
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => router.push("/")}
-        className="fixed top-4 left-4 z-50 rounded-full shadow-md cursor-pointer"
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </Button>
-
       <div className="container mx-auto py-10 space-y-8">
         
         {/* PERFIL */}

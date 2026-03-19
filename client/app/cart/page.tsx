@@ -76,14 +76,6 @@ export default function CartPage() {
 
   return (
     <>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => router.push("/")}
-        className="fixed top-4 left-4 z-50 rounded-full shadow-md cursor-pointer"
-      >
-        <ArrowLeft className="h-5 w-5" />
-      </Button>
 
       <div className="container mx-auto py-10 pt-20 space-y-6">
         <h1 className="text-3xl font-bold">Carrinho</h1>
