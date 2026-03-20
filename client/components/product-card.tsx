@@ -44,133 +44,132 @@ export function ProductCard({
 
   return (
     <>
-        <Card className="w-full h-full flex flex-col overflow-hidden cursor-pointer hover:shadow-md hover:scale-[1.01] transition-all">
+      <Card className="w-full h-full flex flex-col overflow-hidden hover:shadow-md hover:scale-[1.01] transition-all">
 
-          <CardContent className="p-0 flex flex-col h-full">
+        <CardContent className="p-0 flex flex-col h-full">
 
-            {/* CARROSSEL */}
-            {images.length > 0 ? (
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {images.map((img, index) => (
-                    <CarouselItem key={img.id}>
-                      <div
-                        className="relative aspect-square w-full cursor-zoom-in"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setZoomOpen(true)
-                        }}
-                      >
-                        <Image
-                          src={img.url}
-                          alt={`${product.name} imagem ${index + 1}`}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 100vw, 300px"
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-
-                <CarouselPrevious
-                  className="cursor-pointer left-1 scale-90"
-                  onClick={(e) => e.stopPropagation()}
-                />
-                <CarouselNext
-                  className="cursor-pointer right-1 scale-90"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </Carousel>
-            ) : (
-              <div className="aspect-square w-full bg-muted flex items-center justify-center text-[11px] text-muted-foreground">
-                Sem imagens
-              </div>
-            )}
-
-            <Link href={`/products/${product.id}`} className="block w-full h-full">
-              {/* CONTEÚDO */}
-              <div className="p-3 flex flex-col flex-1">
-
-                {/* NOME */}
-                <h3 className="text-sm font-semibold leading-tight line-clamp-2">
-                  {product.name}
-                </h3>
-
-                {/* PREÇO + ESTOQUE (ancorado embaixo) */}
-                <div className="mt-auto flex justify-between items-center text-xs pt-2">
-                  {product.pricing.hasDiscount ? (
-                    <div className="flex flex-col">
-                      <span className="line-through text-gray-500 text-xs">
-                        {priceFormatter.format(product.pricing.originalPrice)}
-                      </span>
-                      <span className="font-semibold text-sm">
-                        {priceFormatter.format(product.pricing.finalPrice)}
-                      </span>
+          {/* CARROSSEL */}
+          {images.length > 0 ? (
+            <Carousel className="w-full relative">
+              <CarouselContent>
+                {images.map((img, index) => (
+                  <CarouselItem key={img.id}>
+                    <div
+                      className="relative aspect-square w-full cursor-zoom-in pointer-events-auto"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setZoomOpen(true)
+                      }}
+                      onMouseDown={(e) => e.stopPropagation()}
+                    >
+                      <Image
+                        src={img.url}
+                        alt={`${product.name} imagem ${index + 1}`}
+                        fill
+                        className="object-cover pointer-events-none"
+                        sizes="(max-width: 768px) 100vw, 300px"
+                      />
                     </div>
-                  ) : (
-                    <span className="font-semibold text-sm">
-                      {priceFormatter.format(product.pricing.originalPrice)}
-                    </span>
-                  )}
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
 
-                  <span
-                    className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                      product.inStock > 0
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {product.inStock > 0
-                      ? `${product.inStock} un.`
-                      : "Sem estoque"}
-                  </span>
-                </div>
-
-              </div>
-            </Link>
-          </CardContent>
-
-          {/* DASHBOARD */}
-          {dashboard && (
-            <CardFooter className="grid grid-cols-3 gap-1.5 px-3 pb-3 pt-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={(e) => {
-                  e.preventDefault()
-                  onImages?.(product.id)
-                }}
-              >
-                Imagens
-              </Button>
-
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onEdit?.(product.id)
-                }}
-              >
-                Editar
-              </Button>
-
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onDelete?.(product.id)
-                }}
-              >
-                Excluir
-              </Button>
-            </CardFooter>
+              <CarouselPrevious
+                className="cursor-pointer left-1 scale-90 pointer-events-auto z-10"
+              />
+              <CarouselNext
+                className="cursor-pointer right-1 scale-90 pointer-events-auto z-10"
+              />
+            </Carousel>
+          ) : (
+            <div className="aspect-square w-full bg-muted flex items-center justify-center text-[11px] text-muted-foreground">
+              Sem imagens
+            </div>
           )}
 
-      
-        </Card>
+          {/* LINK APENAS NO CONTEÚDO */}
+          <Link href={`/products/${product.id}`} className="block w-full h-full">
+            <div className="p-3 flex flex-col flex-1 cursor-pointer">
+
+              {/* NOME */}
+              <h3 className="text-sm font-semibold leading-tight line-clamp-2">
+                {product.name}
+              </h3>
+
+              {/* PREÇO + ESTOQUE */}
+              <div className="mt-auto flex justify-between items-center text-xs pt-2">
+                {product.pricing.hasDiscount ? (
+                  <div className="flex flex-col">
+                    <span className="line-through text-gray-500 text-xs">
+                      {priceFormatter.format(product.pricing.originalPrice)}
+                    </span>
+                    <span className="font-semibold text-sm">
+                      {priceFormatter.format(product.pricing.finalPrice)}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="font-semibold text-sm">
+                    {priceFormatter.format(product.pricing.originalPrice)}
+                  </span>
+                )}
+
+                <span
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                    product.inStock > 0
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {product.inStock > 0
+                    ? `${product.inStock} un.`
+                    : "Sem estoque"}
+                </span>
+              </div>
+
+            </div>
+          </Link>
+
+        </CardContent>
+
+        {/* DASHBOARD */}
+        {dashboard && (
+          <CardFooter className="grid grid-cols-3 gap-1.5 px-3 pb-3 pt-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={(e) => {
+                e.preventDefault()
+                onImages?.(product.id)
+              }}
+            >
+              Imagens
+            </Button>
+
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={(e) => {
+                e.stopPropagation()
+                onEdit?.(product.id)
+              }}
+            >
+              Editar
+            </Button>
+
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete?.(product.id)
+              }}
+            >
+              Excluir
+            </Button>
+          </CardFooter>
+        )}
+
+      </Card>
 
       {/* ZOOM */}
       <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
@@ -199,8 +198,8 @@ export function ProductCard({
               ))}
             </CarouselContent>
 
-            <CarouselPrevious className="left-4 text-white" />
-            <CarouselNext className="right-4 text-white" />
+            <CarouselPrevious className="left-4 cursor-pointer" />
+            <CarouselNext className="right-4 cursor-pointer" />
           </Carousel>
 
         </DialogContent>
