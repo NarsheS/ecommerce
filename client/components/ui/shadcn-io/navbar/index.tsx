@@ -273,20 +273,14 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                 </NavigationMenu>
               )}
 
-            </div>
-          </div>
-
-          {/* RIGHT SIDE */}
-          <div className="flex items-center gap-3">
-
-            {/* SEARCH DESKTOP */}
-            {!isMobile && (
+              {/* SEARCH DESKTOP */}
+              {!isMobile && (
               <div className="relative">
                 <Input
                   id={searchId}
                   value={searchValue ?? ""}
                   onChange={(e) => onSearchChange?.(e.target.value)}
-                  className="h-9 w-56 pl-8"
+                  className="h-8 w-58 pl-8"
                   placeholder={searchPlaceholder}
                   type="search"
                 />
@@ -296,6 +290,15 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                 />
               </div>
             )}
+
+            </div>
+          </div>
+
+          {/* RIGHT SIDE */}
+          <div className="flex items-center gap-3">
+
+            
+            
 
             {/* LOGIN */}
             {rightSlot ? (

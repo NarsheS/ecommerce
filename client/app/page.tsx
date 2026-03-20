@@ -92,12 +92,11 @@ const Home = () => {
               : "Nenhum produto disponível no momento"}
           </p>
         ) : (
-          <div className="flex flex-row gap-5 p-2 flex-wrap">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 p-2">
             {filteredProducts.map(prod => (
               <ProductCard
                 key={prod.id}
                 product={prod}
-                addToCart={(id, quantity) => addToCart(id, quantity)}
               />
             ))}
           </div>

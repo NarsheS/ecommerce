@@ -1,7 +1,6 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -33,14 +32,7 @@ export default function CartPage() {
   if (loading) {
     return (
       <>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => router.push("/")}
-          className="fixed top-4 left-4 z-50 rounded-full shadow-md cursor-pointer"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
+        
 
         <div className="container mx-auto py-10">
           <LoadingCircle />
@@ -52,15 +44,6 @@ export default function CartPage() {
   if (!cart || cart.items.length === 0) {
     return (
       <>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => router.push("/")}
-          className="fixed top-4 left-4 z-50 rounded-full shadow-md cursor-pointer"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-
         <div className="container mx-auto py-10 space-y-6">
           <h1 className="text-2xl font-bold text-center">
             Seu carrinho está vazio
