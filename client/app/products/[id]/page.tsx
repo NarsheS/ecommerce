@@ -23,6 +23,7 @@ export default function ProductPage() {
 
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
+  const [quantity, setQuantity] = useState("1")
 
   const productId = Array.isArray(id) ? id[0] : id
 
@@ -30,6 +31,21 @@ export default function ProductPage() {
     style: "currency",
     currency: "BRL",
   })
+
+  const addItem = async (productId: number, quantity: number) => {
+    try {
+      await api.post("/cart", {
+        productId,
+        quantity,
+      })
+
+      // atualiza navbar (igual você já faz)
+      window.dispatchEvent(new Event("cartUpdated"))
+
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   useEffect(() => {
     const getProduct = async () => {
@@ -68,12 +84,12 @@ export default function ProductPage() {
   const images = product.images ?? []
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto p-6 rounded-md bg-amber-50 my-10">
 
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className="grid md:grid-cols-2 gap-34 my-2">
 
         {/* 🔥 CAROUSEL DE IMAGENS */}
-        <div className="w-full">
+        <div className="w-full bg-black py-4 rounded-xl">
           {images.length > 0 ? (
             <Carousel className="w-full relative">
               <CarouselContent>
@@ -102,38 +118,109 @@ export default function ProductPage() {
         </div>
 
         {/* 🔥 INFO */}
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 mt-5 max-w-md">
 
-          <h1 className="text-2xl font-bold">
-            {product.name}
-          </h1>
+          <div className="ml-5 gap-2 flex flex-col">
+            <h1 className="text-2xl font-bold">
+              {product.name}
+            </h1>
 
-          <p className="text-muted-foreground">
-            {product.description}
-          </p>
+            {product.category?.name && (
+              <p className="inline-flex items-center text-white bg-cyan-400 rounded-full px-2 py-0.5 text-xs w-fit self-start">
+                {product.category?.name}
+              </p>
+            )}
 
-          {/* PREÇO */}
-          <div className="flex flex-col gap-1">
-            {product.pricing?.hasDiscount ? (
-              <>
-                <span className="line-through text-gray-500">
+            <p className="text-muted-foreground">
+              {product.description}
+            </p>
+
+            {/* PREÇO */}
+            <div className="flex flex-col ">
+              {product.pricing?.hasDiscount ? (
+                <>
+                  <span className="line-through text-sm text-gray-500">
+                    {priceFormatter.format(product.pricing.originalPrice)}
+                  </span>
+                  <span className="text-2xl font-bold text-green-600">
+                    {priceFormatter.format(product.pricing.finalPrice)}
+                  </span>
+                </>
+              ) : (
+                <span className="text-2xl font-bold">
                   {priceFormatter.format(product.pricing.originalPrice)}
                 </span>
-                <span className="text-2xl font-bold text-green-600">
-                  {priceFormatter.format(product.pricing.finalPrice)}
-                </span>
-              </>
-            ) : (
-              <span className="text-2xl font-bold">
-                {priceFormatter.format(product.pricing.originalPrice)}
-              </span>
-            )}
+              )}
+            </div>
+
+            {/* ESTOQUE */}
+            <span className="text-sm">
+              Estoque: {product.inStock}
+            </span>
           </div>
 
-          {/* ESTOQUE */}
-          <span className="text-sm">
-            Estoque: {product.inStock}
-          </span>
+          <div className="flex items-center gap-3">
+
+          {/* QUANTIDADE */}
+          <div className="flex items-center border rounded-md overflow-hidden">
+
+            <button
+              onClick={() =>
+                setQuantity(q => String(Math.max(1, Number(q) - 1)))
+              }
+              className="px-3 py-1 hover:bg-muted cursor-pointer"
+            >
+              -
+            </button>
+
+            <input
+              type="text"
+              inputMode="numeric"
+              value={quantity}
+              onChange={(e) => {
+                const value = e.target.value
+
+                // só números
+                if (!/^\d*$/.test(value)) return
+
+                // permite vazio
+                setQuantity(value)
+              }}
+              onBlur={() => {
+                let value = Number(quantity)
+
+                if (!value || value < 1) value = 1
+                if (value > product.inStock) value = product.inStock
+
+                setQuantity(String(value))
+              }}
+              onFocus={(e) => e.target.select()}
+              className="w-12 text-center text-sm outline-none"
+            />
+
+            <button
+              onClick={() =>
+                setQuantity(q => String(Math.min(product.inStock, Number(q) + 1)))
+              }
+              className="px-3 py-1 hover:bg-muted cursor-pointer"
+            >
+              +
+            </button>
+
+          </div>
+
+          {/* BOTÃO */}
+          <button
+            onClick={() => addItem(product.id, Number(quantity) || 1)}
+            disabled={product.inStock === 0}
+            className="flex-1 bg-primary max-w-sm cursor-pointer text-white rounded-md py-2 font-medium hover:opacity-90 disabled:opacity-50"
+          >
+            Adicionar ao carrinho
+          </button>
+
+        </div>
+
+          
 
         </div>
 
