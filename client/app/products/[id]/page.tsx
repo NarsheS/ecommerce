@@ -154,7 +154,11 @@ export default function ProductPage() {
             </div>
 
             {/* ESTOQUE */}
-            <span className="text-sm">
+            <span
+              className={`inline-flex items-center text-white ${
+                product.inStock > 0 ? "bg-emerald-400" : "bg-red-600"
+              } rounded-full px-2 py-0.5 text-xs w-fit self-start mt-2.5`}
+            >
               Estoque: {product.inStock}
             </span>
           </div>
