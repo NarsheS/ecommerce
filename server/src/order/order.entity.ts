@@ -5,6 +5,7 @@ import { Address } from "../address/address.entity";
 
 export enum OrderStatus{
     PENDING = 'pending',
+    RESERVED = 'reserved',
     PAID = 'paid',
     SHIPPED = 'shipped',
     COMPLETED = 'completed',
@@ -41,6 +42,9 @@ export class Order{
 
     @Column({ nullable: true })
     stripeSessionId?: string;
+
+    @Column({ type: 'timestamp', nullable: true })
+    expiresAt?: Date;
 
     @CreateDateColumn()
     createdAt: Date;

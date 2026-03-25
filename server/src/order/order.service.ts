@@ -7,6 +7,7 @@ import { Cart } from "../cart/cart.entity";
 import { CartItem } from "../cart/cart-item.entity";
 import { PricingService } from "../products/pricing/pricing.service";
 import { Address } from "../address/address.entity";
+import { Products } from "../products/products.entity";
 
 @Injectable()
 export class OrderService {
@@ -16,6 +17,7 @@ export class OrderService {
     @InjectRepository(Cart) private cartRepo: Repository<Cart>,
     @InjectRepository(CartItem) private cartItemRepo: Repository<CartItem>,
     @InjectRepository(Address) private addressRepo: Repository<Address>,
+    @InjectRepository(Products) private productRepo: Repository<Products>,
     private readonly pricingService: PricingService,
   ) {}
 
@@ -47,12 +49,27 @@ export class OrderService {
       throw new BadRequestException("Cart is empty");
     }
 
+    // 🔥 VALIDA ESTOQUE
+    for (const item of cart.items) {
+      if (item.product.inStock < item.quantity) {
+        throw new BadRequestException(
+          `Estoque insuficiente para ${item.product.name}`
+        );
+      }
+    }
+
+    // 🔥 TEMPO DE EXPIRAÇÃO (10 min)
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+
     const order = await this.orderRepo.save(
       this.orderRepo.create({
         user: { id: userId } as any,
         address: address,
         total: 0,
         discountTotal: 0,
+        status: OrderStatus.RESERVED, // 🔥 IMPORTANTE
+        expiresAt,
       })
     );
 
@@ -61,6 +78,10 @@ export class OrderService {
     const orderItems: OrderItem[] = [];
 
     for (const item of cart.items) {
+
+      // 🔥 RESERVA ESTOQUE
+      item.product.inStock -= item.quantity;
+      await this.productRepo.save(item.product);
 
       const pricing = await this.pricingService.calculate(item.product);
 
@@ -96,6 +117,7 @@ export class OrderService {
 
     await this.orderRepo.save(order);
 
+    // limpa carrinho
     await this.cartItemRepo.remove(cart.items);
 
     return this.orderRepo.findOne({
@@ -135,17 +157,51 @@ export class OrderService {
   async updateStatus(orderId: number, status: OrderStatus) {
     const order = await this.orderRepo.findOne({
       where: { id: orderId },
+      relations: ['items', 'items.product'],
     });
 
     if (!order) throw new NotFoundException('Order not found');
 
-    // regra básica de transição
+    // regra básica
     if (order.status === OrderStatus.CANCELLED) {
       throw new BadRequestException('Cannot change cancelled order');
     }
 
-    if (order.status === OrderStatus.PENDING && status !== OrderStatus.CANCELLED) {
-      throw new BadRequestException('Pending order must be paid first');
+    // 🔥 TRANSIÇÃO PARA PAGO
+    if (status === OrderStatus.PAID) {
+
+      // evita duplicar desconto de estoque
+      if (order.status === OrderStatus.PAID) {
+        return order;
+      }
+
+      for (const item of order.items) {
+        const product = item.product;
+
+        if (product.inStock < item.quantity) {
+          throw new BadRequestException(
+            `Estoque insuficiente para ${product.name}`
+          );
+        }
+
+        product.inStock -= item.quantity;
+
+        await this.productRepo.save(product);
+      }
+    }
+
+    // 🔁 (OPCIONAL) devolver estoque se cancelar após pagamento
+    if (
+      status === OrderStatus.CANCELLED &&
+      order.status === OrderStatus.PAID
+    ) {
+      for (const item of order.items) {
+        const product = item.product;
+
+        product.inStock += item.quantity;
+
+        await this.productRepo.save(product);
+      }
     }
 
     order.status = status;

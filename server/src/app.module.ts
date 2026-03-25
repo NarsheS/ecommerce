@@ -14,6 +14,7 @@ import { RolesGuard } from './common/roles/roles.guard';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { PaymentModule } from './payment/payment.module';
 import { DiscountModule } from './products/sales/discount.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 
 dotenv.config(); // Setar dotenv primeiro
@@ -28,6 +29,7 @@ const throttlerSetup = {
 @Module({
     imports: [
         ThrottlerModule.forRoot([throttlerSetup]),
+        ScheduleModule.forRoot(),
         TypeOrmModule.forRoot({
             type: 'postgres',
             host: process.env.DB_HOST,

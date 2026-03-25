@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import Stripe from 'stripe';
 import { Order, OrderStatus } from '../order/order.entity';
+import { Products } from '../products/products.entity'
 
 @Injectable()
 export class PaymentService implements OnModuleInit {
@@ -16,8 +17,8 @@ export class PaymentService implements OnModuleInit {
   private readonly logger = new Logger(PaymentService.name);
 
   constructor(
-    @InjectRepository(Order)
-    private readonly orderRepo: Repository<Order>,
+    @InjectRepository(Order) private readonly orderRepo: Repository<Order>,
+    @InjectRepository(Products) private readonly productRepo: Repository<Products>,
     private readonly configService: ConfigService,
   ) {}
 
@@ -151,6 +152,7 @@ export class PaymentService implements OnModuleInit {
 
     const order = await this.orderRepo.findOne({
       where: { id: Number(orderId) },
+      relations: ['items', 'items.product'],
     });
 
     if (!order) {
@@ -158,12 +160,12 @@ export class PaymentService implements OnModuleInit {
       return;
     }
 
-    // Evita processar duas vezes
     if (order.status === OrderStatus.PAID) {
-      this.logger.warn(`Order ${orderId} already marked as PAID`);
+      this.logger.warn(`Order ${orderId} already PAID`);
       return;
     }
 
+    // 🔥 AQUI NÃO MEXE EM ESTOQUE
     order.status = OrderStatus.PAID;
 
     await this.orderRepo.save(order);
@@ -172,26 +174,33 @@ export class PaymentService implements OnModuleInit {
   }
 
   private async handlePaymentExpired(event: Stripe.Event) {
-    const session = event.data.object as Stripe.Checkout.Session
+    const session = event.data.object as Stripe.Checkout.Session;
 
-    const orderId = Number(session.metadata?.orderId)
-    if (!orderId) return
+    const orderId = Number(session.metadata?.orderId);
+    if (!orderId) return;
 
-    const order = await this.orderRepo.findOne({ where: { id: orderId } })
-    if (!order) return
+    const order = await this.orderRepo.findOne({
+      where: { id: orderId },
+      relations: ['items', 'items.product'],
+    });
 
-    if (order.status === OrderStatus.PAID) return
+    if (!order) return;
 
-    order.status = OrderStatus.CANCELLED
-    await this.orderRepo.save(order)
+    if (order.status === OrderStatus.PAID) return;
 
-    this.logger.log(`Order ${orderId} marked as CANCELLED`)
+    // 🔥 DEVOLVE ESTOQUE
+    await this.restoreStock(order);
+
+    order.status = OrderStatus.CANCELLED;
+
+    await this.orderRepo.save(order);
+
+    this.logger.log(`Order ${orderId} expired and stock restored`);
   }
 
   private async handlePaymentFailed(event: Stripe.Event) {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
 
-    const sessionId = paymentIntent.metadata?.sessionId;
     const orderId = paymentIntent.metadata?.orderId;
 
     if (!orderId) {
@@ -201,6 +210,7 @@ export class PaymentService implements OnModuleInit {
 
     const order = await this.orderRepo.findOne({
       where: { id: Number(orderId) },
+      relations: ['items', 'items.product'],
     });
 
     if (!order) {
@@ -208,17 +218,26 @@ export class PaymentService implements OnModuleInit {
       return;
     }
 
-    // Evita sobrescrever pedido pago
     if (order.status === OrderStatus.PAID) {
       this.logger.warn(`Order ${orderId} already paid`);
       return;
     }
+
+    // 🔥 DEVOLVE ESTOQUE
+    await this.restoreStock(order);
 
     order.status = OrderStatus.CANCELLED;
 
     await this.orderRepo.save(order);
 
     this.logger.warn(`Payment failed for order ${orderId}`);
+  }
+
+  private async restoreStock(order: Order) {
+    for (const item of order.items) {
+      item.product.inStock += item.quantity;
+      await this.productRepo.save(item.product);
+    }
   }
 
 }
