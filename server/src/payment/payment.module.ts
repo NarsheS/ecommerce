@@ -4,11 +4,12 @@ import { PaymentController } from './payment.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from '../order/order.entity';
 import { ConfigModule } from '@nestjs/config';
+import { Products } from '../products/products.entity';
 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order]),
+    TypeOrmModule.forFeature([Order, Products]),
     ConfigModule
 ],
   providers: [PaymentService],
