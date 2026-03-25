@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/carousel"
 
 import type { Product } from "@/app/types/product"
+import LoadingCircle from "@/components/loading-circle"
 
 export default function ProductPage() {
   const { id } = useParams()
@@ -39,12 +40,15 @@ export default function ProductPage() {
         quantity,
       })
 
-      // atualiza navbar (igual você já faz)
       window.dispatchEvent(new Event("cartUpdated"))
 
-    } catch (error) {
-      console.error(error)
-    }
+      // 🔥 REFETCH PRODUTO (ATUALIZA ESTOQUE)
+      const { data } = await api.get(`/products/${productId}`)
+      setProduct(data)
+
+    } catch (error: any) {
+        handleApiError(error, router, error.response?.data?.message || "Erro ao adicionar ao carrinho")
+      }
   }
 
   useEffect(() => {
@@ -65,10 +69,20 @@ export default function ProductPage() {
     if (productId) getProduct()
   }, [productId])
 
+  useEffect(() => {
+    if (!product) return
+
+    const value = Number(quantity)
+
+    if (value > product.inStock) {
+      setQuantity(String(product.inStock))
+    }
+  }, [product])
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[60vh]">
-        Carregando...
+        <LoadingCircle />
       </div>
     )
   }
@@ -159,7 +173,9 @@ export default function ProductPage() {
                 product.inStock > 0 ? "bg-emerald-400" : "bg-red-600"
               } rounded-full px-2 py-0.5 text-xs w-fit self-start mt-2.5`}
             >
-              Estoque: {product.inStock}
+              {product.inStock > 0
+                ? `Em estoque: ${product.inStock}`
+                : "Sem estoque"}
             </span>
           </div>
 
@@ -219,7 +235,9 @@ export default function ProductPage() {
             disabled={product.inStock === 0}
             className="flex-1 bg-primary max-w-sm cursor-pointer text-white rounded-md py-2 font-medium hover:opacity-90 disabled:opacity-50"
           >
-            Adicionar ao carrinho
+            {product.inStock === 0
+              ? "Sem estoque"
+              : "Adicionar ao carrinho"}
           </button>
 
         </div>

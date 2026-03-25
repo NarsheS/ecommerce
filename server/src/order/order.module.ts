@@ -12,10 +12,10 @@ import { OrderCleanupService } from './orderCleanup.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order, OrderItem, Cart, CartItem, Address, OrderCleanupService]),
+    TypeOrmModule.forFeature([Order, OrderItem, Cart, CartItem, Address]),
     PricingModule
   ],
-  providers: [OrderService],
+  providers: [OrderService, OrderCleanupService],
   controllers: [OrderController],
 })
 export class OrderModule {}
