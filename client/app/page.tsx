@@ -43,26 +43,6 @@ const Home = () => {
     }
   }
 
-  const addToCart = async (productId: number, quantity: number) => {
-    try {
-      await api.post("/cart", {
-        productId,
-        quantity,
-      })
-
-      // 🔥 avisa navbar
-      window.dispatchEvent(new Event("cartUpdated"))
-
-      toast.info("Produto adicionado ao carrinho!")
-    } catch (error) {
-      handleApiError(
-        error,
-        router,
-        "Erro ao adicionar o produto ao carrinho."
-      )
-    }
-  }
-
   // 🔥 filtro sale
   const filteredProducts = useMemo(() => {
     if (!sale) return products
