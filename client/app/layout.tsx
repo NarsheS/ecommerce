@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-300 min-h-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100 min-h-screen flex flex-col`}
       >
         <AuthProvider>
           <AppNavbar />
@@ -37,10 +37,11 @@ export default function RootLayout({
             {children}
           </main>
 
+          <Footer />
+
           <Toaster richColors closeButton={false} position="top-center" />
         </AuthProvider>
 
-        <Footer />
       </body>
     </html>
   );
