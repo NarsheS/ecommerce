@@ -10,7 +10,6 @@ import type { Product } from "./types/product"
 
 import LoadingCircle from "@/components/loading-circle"
 import { ProductCard } from "@/components/product-card"
-import { toast } from "sonner"
 
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([])

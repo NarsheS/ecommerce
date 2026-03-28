@@ -85,7 +85,7 @@ export default function AppNavbar() {
 
       navigationLinks={[
         { label: "Ofertas" },
-        { label: "Contato", href: "/test" },
+        { label: "Contato", href: "/contact" },
         { label: "Sobre", href: "/about" },
       ]}
 
