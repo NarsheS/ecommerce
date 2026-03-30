@@ -31,6 +31,7 @@ const Home = () => {
       })
 
       setProducts(data)
+      console.log(data)
     } catch (error) {
       handleApiError(
         error,
@@ -48,6 +49,22 @@ const Home = () => {
     return products.filter(p => p.pricing?.hasDiscount === true)
   }, [products, sale])
 
+  const productsByCategory = useMemo(() => {
+  const grouped: Record<string, Product[]> = {}
+
+  for (const product of filteredProducts) {
+    const categoryName = product.category?.name || "Outros"
+
+    if (!grouped[categoryName]) {
+      grouped[categoryName] = []
+    }
+
+    grouped[categoryName].push(product)
+  }
+
+  return grouped
+}, [filteredProducts])
+
   // 🔥 carregamento inicial + busca por URL
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -60,25 +77,38 @@ const Home = () => {
   return (
     <div className="flex flex-col gap-4">
 
-      <section className="m-4">
+      <section className="m-4 space-y-10">
 
         {fetching ? (
           <LoadingCircle />
-        ) : filteredProducts.length === 0 ? (
+        ) : Object.keys(productsByCategory).length === 0 ? (
           <p className="text-center text-muted-foreground">
             {sale
               ? "Nenhum produto em promoção no momento"
               : "Nenhum produto disponível no momento"}
           </p>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 p-2">
-            {filteredProducts.map(prod => (
-              <ProductCard
-                key={prod.id}
-                product={prod}
-              />
-            ))}
-          </div>
+          Object.entries(productsByCategory).map(([category, products]) => (
+            
+            <div key={category} className="space-y-4">
+
+              {/* 🔥 TÍTULO DA CATEGORIA */}
+              <h2 className="text-2xl font-bold px-2">
+                {category}
+              </h2>
+
+              {/* 🔥 GRID */}
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 p-2">
+                {products.map(prod => (
+                  <ProductCard
+                    key={prod.id}
+                    product={prod}
+                  />
+                ))}
+              </div>
+
+            </div>
+          ))
         )}
 
       </section>

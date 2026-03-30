@@ -4,17 +4,15 @@
 # Run client as dev:
 - npm run dev
 
-!!!!! URGENTE !!!!!!
-- Navbar praticamente feita (falta so colocar links etc)
-# Criar paginas:
-- Sobre
-- Contato
 
 # Talvez:
 - Painel de Controle (REMOVER QUALQUER CONTA - delete("users/remove/:id"))
 
 !! QUALITY OF LIFE CHANGES !!
-- Toda vez que alguém finalizar uma compra, reduzir o estoque com base na compra
+- seções baseadas em categoria
+- poder criar endereço no cart
+- reformular seleção de endereço no cart
+- melhorar pagina de perfil (talvez)
 - LoadingSpinner em verify.tsx
 
 
