@@ -9,10 +9,9 @@
 - Painel de Controle (REMOVER QUALQUER CONTA - delete("users/remove/:id"))
 
 !! QUALITY OF LIFE CHANGES !!
-- seções baseadas em categoria
-- poder criar endereço no cart
-- reformular seleção de endereço no cart
-- melhorar pagina de perfil (talvez)
+- criar slide de destaques com dashboard (talvez)
+- login com google (talvez)
+- painel de controle - grafico de vendas (usando o stripe)
 - LoadingSpinner em verify.tsx
 
 

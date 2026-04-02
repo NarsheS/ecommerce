@@ -2,11 +2,18 @@
 
 import { useRouter } from "next/navigation"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import useCart from "@/hooks/useCart"
 import LoadingCircle from "@/components/loading-circle"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function CartPage() {
   const router = useRouter()
@@ -28,6 +35,16 @@ export default function CartPage() {
       style: "currency",
       currency: "BRL",
     })
+
+  function formatCep(cep: string) {
+    if (!cep) return "";
+
+    const cleaned = cep.replace(/\D/g, "");
+
+    if (cleaned.length < 8) return cep;
+
+    return `${cleaned.slice(0, 5)}-${cleaned.slice(5, 8)}`;
+  }
 
   if (loading) {
     return (
@@ -160,20 +177,29 @@ export default function CartPage() {
             <CardContent className="space-y-4 pt-4">
 
               {/* ENDEREÇOS */}
-              <div>
-                <p className="font-semibold mb-2">Endereço de entrega</p>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Endereço de entrega
+                </label>
+                
 
-                <select
-                  value={selectedAddressId ?? ""}
-                  onChange={(e) => setSelectedAddressId(Number(e.target.value))}
-                  className="w-full border rounded-md p-2"
+                <Select
+                  value={selectedAddressId?.toString()}
+                  onValueChange={(value) => setSelectedAddressId(Number(value))}
                 >
-                  {addresses.map(address => (
-                    <option key={address.id} value={address.id}>
-                      {address.street},número: {address.number} - {address.zipcode}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione um endereço" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {addresses.map((address) => (
+                      <SelectItem key={address.id} value={address.id.toString()}>
+                        {address.street}, nº {address.number} • {address.city} ({address.state}) • CEP {formatCep(address.zipcode)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" className="w-full cursor-pointer" onClick={() => router.push("/profile")}>Novo endereço</Button>
               </div>
 
               <Separator />
@@ -209,7 +235,7 @@ export default function CartPage() {
               </Button>
 
               <Button
-                variant="outline"
+                variant="destructive"
                 className="w-full cursor-pointer"
                 onClick={clearCart}
               >
