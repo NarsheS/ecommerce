@@ -61,14 +61,30 @@ export default function CartPage() {
   if (!cart || cart.items.length === 0) {
     return (
       <>
-        <div className="container mx-auto py-10 space-y-6">
-          <h1 className="text-2xl font-bold text-center">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6">
+
+          {/* Ícone */}
+          <div className="text-6xl mb-4">🛒</div>
+
+          {/* Título */}
+          <h1 className="text-3xl font-bold">
             Seu carrinho está vazio
           </h1>
 
-          <p className="text-muted-foreground text-center">
-            Adicione produtos para continuar.
+          {/* Descrição */}
+          <p className="text-muted-foreground mt-2 max-w-md">
+            Parece que você ainda não adicionou nenhum produto.
+            Explore nossa loja e encontre algo que você goste.
           </p>
+
+          {/* Botão */}
+          <button
+            onClick={() => router.push("/")}
+            className="mt-6 px-6 py-3 bg-primary text-white rounded-md font-medium hover:opacity-90 transition cursor-pointer"
+          >
+            Ver produtos
+          </button>
+
         </div>
       </>
     )
