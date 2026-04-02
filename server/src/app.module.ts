@@ -16,6 +16,7 @@ import { PaymentModule } from './payment/payment.module';
 import { DiscountModule } from './products/sales/discount.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BannerModule } from './products/cloudinary/banner/banner.module';
+import { ConfigModule } from '@nestjs/config';
 
 
 dotenv.config(); // Setar dotenv primeiro
@@ -30,6 +31,9 @@ const throttlerSetup = {
 @Module({
     imports: [
         ThrottlerModule.forRoot([throttlerSetup]),
+        ConfigModule.forRoot({
+            isGlobal: true,
+        }),
         ScheduleModule.forRoot(),
         TypeOrmModule.forRoot({
             type: 'postgres',

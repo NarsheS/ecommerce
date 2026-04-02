@@ -7,7 +7,9 @@ import { UploadService } from "../upload.service"
 import { CloudinaryProvider } from "../cloudinary.provider"
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Banner])],
+  imports: [
+    TypeOrmModule.forFeature([Banner]),
+],
   controllers: [BannerController],
   providers: [
     BannerService,
