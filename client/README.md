@@ -13,6 +13,7 @@
 - login com google (talvez)
 - painel de controle - grafico de vendas (usando o stripe)
 - LoadingSpinner em verify.tsx
+- pagina para tratar error 404 (talvez 500 tbm)
 
 
 # Endpoint

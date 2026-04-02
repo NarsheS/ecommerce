@@ -15,6 +15,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { PaymentModule } from './payment/payment.module';
 import { DiscountModule } from './products/sales/discount.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { BannerModule } from './products/cloudinary/banner/banner.module';
 
 
 dotenv.config(); // Setar dotenv primeiro
@@ -54,6 +55,7 @@ const throttlerSetup = {
         OrderModule,
         PaymentModule,
         DiscountModule,
+        BannerModule
     ],
     providers: [ // Coloca GUARDS globalmente no app/server
         {

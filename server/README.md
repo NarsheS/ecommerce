@@ -136,3 +136,10 @@ LOCK_MS=15
 - GET - api/discounts                               (Lista todas as regras de desconto criadas)
 - PUT - api/discounts/:id                           (Edita uma regra de desconto)
 - DELETE - api/discounts/:id                        (Deleta uma regra de desconto)
+
+# banners:
+
+- GET - api/banners
+- POST - api/banners
+- PATCH - api/banners/:id
+- DELETE - api/banners/:id                          
