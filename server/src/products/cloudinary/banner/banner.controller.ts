@@ -11,6 +11,8 @@ import {
 } from "@nestjs/common"
 import { FileInterceptor } from "@nestjs/platform-express"
 import { BannerService } from "./banner.service"
+import { Roles } from "../../../common/roles/roles.decorator";
+import { Role } from "../../../user/user.entity";
 
 @Controller("banners")
 export class BannerController {
@@ -21,7 +23,14 @@ export class BannerController {
     return this.service.findAll()
   }
 
+  @Get("admin")
+  @Roles(Role.ADMIN)
+  findAllAdmin() {
+    return this.service.findAllAdmin()
+  }
+
   @Post()
+  @Roles(Role.ADMIN)
   @UseInterceptors(FileInterceptor("file"))
   create(
     @UploadedFile() file: Express.Multer.File,
@@ -32,9 +41,10 @@ export class BannerController {
   }
 
   @Patch(":id")
+  @Roles(Role.ADMIN)
   @UseInterceptors(FileInterceptor("file"))
   update(
-    @Param("id") id: number,
+    @Param("id") id: string,
     @Body() body: any,
     @UploadedFile() file?: Express.Multer.File
   ) {
@@ -42,7 +52,14 @@ export class BannerController {
   }
 
   @Delete(":id")
+  @Roles(Role.ADMIN)
   remove(@Param("id") id: number) {
     return this.service.remove(Number(id))
+  }
+
+  @Patch(":id/toggle")
+  @Roles(Role.ADMIN)
+  toggle(@Param("id") id: string) {
+    return this.service.toggleActive(Number(id))
   }
 }

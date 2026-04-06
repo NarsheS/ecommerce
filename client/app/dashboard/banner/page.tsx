@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { api } from "@/app/services/api"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Banner } from "@/app/types/banner"
+import { bannerService } from "@/app/services/banner.service"
 
 export default function BannerPage() {
   const [banners, setBanners] = useState<Banner[]>([])
@@ -16,7 +16,7 @@ export default function BannerPage() {
   const [loading, setLoading] = useState(false)
 
   const fetchBanners = async () => {
-    const { data } = await api.get("/banners")
+    const data = await bannerService.getAll()
     setBanners(data)
   }
 
@@ -24,30 +24,28 @@ export default function BannerPage() {
     fetchBanners()
   }, [])
 
+
   const handleUpload = async () => {
-    if (!file) return alert("Selecione uma imagem")
+    if (!file) return
 
-    try {
-      setLoading(true)
+    setLoading(true)
+    await bannerService.create(file, title, link)
+    await fetchBanners()
+    setLoading(false)
+  }
 
-      const formData = new FormData()
-      formData.append("file", file)
-      formData.append("title", title)
-      formData.append("link", link)
+  const handleToggle = async (id: number) => {
+    await bannerService.toggle(id)
+    fetchBanners()
+  }
 
-      await api.post("/banners", formData)
-
-      setFile(null)
-      setTitle("")
-      setLink("")
-      fetchBanners()
-    } finally {
-      setLoading(false)
-    }
+  const handleUpdate = async (id: number, banner: Banner) => {
+    await bannerService.update(id, banner)
+    fetchBanners()
   }
 
   const handleDelete = async (id: number) => {
-    await api.delete(`/banners/${id}`)
+    await bannerService.remove(id)
     fetchBanners()
   }
 
@@ -60,7 +58,44 @@ export default function BannerPage() {
       <Card>
         <CardContent className="p-4 space-y-4">
 
-          <Input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+          <div className="space-y-3">
+
+            {/* 🔥 PREVIEW */}
+            {file && (
+              <div className="relative w-full h-40 rounded-xl overflow-hidden border">
+                <img
+                  src={URL.createObjectURL(file)}
+                  className="w-full h-full object-cover"
+                />
+
+                {/* remover imagem */}
+                <button
+                  onClick={() => setFile(null)}
+                  className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs"
+                >
+                  Remover
+                </button>
+              </div>
+            )}
+
+            {/* 🔥 BOTÃO BONITO */}
+            <label className="block">
+              <div className="flex items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer hover:bg-muted transition">
+
+                <span className="text-sm text-muted-foreground">
+                  {file ? "Trocar imagem" : "Clique para selecionar uma imagem"}
+                </span>
+
+              </div>
+
+              <input
+                type="file"
+                className="hidden"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+              />
+            </label>
+
+          </div>
 
           <Input
             placeholder="Título (opcional)"
@@ -83,26 +118,65 @@ export default function BannerPage() {
 
       {/* 🔥 LISTA */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {banners.map(banner => (
+        {banners.map((banner) => (
           <Card key={banner.id}>
-            <CardContent className="p-2 space-y-2">
+            <CardContent className="p-3 space-y-3">
 
               <img
                 src={banner.url}
-                className="w-full h-32 object-cover rounded-lg"
+                className={`w-full h-32 object-cover rounded-lg ${
+                  !banner.isActive ? "opacity-40" : ""
+                }`}
               />
 
-              <p className="text-sm truncate">
-                {banner.title || "Sem título"}
-              </p>
+              <Input
+                value={banner.title || ""}
+                onChange={(e) => {
+                  const newBanners = banners.map(b =>
+                    b.id === banner.id ? { ...b, title: e.target.value } : b
+                  )
+                  setBanners(newBanners)
+                }}
+                placeholder="Título"
+              />
 
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => handleDelete(banner.id)}
-              >
-                Remover
-              </Button>
+              <Input
+                value={banner.link || ""}
+                onChange={(e) => {
+                  const newBanners = banners.map(b =>
+                    b.id === banner.id ? { ...b, link: e.target.value } : b
+                  )
+                  setBanners(newBanners)
+                }}
+                placeholder="Link"
+              />
+
+              <div className="flex gap-2">
+
+                <Button
+                  size="sm"
+                  onClick={() => handleUpdate(banner.id, banner)}
+                >
+                  Salvar
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant={banner.isActive ? "secondary" : "default"}
+                  onClick={() => handleToggle(banner.id)}
+                >
+                  {banner.isActive ? "Desativar" : "Ativar"}
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => handleDelete(banner.id)}
+                >
+                  Remover
+                </Button>
+
+              </div>
 
             </CardContent>
           </Card>

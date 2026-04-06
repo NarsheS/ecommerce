@@ -19,6 +19,12 @@ export class BannerService {
     })
   }
 
+  async findAllAdmin() {
+    return this.repo.find({
+      order: { order: "ASC" }
+    })
+  }
+
   async create(
     file: Express.Multer.File,
     data: { title?: string; link?: string; order?: number }
@@ -69,4 +75,15 @@ export class BannerService {
 
     return this.repo.delete(id)
   }
+
+  async toggleActive(id: number) {
+    const banner = await this.repo.findOneBy({ id })
+
+    if (!banner) throw new Error("Banner não encontrado")
+
+    banner.isActive = !banner.isActive
+
+    return this.repo.save(banner)
+  }
+  
 }
