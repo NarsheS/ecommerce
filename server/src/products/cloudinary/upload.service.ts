@@ -13,8 +13,10 @@ export class UploadService {
       const stream = this.cloudinary.uploader.upload_stream(
         { folder: 'products' },
         (error, result) => {
-          if (error) reject(error);
-          else resolve({
+          if (error) {
+            console.error("Cloudinary error:", error) // 👈 AQUI
+            reject(error)
+          } else resolve({
             url: result.secure_url,
             publicId: result.public_id,
           });

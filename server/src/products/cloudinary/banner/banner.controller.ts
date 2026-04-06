@@ -27,6 +27,7 @@ export class BannerController {
     @UploadedFile() file: Express.Multer.File,
     @Body() body: any
   ) {
+    console.log("FILE:", file) // 👈 aqui
     return this.service.create(file, body)
   }
 

@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { AppWindow, Boxes, DollarSign, Home, NotebookText, User2 } from "lucide-react"
+import { AppWindow, Boxes, DollarSign, Home, NotebookText, Star, User2 } from "lucide-react"
 
 import {
   Sidebar,
@@ -19,6 +19,7 @@ import {
 const items = [
   { title: "Pedidos", url: "/dashboard", icon: AppWindow },
   { title: "Produtos", url: "/dashboard/products", icon: Boxes },
+  { title: "Destaques", url: "/dashboard/banner", icon: Star },
   { title: "Promoções", url: "/dashboard/sales", icon: DollarSign },
   { title: "Categorias", url: "/dashboard/categories", icon: NotebookText },
 ]
