@@ -15,6 +15,9 @@
 - LoadingSpinner em verify.tsx
 - pagina para tratar error 404 (talvez 500 tbm)
 
+# IMPORTANTE !!!!!!!!!!!!!!!!!!!!!!!!!!!
+Em app.module.ts (server), tem que colocar synchronize: false, atualmente esta true pois estamos desenvolvendo e perder dados n tem tanta importancia
+
 
 # Endpoint
 - https://ecommerce-cyrl.onrender.com/api
