@@ -28,6 +28,10 @@ const UserMenu = ({ role, onLogout }: UserMenuProps) => {
           Perfil
         </DropdownMenuItem>
 
+        <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/orders")}>
+          Pedidos
+        </DropdownMenuItem>
+
         {role === "admin" && (
           <DropdownMenuItem className="cursor-pointer" onClick={() => router.replace("/dashboard")}>
             Dashboard

@@ -6,7 +6,6 @@
 
 
 # !! QUALITY OF LIFE CHANGES !!
-- lista de pedidos do usuario
 - calcular frete
 - comentarios e notas em produtos
 - painel de controle - grafico de vendas (usando o stripe)

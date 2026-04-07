@@ -220,9 +220,7 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                           <button
                             onClick={(e) => {
                               e.preventDefault()
-                              if (link.label === "Ofertas") {
-                                onSaleClick?.()
-                              }
+                              onSaleClick?.()
                             }}
                             className="cursor-pointer w-full text-left px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition"
                           >
@@ -257,10 +255,8 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                         <NavigationMenuLink
                           href={link.href}
                           onClick={(e) => {
-                            if (link.label === "Ofertas") {
-                              e.preventDefault()
-                              onSaleClick?.()
-                            }
+                            e.preventDefault()
+                            onSaleClick?.()
                           }}
                           className="cursor-pointer text-muted-foreground hover:text-primary font-medium transition-colors inline-flex items-center h-10 text-sm rounded-md hover:bg-accent/50"
                         >
