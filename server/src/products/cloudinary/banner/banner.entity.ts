@@ -14,7 +14,7 @@ export class Banner {
   @Column({ nullable: true })
   title?: string
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   link: string | null
 
   @Column({ default: true })
