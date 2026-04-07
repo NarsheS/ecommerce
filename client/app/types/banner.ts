@@ -3,7 +3,7 @@ export type Banner = {
   url: string
   publicId: string
   title?: string
-  link?: string
+  link: string | null
   isActive: boolean
   order: number
   createdAt: string

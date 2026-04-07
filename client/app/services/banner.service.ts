@@ -11,7 +11,9 @@ export const bannerService = {
     const formData = new FormData()
     formData.append("file", file)
     if (title) formData.append("title", title)
-    if (link) formData.append("link", link)
+    if (link !== undefined) {
+      formData.append("link", link || "")
+    }
 
     await api.post("/banners", formData)
   },
@@ -22,8 +24,11 @@ export const bannerService = {
     if (banner.title !== undefined)
       formData.append("title", banner.title)
 
-    if (banner.link !== undefined)
+    if (banner.link != null && banner.link !== "") {
       formData.append("link", banner.link)
+    } else {
+      formData.append("link", "")
+    }
 
     await api.patch(`/banners/${id}`, formData)
   },

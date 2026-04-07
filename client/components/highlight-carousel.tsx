@@ -48,67 +48,82 @@ export const HighlightCarousel = () => {
   }
 
   return (
-    <div className="relative w-[96%] max-w-6xl mx-auto aspect-[16/5] rounded-2xl overflow-hidden shadow-md">
+  <div className="relative w-[96%] max-w-6xl mx-auto aspect-[16/5] rounded-2xl overflow-hidden shadow-md">
 
-        {/* 🔥 IMAGEM + FUNDO */}
-        <div className="relative w-full h-full">
+    {/* 🔥 IMAGENS COM FADE */}
+    <div className="relative w-full h-full">
 
-            {/* background blur */}
+      {banners.map((banner, i) => (
+        <div
+          key={banner.id}
+          className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+            i === index
+              ? "opacity-100 scale-100"
+              : "opacity-0 scale-105 pointer-events-none"
+          }`}
+        >
+
+          {/* background blur */}
+          <img
+            src={banner.url}
+            className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-40"
+          />
+
+          {/* imagem principal */}
+          {banner.link ? (
+            <Link href={banner.link}>
+              <img
+                src={banner.url}
+                className="relative w-full h-full object-contain cursor-pointer transition-transform duration-700 ease-in-out"
+              />
+            </Link>
+          ) : (
             <img
-                src={banners[index].url}
-                className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-40"
+              src={banner.url}
+              className="relative w-full h-full object-contain transition-transform duration-700 ease-in-out"
             />
-
-            {/* imagem principal */}
-            {banners[index].link ? (
-                <Link href={banners[index].link}>
-                    <img
-                    src={banners[index].url}
-                    className="relative w-full h-full object-contain cursor-pointer"
-                    />
-                </Link>
-                ) : (
-                <img
-                    src={banners[index].url}
-                    className="relative w-full h-full object-contain"
-                />
-            )}
+          )}
 
         </div>
-
-        {/* 🔥 BOTÃO ESQUERDA */}
-        <Button
-            size="icon"
-            variant="secondary"
-            onClick={prev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
-        >
-            <ChevronLeft />
-        </Button>
-
-        {/* 🔥 BOTÃO DIREITA */}
-        <Button
-            size="icon"
-            variant="secondary"
-            onClick={next}
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
-        >
-            <ChevronRight />
-        </Button>
-
-        {/* 🔥 INDICADORES */}
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-            {banners.map((_, i) => (
-                <div
-                key={i}
-                onClick={() => setIndex(i)}
-                className={`h-2 w-2 rounded-full cursor-pointer transition ${
-                    i === index ? "bg-white scale-110" : "bg-white/40"
-                }`}
-                />
-            ))}
-        </div>
+      ))}
 
     </div>
-    )
+
+    {/* 🔥 BOTÃO ESQUERDA */}
+    <Button
+      size="icon"
+      variant="secondary"
+      onClick={prev}
+      className="absolute cursor-pointer left-2 top-1/2 -translate-y-1/2 bg-black/40 backdrop-blur-sm hover:bg-black/70 text-white transition"
+    >
+      <ChevronLeft />
+    </Button>
+
+    {/* 🔥 BOTÃO DIREITA */}
+    <Button
+      size="icon"
+      variant="secondary"
+      onClick={next}
+      className="absolute cursor-pointer right-2 top-1/2 -translate-y-1/2 bg-black/40 backdrop-blur-sm hover:bg-black/70 text-white transition"
+    >
+      <ChevronRight />
+    </Button>
+
+    {/* 🔥 INDICADORES */}
+    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+      {banners.map((_, i) => (
+        <div
+          key={i}
+          onClick={() => setIndex(i)}
+          className={`h-2 w-2 rounded-full cursor-pointer transition-all duration-300 ${
+            i === index
+              ? "bg-white scale-125"
+              : "bg-white/40 hover:bg-white/70"
+          }`}
+        />
+      ))}
+    </div>
+
+  </div>
+)
 }
