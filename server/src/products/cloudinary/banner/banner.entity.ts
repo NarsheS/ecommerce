@@ -15,7 +15,7 @@ export class Banner {
   title?: string
 
   @Column({ nullable: true })
-  link?: string
+  link: string | null
 
   @Column({ default: true })
   isActive: boolean

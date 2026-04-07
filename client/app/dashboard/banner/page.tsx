@@ -151,7 +151,7 @@ export default function BannerPage() {
                 placeholder="Link"
               />
 
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2">
 
                 <Button
                   size="sm"

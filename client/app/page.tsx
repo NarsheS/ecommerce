@@ -10,6 +10,7 @@ import type { Product } from "./types/product"
 
 import LoadingCircle from "@/components/loading-circle"
 import { ProductCard } from "@/components/product-card"
+import { HighlightCarousel } from "@/components/highlight-carousel"
 
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([])
@@ -76,6 +77,11 @@ const Home = () => {
 
   return (
     <div className="flex flex-col gap-4">
+
+      {/* 🔥 CAROUSEL */}
+      <div className="m-4">
+        <HighlightCarousel />
+      </div>
 
       <section className="m-4 space-y-10">
 

@@ -61,7 +61,24 @@ export class BannerService {
       banner.publicId = upload.publicId
     }
 
-    Object.assign(banner, data)
+    // TRATAMENTO MANUAL DOS CAMPOS
+
+    if (data.title !== undefined) {
+      banner.title = data.title
+    }
+
+    if (data.link !== undefined) {
+      if (data.link === "null" || data.link === "") {
+        banner.link = null
+      } else {
+        banner.link = data.link
+      }
+    }
+
+    // opcional: order
+    if (data.order !== undefined) {
+      banner.order = data.order
+    }
 
     return this.repo.save(banner)
   }
