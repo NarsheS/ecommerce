@@ -27,6 +27,9 @@ export class Order{
     @OneToMany(() => OrderItem, item => item.order, { cascade: ['insert'] })
     items: OrderItem[];
 
+    @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+    shippingCost: number;
+
     @Column('decimal', { precision: 10, scale: 2 })
     total: number;
 

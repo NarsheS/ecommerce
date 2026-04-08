@@ -29,6 +29,6 @@ export class Address {
     zipcode: string;
 
     // Caso o usuário seja deletado, também deleta seus endereços
-    @ManyToOne(() => User, user => user.addresses, { onDelete: 'CASCADE' })
+    @ManyToOne(() => User, user => user.addresses, { onDelete: 'CASCADE', nullable: true })
     user: User;
 }

@@ -8,6 +8,7 @@ import { CartItem } from "../cart/cart-item.entity";
 import { PricingService } from "../products/pricing/pricing.service";
 import { Address } from "../address/address.entity";
 import { Products } from "../products/products.entity";
+import { ShippingService } from "../store/shipping.service";
 
 @Injectable()
 export class OrderService {
@@ -19,10 +20,10 @@ export class OrderService {
     @InjectRepository(Address) private addressRepo: Repository<Address>,
     @InjectRepository(Products) private productRepo: Repository<Products>,
     private readonly pricingService: PricingService,
+    private readonly shippingService: ShippingService,
   ) {}
 
   async createOrder(userId: number, addressId: number) {
-
     if (!userId) {
       throw new BadRequestException("Invalid user");
     }
@@ -58,7 +59,7 @@ export class OrderService {
       }
     }
 
-    // 🔥 TEMPO DE EXPIRAÇÃO (10 min)
+    // ⏱️ EXPIRAÇÃO
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
@@ -68,7 +69,7 @@ export class OrderService {
         address: address,
         total: 0,
         discountTotal: 0,
-        status: OrderStatus.RESERVED, // 🔥 IMPORTANTE
+        status: OrderStatus.RESERVED,
         expiresAt,
       })
     );
@@ -78,8 +79,7 @@ export class OrderService {
     const orderItems: OrderItem[] = [];
 
     for (const item of cart.items) {
-
-      // 🔥 RESERVA ESTOQUE
+      // 🔒 RESERVA ESTOQUE
       item.product.inStock -= item.quantity;
       await this.productRepo.save(item.product);
 
@@ -112,12 +112,22 @@ export class OrderService {
 
     await this.orderItemRepo.save(orderItems);
 
-    order.total = Number(total.toFixed(2));
+    // 🚚 CALCULAR FRETE
+    const shipping = await this.shippingService.calculate(
+      address.zipcode,
+      cart.items.length
+    );
+
+    // 💰 ATRIBUI FRETE
+    order.shippingCost = shipping.cost;
+
+    // 💵 TOTAL FINAL
+    order.total = Number((total + shipping.cost).toFixed(2));
     order.discountTotal = Number(totalDiscount.toFixed(2));
 
     await this.orderRepo.save(order);
 
-    // limpa carrinho
+    // 🧹 LIMPA CARRINHO
     await this.cartItemRepo.remove(cart.items);
 
     return this.orderRepo.findOne({
@@ -162,35 +172,11 @@ export class OrderService {
 
     if (!order) throw new NotFoundException('Order not found');
 
-    // regra básica
     if (order.status === OrderStatus.CANCELLED) {
       throw new BadRequestException('Cannot change cancelled order');
     }
 
-    // 🔥 TRANSIÇÃO PARA PAGO
-    if (status === OrderStatus.PAID) {
-
-      // evita duplicar desconto de estoque
-      if (order.status === OrderStatus.PAID) {
-        return order;
-      }
-
-      for (const item of order.items) {
-        const product = item.product;
-
-        if (product.inStock < item.quantity) {
-          throw new BadRequestException(
-            `Estoque insuficiente para ${product.name}`
-          );
-        }
-
-        product.inStock -= item.quantity;
-
-        await this.productRepo.save(product);
-      }
-    }
-
-    // 🔁 (OPCIONAL) devolver estoque se cancelar após pagamento
+    // 🔁 DEVOLVE ESTOQUE SE CANCELAR APÓS PAGAMENTO
     if (
       status === OrderStatus.CANCELLED &&
       order.status === OrderStatus.PAID
@@ -225,5 +211,4 @@ export class OrderService {
 
     return order;
   }
-
 }

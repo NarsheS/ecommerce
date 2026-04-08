@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import Stripe from 'stripe';
 import { Order, OrderStatus } from '../order/order.entity';
-import { Products } from '../products/products.entity'
+import { Products } from '../products/products.entity';
 
 @Injectable()
 export class PaymentService implements OnModuleInit {
@@ -17,8 +17,12 @@ export class PaymentService implements OnModuleInit {
   private readonly logger = new Logger(PaymentService.name);
 
   constructor(
-    @InjectRepository(Order) private readonly orderRepo: Repository<Order>,
-    @InjectRepository(Products) private readonly productRepo: Repository<Products>,
+    @InjectRepository(Order)
+    private readonly orderRepo: Repository<Order>,
+
+    @InjectRepository(Products)
+    private readonly productRepo: Repository<Products>,
+
     private readonly configService: ConfigService,
   ) {}
 
@@ -36,7 +40,6 @@ export class PaymentService implements OnModuleInit {
 
   // CREATE - Stripe Checkout Session
   async createPayment(orderId: number) {
-    // Verifica se existe uma order
     const order = await this.orderRepo.findOne({
       where: { id: orderId },
       relations: ['items', 'items.product'],
@@ -49,7 +52,12 @@ export class PaymentService implements OnModuleInit {
     const frontUrl = this.configService.get<string>('FRONTEND_URL');
     if (!frontUrl) throw new Error('FRONTEND_URL is missing');
 
-    // Converte items para formato Stripe
+    // 🔒 Validação do frete
+    if (order.shippingCost == null || order.shippingCost < 0) {
+      throw new BadRequestException('Invalid shipping cost');
+    }
+
+    // 🛒 Produtos
     const line_items = order.items.map((item) => {
       const amount = item.finalPrice ?? item.price;
 
@@ -69,6 +77,18 @@ export class PaymentService implements OnModuleInit {
       };
     });
 
+    // 🚚 Frete (somente se > 0)
+    if (order.shippingCost > 0) {
+      line_items.push({
+        price_data: {
+          currency: 'brl',
+          product_data: { name: 'Frete' },
+          unit_amount: Math.round(Number(order.shippingCost) * 100),
+        },
+        quantity: 1,
+      });
+    }
+
     const session = await this.stripe.checkout.sessions.create({
       mode: 'payment',
       line_items,
@@ -84,7 +104,7 @@ export class PaymentService implements OnModuleInit {
       },
     });
 
-    // Salva sessionId no DB por segurança
+    // 💾 Salva sessionId
     order.stripeSessionId = session.id;
     await this.orderRepo.save(order);
 
@@ -96,12 +116,14 @@ export class PaymentService implements OnModuleInit {
     };
   }
 
-   // Stripe Webhook Handler
+  // Stripe Webhook Handler
   async handleWebhook(rawBody: Buffer, signature: string) {
     const endpointSecret = this.configService.get<string>(
       'STRIPE_WEBHOOK_SECRET',
     );
-    if (!endpointSecret) throw new Error('STRIPE_WEBHOOK_SECRET is missing');
+
+    if (!endpointSecret)
+      throw new Error('STRIPE_WEBHOOK_SECRET is missing');
 
     let event: Stripe.Event;
 
@@ -119,7 +141,6 @@ export class PaymentService implements OnModuleInit {
       throw new BadRequestException('Webhook signature verification failed');
     }
 
-    // Processa event
     switch (event.type) {
       case 'payment_intent.succeeded':
         await this.handlePaymentSucceeded(event);
@@ -146,7 +167,7 @@ export class PaymentService implements OnModuleInit {
     const orderId = paymentIntent.metadata?.orderId;
 
     if (!orderId) {
-      this.logger.error('Missing orderId in payment_intent metadata');
+      this.logger.error('Missing orderId in metadata');
       return;
     }
 
@@ -165,7 +186,7 @@ export class PaymentService implements OnModuleInit {
       return;
     }
 
-    // 🔥 AQUI NÃO MEXE EM ESTOQUE
+    // ✅ NÃO mexe em estoque
     order.status = OrderStatus.PAID;
 
     await this.orderRepo.save(order);
@@ -185,10 +206,9 @@ export class PaymentService implements OnModuleInit {
     });
 
     if (!order) return;
-
     if (order.status === OrderStatus.PAID) return;
 
-    // 🔥 DEVOLVE ESTOQUE
+    // 🔄 devolve estoque
     await this.restoreStock(order);
 
     order.status = OrderStatus.CANCELLED;
@@ -204,7 +224,7 @@ export class PaymentService implements OnModuleInit {
     const orderId = paymentIntent.metadata?.orderId;
 
     if (!orderId) {
-      this.logger.error('Missing orderId in payment_intent metadata');
+      this.logger.error('Missing orderId in metadata');
       return;
     }
 
@@ -223,7 +243,7 @@ export class PaymentService implements OnModuleInit {
       return;
     }
 
-    // 🔥 DEVOLVE ESTOQUE
+    // 🔄 devolve estoque
     await this.restoreStock(order);
 
     order.status = OrderStatus.CANCELLED;
@@ -239,5 +259,4 @@ export class PaymentService implements OnModuleInit {
       await this.productRepo.save(item.product);
     }
   }
-
 }
