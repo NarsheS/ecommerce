@@ -12,8 +12,10 @@ To see if its working:
 - Método GET para Debug (http://localhost/api/users/debug)
 - Quick reminder, for tokens to work they need the prefix: Bearer <token>
 
-OBS: Some functionalities may not work without the frontend, since it's needed as I thought about this as 
+# OBS: 
+- Some functionalities may not work without the frontend, since it's needed as I thought about this as 
 a whole web app
+- Shipping calculation needs a third party api that can be unstable and needs a ton of configuration, that's said, please, add your own configuration on shipping.service.ts
 
 
 # .ENV

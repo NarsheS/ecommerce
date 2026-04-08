@@ -52,12 +52,12 @@ export class PaymentService implements OnModuleInit {
     const frontUrl = this.configService.get<string>('FRONTEND_URL');
     if (!frontUrl) throw new Error('FRONTEND_URL is missing');
 
-    // 🔒 Validação do frete
+    // Validação do frete
     if (order.shippingCost == null || order.shippingCost < 0) {
       throw new BadRequestException('Invalid shipping cost');
     }
 
-    // 🛒 Produtos
+    // Produtos
     const line_items = order.items.map((item) => {
       const amount = item.finalPrice ?? item.price;
 
@@ -77,7 +77,7 @@ export class PaymentService implements OnModuleInit {
       };
     });
 
-    // 🚚 Frete (somente se > 0)
+    // Frete (somente se > 0)
     if (order.shippingCost > 0) {
       line_items.push({
         price_data: {
@@ -104,7 +104,7 @@ export class PaymentService implements OnModuleInit {
       },
     });
 
-    // 💾 Salva sessionId
+    // Salva sessionId
     order.stripeSessionId = session.id;
     await this.orderRepo.save(order);
 
@@ -186,7 +186,7 @@ export class PaymentService implements OnModuleInit {
       return;
     }
 
-    // ✅ NÃO mexe em estoque
+    // NÃO mexe em estoque
     order.status = OrderStatus.PAID;
 
     await this.orderRepo.save(order);
@@ -208,7 +208,7 @@ export class PaymentService implements OnModuleInit {
     if (!order) return;
     if (order.status === OrderStatus.PAID) return;
 
-    // 🔄 devolve estoque
+    // devolve estoque
     await this.restoreStock(order);
 
     order.status = OrderStatus.CANCELLED;
@@ -243,7 +243,7 @@ export class PaymentService implements OnModuleInit {
       return;
     }
 
-    // 🔄 devolve estoque
+    // devolve estoque
     await this.restoreStock(order);
 
     order.status = OrderStatus.CANCELLED;

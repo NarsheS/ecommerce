@@ -23,7 +23,7 @@ export class ShippingService {
       throw new BadRequestException("Store origin address not configured");
     }
 
-    // 🔥 sanitiza CEP
+    // sanitiza CEP
     const cleanZipcode = zipcode.replace(/\D/g, "");
     const cleanOriginZip = store.shippingOrigin.zipcode.replace(/\D/g, "");
 

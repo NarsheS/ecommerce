@@ -11,11 +11,13 @@ import { Address } from '../address/address.entity';
 import { OrderCleanupService } from './orderCleanup.service';
 import { Products } from '../products/products.entity';
 import { StoreSettings } from '../store/store-settings.entity';
+import { StoreModule } from '../store/store.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, OrderItem, Cart, CartItem, Address, Products, StoreSettings]),
-    PricingModule
+    PricingModule,
+    StoreModule,
   ],
   providers: [OrderService, OrderCleanupService],
   controllers: [OrderController],
