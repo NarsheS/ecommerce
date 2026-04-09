@@ -6,7 +6,6 @@
 
 
 # !! QUALITY OF LIFE CHANGES !!
-- calcular frete
 - painel de controle - grafico de vendas (usando o stripe)
 - comentarios e notas em produtos
 - LoadingSpinner em verify.tsx
