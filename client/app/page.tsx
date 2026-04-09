@@ -19,7 +19,7 @@ const Home = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // 🔥 estados vindos da URL
+  // estados vindos da URL
   const search = searchParams.get("search") ?? ""
   const sale = searchParams.get("sale") === "true"
 
@@ -44,7 +44,7 @@ const Home = () => {
     }
   }
 
-  // 🔥 filtro sale
+  // filtro sale
   const filteredProducts = useMemo(() => {
     if (!sale) return products
     return products.filter(p => p.pricing?.hasDiscount === true)
@@ -66,7 +66,7 @@ const Home = () => {
   return grouped
 }, [filteredProducts])
 
-  // 🔥 carregamento inicial + busca por URL
+  // carregamento inicial + busca por URL
   useEffect(() => {
     const timeout = setTimeout(() => {
       getProducts(search)
@@ -78,7 +78,7 @@ const Home = () => {
   return (
     <div className="flex flex-col gap-4">
 
-      {/* 🔥 CAROUSEL */}
+      {/* CAROUSEL */}
       <div className="m-4">
         <HighlightCarousel />
       </div>
@@ -98,12 +98,12 @@ const Home = () => {
             
             <div key={category} className="space-y-4">
 
-              {/* 🔥 TÍTULO DA CATEGORIA */}
+              {/* TÍTULO DA CATEGORIA */}
               <h2 className="text-2xl font-bold px-2">
                 {category}
               </h2>
 
-              {/* 🔥 GRID */}
+              {/* GRID */}
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 p-2">
                 {products.map(prod => (
                   <ProductCard

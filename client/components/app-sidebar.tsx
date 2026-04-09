@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { AppWindow, Boxes, DollarSign, Home, NotebookText, Star, User2 } from "lucide-react"
+import { AppWindow, Boxes, DollarSign, Home, NotebookText, Star, Store, User2 } from "lucide-react"
 
 import {
   Sidebar,
@@ -22,6 +22,7 @@ const items = [
   { title: "Destaques", url: "/dashboard/banner", icon: Star },
   { title: "Promoções", url: "/dashboard/sales", icon: DollarSign },
   { title: "Categorias", url: "/dashboard/categories", icon: NotebookText },
+  { title: "Loja", url: "/dashboard/store", icon: Store },
 ]
 
 type AppSidebarProps = {

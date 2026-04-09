@@ -4,6 +4,10 @@ import { useEffect, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { api } from "@/app/services/api"
+import handleApiError from "@/app/utils/handleApiError"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 export default function StorePage() {
   const [form, setForm] = useState({
@@ -16,48 +20,44 @@ export default function StorePage() {
 
   const [loading, setLoading] = useState(false)
 
-  // 🔥 carregar dados atuais
+  const router = useRouter()
+
+  // carregar dados atuais
   useEffect(() => {
     async function fetchStore() {
-      const res = await fetch("http://localhost:3000/store")
-      const data = await res.json()
+      try {
+        const { data } = await api.get("/store/settings") // 👈 usa axios
 
-      if (data?.shippingOrigin) {
-        setForm(data.shippingOrigin)
+        if (data?.shippingOrigin) {
+          setForm(data.shippingOrigin)
+        }
+      } catch (err) {
+        console.error("Erro ao carregar loja", err)
       }
     }
 
     fetchStore()
   }, [])
 
-  // 🔥 atualizar campos
-  function handleChange(e: any) {
+  // atualizar campos
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
     })
   }
 
-  // 🔥 salvar
-  async function handleSubmit(e: any) {
+  // salvar
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
 
     try {
-      await fetch("http://localhost:3000/store", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          shippingOrigin: form,
-        }),
-      })
+      await api.put("/store/address", form)
 
-      alert("Endereço salvo com sucesso!")
+      toast.success("Endereço salvo com sucesso!")
     } catch (err) {
-      console.error(err)
-      alert("Erro ao salvar")
+      handleApiError(err, router, "Erro ao salvar endereço da loja")
     } finally {
       setLoading(false)
     }
