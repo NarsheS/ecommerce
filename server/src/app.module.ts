@@ -18,6 +18,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { BannerModule } from './products/cloudinary/banner/banner.module';
 import { ConfigModule } from '@nestjs/config';
 import { StoreModule } from './store/store.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 
 dotenv.config(); // Setar dotenv primeiro
@@ -62,6 +63,7 @@ const throttlerSetup = {
         DiscountModule,
         BannerModule,
         StoreModule,
+        AnalyticsModule,
     ],
     providers: [ // Coloca GUARDS globalmente no app/server
         {
