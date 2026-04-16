@@ -14,13 +14,26 @@ export default function Register() {
   const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
 
   const router = useRouter()
   const { submit, loading, error, setError } = useRegister()
 
+  // 🔥 validação visual
+  const passwordsDoNotMatch =
+    confirmPassword.length > 0 && password !== confirmPassword
+
+  const passwordsMatch =
+    confirmPassword.length > 0 && password === confirmPassword
+
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    if (password !== confirmPassword) {
+      setError("As senhas não coincidem")
+      return
+    }
 
     const result = await submit(username, email, password)
 
@@ -79,16 +92,18 @@ export default function Register() {
 
         <CardContent>
           <div className="flex flex-col gap-6">
+            {/* USUÁRIO */}
             <div className="grid gap-2">
-              <Label>Nome de Usuário</Label>
+              <Label>Usuário</Label>
               <Input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder='Dummy'
+                placeholder='João Baptista'
                 required
               />
             </div>
 
+            {/* EMAIL */}
             <div className="grid gap-2">
               <Label>Email</Label>
               <Input
@@ -100,6 +115,7 @@ export default function Register() {
               />
             </div>
 
+            {/* SENHA */}
             <div className="grid gap-2">
               <Label>Senha</Label>
               <div className="relative">
@@ -112,6 +128,13 @@ export default function Register() {
                   }}
                   placeholder='************'
                   required
+                  className={
+                    passwordsDoNotMatch
+                      ? "border-red-500 focus-visible:ring-red-500"
+                      : passwordsMatch
+                      ? "border-green-500 focus-visible:ring-green-500"
+                      : ""
+                  }
                 />
                 <button
                   type="button"
@@ -122,6 +145,42 @@ export default function Register() {
                 </button>
               </div>
             </div>
+
+            {/* CONFIRMAR SENHA */}
+            <div className="grid gap-2">
+              <Label>Confirmar Senha</Label>
+              <Input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value)
+                  setError(null)
+                }}
+                placeholder='************'
+                required
+                className={
+                  passwordsDoNotMatch
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : passwordsMatch
+                    ? "border-green-500 focus-visible:ring-green-500"
+                    : ""
+                }
+              />
+
+              {/* mensagem dinâmica */}
+              {passwordsDoNotMatch && (
+                <p className="text-sm text-red-500">
+                  As senhas não coincidem
+                </p>
+              )}
+
+              {passwordsMatch && (
+                <p className="text-sm text-green-600">
+                  Senhas coincidem ✔
+                </p>
+              )}
+            </div>
+
           </div>
         </CardContent>
 
