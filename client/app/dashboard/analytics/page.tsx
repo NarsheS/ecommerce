@@ -21,6 +21,10 @@ import {
 import {
   LineChart,
   Line,
+  BarChart,
+  Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
@@ -37,6 +41,7 @@ export default function SalesPage() {
   const [data, setData] = useState<SalesData[]>([])
   const [loading, setLoading] = useState(true)
   const [days, setDays] = useState("7")
+  const [chartType, setChartType] = useState<"line" | "bar" | "area">("line")
 
   const formatPrice = (value: number) =>
     value.toLocaleString("pt-BR", {
@@ -73,22 +78,47 @@ export default function SalesPage() {
   return (
     <div className="container mx-auto py-10 space-y-6">
 
-      <div className="flex items-center justify-between">
+      {/* HEADER */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <h1 className="text-2xl font-bold">Vendas</h1>
 
-        <Select value={days} onValueChange={setDays}>
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Período" />
-          </SelectTrigger>
+        <div className="flex gap-2">
 
-          <SelectContent>
-            <SelectItem value="7">Últimos 7 dias</SelectItem>
-            <SelectItem value="30">Últimos 30 dias</SelectItem>
-            <SelectItem value="90">Últimos 90 dias</SelectItem>
-          </SelectContent>
-        </Select>
+          {/* PERÍODO */}
+          <Select value={days} onValueChange={setDays}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Período" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectItem value="7">Últimos 7 dias</SelectItem>
+              <SelectItem value="30">Últimos 30 dias</SelectItem>
+              <SelectItem value="90">Últimos 90 dias</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* TIPO DE GRÁFICO */}
+          <Select
+            value={chartType}
+            onValueChange={(value: "line" | "bar" | "area") =>
+              setChartType(value)
+            }
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectItem value="line">Linha</SelectItem>
+              <SelectItem value="bar">Barra</SelectItem>
+              <SelectItem value="area">Área</SelectItem>
+            </SelectContent>
+          </Select>
+
+        </div>
       </div>
 
+      {/* CARD */}
       <Card>
         <CardHeader>
           <CardTitle>Faturamento</CardTitle>
@@ -108,31 +138,101 @@ export default function SalesPage() {
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" />
 
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={formatDate}
-                />
+              {/* LINE */}
+              {chartType === "line" && (
+                <LineChart data={data}>
+                  <CartesianGrid strokeDasharray="3 3" />
 
-                <YAxis
-                  tickFormatter={(value) => `R$ ${value}`}
-                />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={formatDate}
+                  />
 
-                <Tooltip
-                  formatter={(value) => formatPrice(Number(value ?? 0))}
-                  labelFormatter={(label) =>
-                    `Data: ${formatDate(label)}`
-                  }
-                />
+                  <YAxis
+                    tickFormatter={(value: any) =>
+                      `R$ ${Number(value || 0)}`
+                    }
+                  />
 
-                <Line
-                  type="monotone"
-                  dataKey="total"
-                  strokeWidth={3}
-                />
-              </LineChart>
+                  <Tooltip
+                    formatter={(value: any) =>
+                      formatPrice(Number(value || 0))
+                    }
+                    labelFormatter={(label) =>
+                      `Data: ${formatDate(label)}`
+                    }
+                  />
+
+                  <Line
+                    type="monotone"
+                    dataKey="total"
+                    strokeWidth={3}
+                  />
+                </LineChart>
+              )}
+
+              {/* BAR */}
+              {chartType === "bar" && (
+                <BarChart data={data}>
+                  <CartesianGrid strokeDasharray="3 3" />
+
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={formatDate}
+                  />
+
+                  <YAxis
+                    tickFormatter={(value: any) =>
+                      `R$ ${Number(value || 0)}`
+                    }
+                  />
+
+                  <Tooltip
+                    formatter={(value: any) =>
+                      formatPrice(Number(value || 0))
+                    }
+                    labelFormatter={(label) =>
+                      `Data: ${formatDate(label)}`
+                    }
+                  />
+
+                  <Bar dataKey="total" />
+                </BarChart>
+              )}
+
+              {/* AREA */}
+              {chartType === "area" && (
+                <AreaChart data={data}>
+                  <CartesianGrid strokeDasharray="3 3" />
+
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={formatDate}
+                  />
+
+                  <YAxis
+                    tickFormatter={(value: any) =>
+                      `R$ ${Number(value || 0)}`
+                    }
+                  />
+
+                  <Tooltip
+                    formatter={(value: any) =>
+                      formatPrice(Number(value || 0))
+                    }
+                    labelFormatter={(label) =>
+                      `Data: ${formatDate(label)}`
+                    }
+                  />
+
+                  <Area
+                    type="monotone"
+                    dataKey="total"
+                  />
+                </AreaChart>
+              )}
+
             </ResponsiveContainer>
           )}
 
