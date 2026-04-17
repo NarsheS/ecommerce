@@ -18,42 +18,42 @@ Para verificar se está rodando:
 # .ENV
 ----------------------------------------------------------------------------------------------------------
 # Porta
-PORT=3000
+- PORT=3000
 
 # Cookie
-NODE_ENV=production
+- NODE_ENV=production
 
 # Info banco de dados postgres
-DB_HOST=???
-DB_PORT=???
-DB_USER=???
-DB_PASS=???
-DB_NAME=???
+- DB_HOST=???
+- DB_PORT=???
+- DB_USER=???
+- DB_PASS=???
+- DB_NAME=???
 
 # Tokens
-JWT_SECRET=super_hyper_mega_secret_key
-JWT_EXPIRES_IN= Quanto tempo ate o token expirar
-REFRESH_TTL_DAYS= Quantos dias o refresh token dura
+- JWT_SECRET=super_hyper_mega_secret_key
+- JWT_EXPIRES_IN= Quanto tempo ate o token expirar
+- REFRESH_TTL_DAYS= Quantos dias o refresh token dura
 
 # Resend - emails
-RESEND_API_KEY=???
-MAIL_FROM=???
-APP_URL=???
+- RESEND_API_KEY=???
+- MAIL_FROM=???
+- APP_URL=???
 
 # Stripe - payments
-FRONTEND_URL=???
-STRIPE_SECRET_KEY=???
-STRIPE_WEBHOOK_SECRET=???
+- FRONTEND_URL=???
+- STRIPE_SECRET_KEY=???
+- STRIPE_WEBHOOK_SECRET=???
 
 # Cloudinary - images
-CLOUDINARY_NAME=???
-CLOUDINARY_KEY=???
-CLOUDINARY_SECRET=???
+- CLOUDINARY_NAME=???
+- CLOUDINARY_KEY=???
+- CLOUDINARY_SECRET=???
 
 # BRUTEFORCE PROTECTION CONFIG VALUES
-MAX_ATTEMPTS=5
-WINDOW_MS=15
-LOCK_MS=15
+- MAX_ATTEMPTS=5
+- WINDOW_MS=15
+- LOCK_MS=15
 
 # Endpoints
 -------------------------------------------------------------------------------------------
