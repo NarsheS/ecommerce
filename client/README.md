@@ -4,6 +4,8 @@
 # Executar client:
 - npm run dev
 
+# .ENV:
+BACKEND_SERVER = url do seu servidor
 
 # Coisas a fazer por aqui:
 
