@@ -46,7 +46,7 @@ const throttlerSetup = {
             password: process.env.DB_PASS,
             database: process.env.DB_NAME,
             autoLoadEntities: true,
-            synchronize: true, // em produção, usar migrations
+            synchronize: false, // em produção, usar migrations
             ssl: {
                 rejectUnauthorized: false
             },

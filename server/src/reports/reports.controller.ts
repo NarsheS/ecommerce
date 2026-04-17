@@ -32,8 +32,4 @@ export class ReportsController {
     return res.send(csv);
   }
 
-  @Get("public")
-publicTest() {
-  return { ok: true };
-}
 }

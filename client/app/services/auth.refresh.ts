@@ -1,9 +1,11 @@
 import axios from "axios";
 
+const server = process.env.BACKEND_SERVER;
+
 export const refreshAccessToken = async (): Promise<string> => {
   try {
     const response = await axios.post(
-      "https://ecommerce-cyrl.onrender.com/api/auth/refresh",
+      `${server}/auth/refresh`,
       {},
       { withCredentials: true }
     );

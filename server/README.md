@@ -1,21 +1,18 @@
-# Falta fazer
-- Talvez adicionar redis para cache
-
 # Server com Nestjs
-Install everything:
+Instalar dependências:
 - npm i
 
-Start the server locally as dev:
+Rodar servidor localmente:
 - npm run start:dev
 
-To see if its working:
+Para verificar se está rodando:
 - Método GET para Debug (http://localhost/api/users/debug)
-- Quick reminder, for tokens to work they need the prefix: Bearer <token>
+- Lembrete, para tokens funcionarem eles precisam do prefixo: Bearer <token>
 
 # OBS: 
-- Some functionalities may not work without the frontend, since it's needed as I thought about this as 
-a whole web app
-- Shipping calculation needs a third party api that can be unstable and needs a ton of configuration, that's said, please, add your own configuration on shipping.service.ts
+- Algumas funcionalidades podem não funcionar sem o client, já que isso foi pensado como uma parte de um todo.
+- Para cálculo real do frete, é necessário a reconfiguração do shipping.service.ts, pois este precisa de uma API de terceiros para tal.
+- A configuração do .env se faz necessária para executar o server sem erros
 
 
 # .ENV
@@ -35,8 +32,8 @@ DB_NAME=???
 
 # Tokens
 JWT_SECRET=super_hyper_mega_secret_key
-JWT_EXPIRES_IN= how much time token till token expires
-REFRESH_TTL_DAYS= how many days refresh token will lasts
+JWT_EXPIRES_IN= Quanto tempo ate o token expirar
+REFRESH_TTL_DAYS= Quantos dias o refresh token dura
 
 # Resend - emails
 RESEND_API_KEY=???
@@ -141,7 +138,15 @@ LOCK_MS=15
 
 # banners:
 
-- GET - api/banners
-- POST - api/banners
-- PATCH - api/banners/:id
-- DELETE - api/banners/:id                          
+- GET - api/banners                                 (Todos os banners)
+- POST - api/banners                                (Adiciona um novo banner ao carrosel)
+- PATCH - api/banners/:id                           (Atualiza um banner)
+- DELETE - api/banners/:id                          (Deleta um banner)  
+
+# analytics:
+
+- GET - api/analytics/sales                         (Usado para vizualização de um gráfico de vendas)
+
+# reports:
+
+- GET - api/reports/orders/csv                      (cria um .csv com as últimas vendas realizadas) 

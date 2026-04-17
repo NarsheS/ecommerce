@@ -1,8 +1,10 @@
 import axios from "axios"
 import { refreshAccessToken } from "./auth.refresh"
 
+const server = process.env.BACKEND_SERVER;
+
 export const api = axios.create({
-  baseURL: "https://ecommerce-cyrl.onrender.com/api",
+  baseURL: server,
   withCredentials: true, // envia cookies httpOnly
 })
 

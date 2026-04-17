@@ -1,22 +1,18 @@
-# Install everything:
+# Instalar dependências:
 - npm i
 
-# Run client as dev:
+# Executar client:
 - npm run dev
 
 
-# !! QUALITY OF LIFE CHANGES !!
+# Coisas a fazer por aqui:
+
+## !! Mudanças de Qualidade de Vida !!
 - comentarios e notas em produtos
 - LoadingSpinner em verify.tsx
 - pagina para tratar error 404 (talvez 500 tbm)
 
-# Talvez:
+## Talvez:
 - Painel de Controle (REMOVER QUALQUER CONTA - delete("users/remove/:id"))
-- login com google (talvez)
+- login com google
 
-# IMPORTANTE !!!!!!!!!!!!!!!!!!!!!!!!!!!
-Em app.module.ts (server), tem que colocar synchronize: false, atualmente esta true pois estamos desenvolvendo e perder dados n tem tanta importancia
-
-
-# Endpoint
-- https://ecommerce-cyrl.onrender.com/api
