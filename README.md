@@ -9,7 +9,7 @@ as dependências, após isso, seguir as instruções do arquivo README.md na pas
 as dependências, após isso, seguir as instruções do arquivo README.md na pasta server.
 
 ## IMPORTANTE !!!!!!!!!!!!!!!!!!!!!!!!!!!
-- A função "Dashboard" só pode ser acessada pelo Admin, logo para acessar o mesmo e suas funções, deve ser criado um usuário com a role de admin no banco de dados, do contrário a opção nem aparece e caso tente acessar diretamente, será redirecionado para a página principal. Recomendo criar um usuário normalmente, acessar o banco de dados e alterar a função deste usuário específico para Admin.
+- A função "Dashboard" só pode ser acessada pelo Admin, logo para acessar o mesmo e suas funções, deve ser criado um usuário com a role de admin no banco de dados, do contrário a opção nem aparece e caso tente acessar diretamente, será redirecionado para a página principal. Recomendo criar um usuário normalmente, acessar o banco de dados e alterar a "ROLE" deste usuário específico para Admin.
 
 - Em app.module.ts (server), usar "synchronize: false", caso esteja em produção e usar migrations.
 
