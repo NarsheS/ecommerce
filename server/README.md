@@ -13,6 +13,7 @@ Para verificar se está rodando:
 - Algumas funcionalidades podem não funcionar sem o client, já que isso foi pensado como uma parte de um todo.
 - Para cálculo real do frete, é necessário a reconfiguração do shipping.service.ts, pois este precisa de uma API de terceiros para tal.
 - A configuração do .env se faz necessária para executar o server sem erros
+- Para total acesso, deve-se possuir um usuário no banco de dados com a "ROLE" admin, pois alguns endpoints tem acesso restrito apenas à administradores. Recomenda-se criar um usuário normalmente e depois alterar sua "ROLE" para admin diretamente no banco de dados para conceder os privilégios.
 
 
 # .ENV
