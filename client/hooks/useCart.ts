@@ -18,7 +18,7 @@ export default function useCart() {
       const response = await api.get("cart")
       setCart(response.data)
     } catch (error) {
-      handleApiError(error, router, "Erro ao buscar o carrinho")
+      console.error("Carrinho vazio", error)
     }
   }
 
@@ -32,7 +32,7 @@ export default function useCart() {
       }
 
     } catch (error) {
-      handleApiError(error, router, "Erro ao buscar endereços")
+      console.error("Sem endereços", error)
     }
   }
 

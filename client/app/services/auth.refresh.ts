@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const server = process.env.BACKEND_SERVER;
+const server = process.env.NEXT_PUBLIC_BACKEND_SERVER;
 
 export const refreshAccessToken = async (): Promise<string> => {
   try {

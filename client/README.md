@@ -5,7 +5,7 @@
 - npm run dev
 
 # .ENV:
-- BACKEND_SERVER = url do seu servidor
+- NEXT_PUBLIC_BACKEND_SERVER = url do seu servidor
 
 # Coisas a fazer por aqui:
 

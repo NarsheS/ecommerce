@@ -32,7 +32,7 @@ export default function CartPage() {
     createOrderPayment
   } = useCart()
 
-  // 🔥 NOVO: estado do frete
+  // NOVO: estado do frete
   const [shipping, setShipping] = useState<{
     cost: number
     estimatedDays: number
@@ -56,7 +56,7 @@ export default function CartPage() {
     return `${cleaned.slice(0, 5)}-${cleaned.slice(5, 8)}`
   }
 
-  // 🔥 NOVO: calcular frete automaticamente
+  // NOVO: calcular frete automaticamente
   useEffect(() => {
     async function calculateShipping() {
       if (!selectedAddressId || !cart?.items?.length) return
@@ -74,7 +74,6 @@ export default function CartPage() {
 
         setShipping(data)
       } catch (err) {
-        console.error("Erro ao calcular frete", err)
         setShipping(null)
       } finally {
         setShippingLoading(false)
@@ -84,7 +83,7 @@ export default function CartPage() {
     calculateShipping()
   }, [selectedAddressId, cart, addresses])
 
-  // 🔥 NOVO: total com frete
+  // NOVO: total com frete
   const itemsTotal = cart?.items?.reduce(
     (total, item) =>
       total + item.pricing.finalPrice * item.quantity,

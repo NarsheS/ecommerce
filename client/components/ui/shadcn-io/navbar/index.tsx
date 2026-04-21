@@ -248,13 +248,13 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
           {/* RIGHT */}
           <div className="flex items-center gap-3">
 
-            {rightSlot || (
-              <Button variant="ghost" onClick={onSignInClick}>
-                Entrar
-              </Button>
-            )}
+            {rightSlot ? rightSlot : (
+  <Button variant="ghost" onClick={onSignInClick}>
+    Entrar
+  </Button>
+)}
 
-            <Button onClick={onCartClick} className="relative">
+            <Button onClick={onCartClick} className="relative cursor-pointer">
               {cartText}
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs px-1.5 rounded-full">

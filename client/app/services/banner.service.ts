@@ -3,7 +3,7 @@ import type { Banner } from "@/app/types/banner"
 
 export const bannerService = {
   async getAll() {
-    const { data } = await api.get("/banners/admin")
+    const { data } = await api.get("/banners")
     return data
   },
 
