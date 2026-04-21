@@ -1,7 +1,7 @@
 import axios from "axios"
 import { refreshAccessToken } from "./auth.refresh"
 
-const server = process.env.BACKEND_SERVER;
+const server = process.env.NEXT_PUBLIC_BACKEND_SERVER;
 
 export const api = axios.create({
   baseURL: server,
@@ -60,7 +60,6 @@ api.interceptors.response.use(
         return api(originalRequest)
       } catch (err) {
         resolveQueue(err, null)
-        window.location.href = "/login"
         return Promise.reject(err)
       } finally {
         isRefreshing = false

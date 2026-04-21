@@ -11,6 +11,7 @@ import type { Product } from "./types/product"
 import LoadingCircle from "@/components/loading-circle"
 import { ProductCard } from "@/components/product-card"
 import { HighlightCarousel } from "@/components/highlight-carousel"
+import WhyBuy from "@/components/why-buy"
 
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([])
@@ -118,6 +119,8 @@ const Home = () => {
         )}
 
       </section>
+
+      <WhyBuy />
     </div>
   )
 }
