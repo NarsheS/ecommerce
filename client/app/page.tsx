@@ -12,6 +12,7 @@ import LoadingCircle from "@/components/loading-circle"
 import { ProductCard } from "@/components/product-card"
 import { HighlightCarousel } from "@/components/highlight-carousel"
 import WhyBuy from "@/components/why-buy"
+import CustomerTestimonials from "@/components/customerTestimonials"
 
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([])
@@ -121,6 +122,8 @@ const Home = () => {
       </section>
 
       <WhyBuy />
+      
+      <CustomerTestimonials />
     </div>
   )
 }
