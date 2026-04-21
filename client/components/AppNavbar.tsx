@@ -17,8 +17,6 @@ export default function AppNavbar() {
 
   const [cart, setCart] = useState<Cart | null>(null)
 
-  const isAuthenticated = !!accessToken
-
   const search = searchParams.get("search") ?? ""
 
   const getCart = async () => {
@@ -32,24 +30,8 @@ export default function AppNavbar() {
     }
   }
 
-  // atualiza ao logar
   useEffect(() => {
-    if (accessToken) {
-      getCart()
-    }
-  }, [accessToken])
-
-  // escuta atualização do carrinho
-  useEffect(() => {
-    const handleCartUpdate = () => {
-      getCart()
-    }
-
-    window.addEventListener("cartUpdated", handleCartUpdate)
-
-    return () => {
-      window.removeEventListener("cartUpdated", handleCartUpdate)
-    }
+    if (accessToken) getCart()
   }, [accessToken])
 
   const handleLoginClick = async () => {
@@ -66,44 +48,28 @@ export default function AppNavbar() {
   return (
     <Navbar
       cartText="Carrinho"
-      onCartClick={() => router.push("/cart")}
       cartCount={cart?.items?.reduce((t, i) => t + i.quantity, 0) ?? 0}
+      onCartClick={() => router.push("/cart")}
 
       searchPlaceholder="Buscar..."
       searchValue={search}
       onSearchChange={(value) => {
-        const params = new URLSearchParams(searchParams.toString())
-
-        if (value) {
-          params.set("search", value)
-        } else {
-          params.delete("search")
-        }
-
-        router.push(`/?${params.toString()}`)
+        if (!value) return router.push("/")
+        router.push(`/?search=${value}`)
       }}
 
       navigationLinks={[
-        { label: "Ofertas" },
+        { label: "Ofertas", action: "sale" },
         { label: "Contato", href: "/contact" },
         { label: "Sobre", href: "/about" },
       ]}
 
-      // BOTÃO OFERTAS FUNCIONANDO
       onSaleClick={() => {
-        const params = new URLSearchParams(searchParams.toString())
-
-        if (params.get("sale") === "true") {
-          params.delete("sale")
-        } else {
-          params.set("sale", "true")
-        }
-
-        router.push(`/?${params.toString()}`)
+        router.push("/?sale=true")
       }}
 
       rightSlot={
-        isAuthenticated ? (
+        accessToken ? (
           <UserMenu role={user?.role} onLogout={handleLogout} />
         ) : (
           <Button onClick={handleLoginClick}>Entrar</Button>
