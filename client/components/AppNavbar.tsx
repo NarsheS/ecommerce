@@ -32,14 +32,14 @@ export default function AppNavbar() {
     }
   }
 
-  // 🔥 atualiza ao logar
+  // atualiza ao logar
   useEffect(() => {
     if (accessToken) {
       getCart()
     }
   }, [accessToken])
 
-  // 🔥 escuta atualização do carrinho
+  // escuta atualização do carrinho
   useEffect(() => {
     const handleCartUpdate = () => {
       getCart()
@@ -89,7 +89,7 @@ export default function AppNavbar() {
         { label: "Sobre", href: "/about" },
       ]}
 
-      // 🔥 BOTÃO OFERTAS FUNCIONANDO
+      // BOTÃO OFERTAS FUNCIONANDO
       onSaleClick={() => {
         const params = new URLSearchParams(searchParams.toString())
 
