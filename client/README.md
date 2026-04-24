@@ -11,7 +11,6 @@
 
 ## !! Mudanças de Qualidade de Vida !!
 - comentarios e notas em produtos
-- LoadingSpinner em verify.tsx
 - pagina para tratar error 404 (talvez 500 tbm)
 
 ## Talvez:

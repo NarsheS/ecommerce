@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/app/services/api";
 import { toast } from "sonner";
+import LoadingCircle from "@/components/loading-circle";
 
 export default function VerifyPage() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function VerifyPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <p>Verificando sua conta...</p>
+      <LoadingCircle />
     </div>
   );
 }
