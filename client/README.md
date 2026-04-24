@@ -10,6 +10,7 @@
 # Coisas a fazer por aqui:
 
 ## !! Mudanças de Qualidade de Vida !!
+- produtos precisam ser scrollables (implementei algo diferente, preciso adicionar produtos e testar depois)
 - comentarios e notas em produtos
 - pagina para tratar error 404 (talvez 500 tbm)
 

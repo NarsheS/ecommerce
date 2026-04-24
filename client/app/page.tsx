@@ -19,11 +19,15 @@ const Home = () => {
   const [products, setProducts] = useState<Product[]>([])
   const [fetching, setFetching] = useState(false)
 
+  const [isMobile, setIsMobile] = useState(false)
+
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const search = searchParams.get("search") ?? ""
   const sale = searchParams.get("sale") === "true"
+
+  const hasSearch = search.trim().length > 0
 
   const getProducts = async (searchTerm?: string) => {
     try {
@@ -58,6 +62,18 @@ const Home = () => {
 
     return grouped
   }, [filteredProducts])
+
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    handleResize()
+    window.addEventListener("resize", handleResize)
+
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -101,24 +117,35 @@ const Home = () => {
           </div>
 
         ) : (
-          Object.entries(productsByCategory).map(([category, products]) => (
-            <div key={category} className="space-y-4">
+          Object.entries(productsByCategory).map(([category, products]) => {
 
-              <h2 className="text-2xl font-bold px-2">
-                {category}
-              </h2>
+            const limit = hasSearch
+              ? products.length
+              : isMobile
+                ? 3
+                : 5
 
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 p-2">
-                {products.map(prod => (
-                  <ProductCard
-                    key={prod.id}
-                    product={prod}
-                  />
-                ))}
+            const visibleProducts = products.slice(0, limit)
+
+            return (
+              <div key={category} className="space-y-4">
+
+                <h2 className="text-2xl font-bold px-2">
+                  {category}
+                </h2>
+
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 p-2">
+                  {visibleProducts.map(prod => (
+                    <ProductCard
+                      key={prod.id}
+                      product={prod}
+                    />
+                  ))}
+                </div>
+
               </div>
-
-            </div>
-          ))
+            )
+          })
         )}
 
       </section>
