@@ -42,55 +42,68 @@ function Stars({ rating }: { rating: number }) {
 
 export default function CustomerTestimonials() {
   return (
-    <section className="py-12 px-4 bg-muted/30">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <section className="w-full py-10 px-4">
+      <div className="max-w-6xl mx-auto">
 
-        {/* Título */}
-        <div className="text-center space-y-2">
-          <h2 className="text-3xl font-bold">
+        {/* título */}
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold">
             Clientes satisfeitos
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm mt-1">
             Veja o que nossos clientes estão dizendo
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {testimonials.map((item, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              viewport={{ once: true }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="
+                group
+                relative
+                p-7.5
+                rounded-2xl
+                border
+                bg-background
+                hover:shadow-lg
+                hover:-translate-y-1
+                transition-all
+                duration-300
+                min-h-[180px]
+              "
             >
-              <Card className="h-full">
-                <CardContent className="p-6 space-y-4">
+              {/* glow */}
+              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition bg-primary/5" />
 
-                  {/* Header */}
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarFallback>
-                        {item.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
+              <div className="relative flex flex-col justify-between h-full gap-4">
 
-                    <div>
-                      <p className="font-semibold">
-                        {item.name}
-                      </p>
-                      <Stars rating={item.rating} />
-                    </div>
+                {/* header */}
+                <div className="flex items-center gap-3">
+                  <Avatar>
+                    <AvatarFallback>
+                      {item.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  <div>
+                    <p className="font-semibold text-sm">
+                      {item.name}
+                    </p>
+                    <Stars rating={item.rating} />
                   </div>
+                </div>
 
-                  {/* Texto */}
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    "{item.text}"
-                  </p>
+                {/* texto */}
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  "{item.text}"
+                </p>
 
-                </CardContent>
-              </Card>
+              </div>
             </motion.div>
           ))}
         </div>
