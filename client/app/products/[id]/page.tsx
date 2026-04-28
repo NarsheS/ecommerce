@@ -42,7 +42,7 @@ export default function ProductPage() {
 
       window.dispatchEvent(new Event("cartUpdated"))
 
-      // 🔥 REFETCH PRODUTO (ATUALIZA ESTOQUE)
+      // REFETCH PRODUTO (ATUALIZA ESTOQUE)
       const { data } = await api.get(`/products/${productId}`)
       setProduct(data)
 
@@ -98,11 +98,11 @@ export default function ProductPage() {
   const images = product.images ?? []
 
   return (
-    <div className="max-w-7xl mx-auto p-6 rounded-md bg-amber-50 my-10">
+    <div className="max-w-7xl mx-auto p-6 rounded-md bg-white my-10">
 
       <div className="grid md:grid-cols-2 gap-34 my-2">
 
-        {/* 🔥 CAROUSEL DE IMAGENS */}
+        {/* CAROUSEL DE IMAGENS */}
         <div className="w-full bg-black py-4 rounded-xl">
           {images.length > 0 ? (
             <Carousel className="w-full relative">
@@ -131,7 +131,7 @@ export default function ProductPage() {
           )}
         </div>
 
-        {/* 🔥 INFO */}
+        {/* INFO */}
         <div className="flex flex-col gap-5 mt-5 max-w-md">
 
           <div className="ml-5 gap-2 flex flex-col">
