@@ -6,6 +6,7 @@ import type { Order } from "@/app/types/order"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { api } from "../services/api"
+import Link from "next/link"
 
 // 🔥 CONFIG CENTRALIZADA
 const orderStatusConfig: Record<
@@ -95,28 +96,34 @@ export default function OrdersPage() {
               {/* ITENS */}
               <div className="space-y-3">
                 {order.items.map(item => (
-                  <div key={item.id} className="flex items-center gap-3">
+                  <Link
+                    key={item.id}
+                    href={`/products/${item.product.id}`}
+                    className="block"
+                  >
+                    <div className="flex items-center gap-3 cursor-pointer hover:bg-muted/40 p-2 rounded-lg transition">
 
-                    <img
-                      src={item.product.images?.[0]?.url || "/placeholder.png"}
-                      className="w-16 h-16 object-cover rounded-lg border"
-                    />
+                      <img
+                        src={item.product.images?.[0]?.url || "/placeholder.png"}
+                        className="w-16 h-16 object-cover rounded-lg border"
+                      />
 
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">
-                        {item.product.name}
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">
+                          {item.product.name}
+                        </p>
+
+                        <p className="text-xs text-muted-foreground">
+                          Quantidade: {item.quantity}
+                        </p>
+                      </div>
+
+                      <p className="text-sm font-semibold">
+                        {formatPrice(item.finalPrice)}
                       </p>
 
-                      <p className="text-xs text-muted-foreground">
-                        Quantidade: {item.quantity}
-                      </p>
                     </div>
-
-                    <p className="text-sm font-semibold">
-                      {formatPrice(item.finalPrice)}
-                    </p>
-
-                  </div>
+                  </Link>
                 ))}
               </div>
 
