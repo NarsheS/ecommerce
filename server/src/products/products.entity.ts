@@ -34,4 +34,11 @@ export class Products {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // Review
+  @Column({ type: 'float', default: 0 })
+  averageRating: number;
+
+  @Column({ type: 'int', default: 0 })
+  reviewCount: number;
 }

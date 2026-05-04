@@ -20,6 +20,7 @@ import { ConfigModule } from '@nestjs/config';
 import { StoreModule } from './store/store.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { ReportsModule } from './reports/reports.module';
+import { ReviewsModule } from './review/reviews.module';
 
 
 dotenv.config(); // Setar dotenv primeiro
@@ -66,6 +67,7 @@ const throttlerSetup = {
         StoreModule,
         AnalyticsModule,
         ReportsModule,
+        ReviewsModule,
     ],
     providers: [ // Coloca GUARDS globalmente no app/server
         {

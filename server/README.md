@@ -151,3 +151,11 @@ Para verificar se está rodando:
 # reports:
 
 - GET - api/reports/orders/csv                      (cria um .csv com as últimas vendas realizadas) 
+
+# Reviews:
+
+- POST - api/reviews                                (cria uma review) 
+- DELETE - api/reviews/:id                          (Deleta uma review) 
+- GET - api/reviews/product/:productId              (Obtém as reviews de x produto) 
+- GET - api/reviews/me                              (Obtém todos os reviews que o usuário fez) 
+- PATCH - api/reviews/:id                           (Edita uma review) 
