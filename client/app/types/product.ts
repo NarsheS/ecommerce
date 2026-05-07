@@ -22,4 +22,6 @@ export type Product = {
   pricing: Pricing
   category?: Category | null
   images?: ProductImage[]
+  averageRating: number
+  reviewCount: number
 }

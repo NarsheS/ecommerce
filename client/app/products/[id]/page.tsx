@@ -17,6 +17,7 @@ import {
 
 import type { Product } from "@/app/types/product"
 import LoadingCircle from "@/components/loading-circle"
+import ProductReviews from "@/components/product-reviews"
 
 export default function ProductPage() {
   const { id } = useParams()
@@ -247,6 +248,12 @@ export default function ProductPage() {
         </div>
 
       </div>
+
+      <ProductReviews
+        productId={product.id}
+        averageRating={product.averageRating}
+        reviewCount={product.reviewCount}
+      />
 
     </div>
   )
