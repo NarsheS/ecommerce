@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Star, Trash2, Pencil, Send } from "lucide-react"
 
+import { api } from "@/app/services/api"
 import handleApiError from "@/app/utils/handleApiError"
 
 import { reviewService } from "@/app/services/review.service"
@@ -30,14 +31,27 @@ export default function ProductReviews({
 
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null)
 
-  const currentUser = useMemo(() => {
-    if (typeof window === "undefined") return null
+  const [currentUser, setCurrentUser] = useState<any>(null)
 
-    const user = localStorage.getItem("user")
+  const formRef = useRef<HTMLDivElement | null>(null)
 
-    return user ? JSON.parse(user) : null
+  // BUSCA USUÁRIO LOGADO
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      try {
+        const { data } = await api.get("/users/me")
+
+        setCurrentUser(data)
+
+      } catch {
+        setCurrentUser(null)
+      }
+    }
+
+    getCurrentUser()
   }, [])
 
+  // BUSCA REVIEWS
   const fetchReviews = async () => {
     try {
       setLoading(true)
@@ -57,12 +71,14 @@ export default function ProductReviews({
     fetchReviews()
   }, [productId])
 
+  // RESET FORM
   const resetForm = () => {
     setComment("")
     setRating(5)
     setEditingReviewId(null)
   }
 
+  // CREATE / UPDATE REVIEW
   const handleSubmit = async () => {
     try {
       if (!comment.trim()) return
@@ -94,6 +110,7 @@ export default function ProductReviews({
     }
   }
 
+  // DELETE REVIEW
   const handleDelete = async (reviewId: number) => {
     try {
       await reviewService.deleteReview(reviewId)
@@ -107,12 +124,20 @@ export default function ProductReviews({
     }
   }
 
+  // EDIT REVIEW
   const handleEdit = (review: Review) => {
     setEditingReviewId(review.id)
     setRating(review.rating)
     setComment(review.comment)
+
+    // scroll suave pro formulário
+    formRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+    })
   }
 
+  // STARS
   const renderStars = (
     currentRating: number,
     clickable = false,
@@ -159,7 +184,7 @@ export default function ProductReviews({
       </div>
 
       {/* FORM */}
-      <Card>
+      <Card ref={formRef}>
         <CardContent className="pt-6 space-y-4">
 
           <div className="space-y-2">
@@ -248,9 +273,11 @@ export default function ProductReviews({
 
                   </div>
 
-                  {currentUser?.id === review.user.id && (
+                  {/* BOTÕES DO DONO */}
+                  {Number(currentUser?.id) === Number(review.user.id) && (
                     <div className="flex items-center gap-2">
 
+                      {/* EDITAR */}
                       <Button
                         size="icon"
                         variant="ghost"
@@ -260,6 +287,7 @@ export default function ProductReviews({
                         <Pencil className="w-4 h-4" />
                       </Button>
 
+                      {/* DELETAR */}
                       <Button
                         size="icon"
                         variant="ghost"
