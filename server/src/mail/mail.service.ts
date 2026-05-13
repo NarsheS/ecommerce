@@ -76,7 +76,7 @@ export class MailService {
 
     const appUrl = process.env.APP_URL;
     this.logger.log(`MAIL_FROM RAW: ${process.env.MAIL_FROM}`);
-    const mailFrom = process.env.MAIL_FROM;
+    const mailFrom = process.env.MAIL_FROM?.trim();
 
     if (!appUrl || !mailFrom) {
       this.logger.error('APP_URL ou MAIL_FROM não definidos');
@@ -106,9 +106,7 @@ export class MailService {
         `,
       });
 
-      this.logger.log(
-        `Email de reset enviado com sucesso. ID: ${result?.data?.id}`,
-      );
+      console.log(result)
 
       return result;
     } catch (err: any) {
