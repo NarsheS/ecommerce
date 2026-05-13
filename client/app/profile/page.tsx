@@ -204,7 +204,6 @@ export default function ProfilePage() {
         content={[
           { id: 1, name: "username", label: "Usuário" },
           { id: 2, name: "email", label: "E-mail" },
-          { id: 3, name: "password", label: "Nova senha" },
         ]}
         handleSubmit={profile.submit}
         loading={profile.saving}

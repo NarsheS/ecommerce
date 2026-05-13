@@ -21,7 +21,6 @@ export function useProfile() {
   const [form, setForm] = useState({
     username: "",
     email: "",
-    password: "",
   })
 
   /* ---------------- FETCH ---------------- */
@@ -36,8 +35,6 @@ export function useProfile() {
           router.replace("/")
           return
         }
-
-        
       } finally {
         setLoading(false)
       }
@@ -54,7 +51,6 @@ export function useProfile() {
     setForm({
       username: user.username,
       email: user.email,
-      password: "",
     })
 
     setDialogOpen(true)
@@ -66,24 +62,20 @@ export function useProfile() {
     setSaving(true)
 
     try {
-      const payload: any = {
+      const payload = {
         username: form.username,
         email: form.email,
-      }
-
-      if (form.password) {
-        payload.password = form.password
       }
 
       const updated = await profileService.update(payload)
 
       setUser(updated)
+
       setDialogOpen(false)
 
       setForm({
         username: updated.username,
         email: updated.email,
-        password: "",
       })
     } catch (error) {
       handleApiError(error, router, "Erro ao atualizar perfil")
@@ -98,10 +90,11 @@ export function useProfile() {
 
     try {
       await profileService.remove()
+
       router.replace("/")
       router.refresh()
     } catch (error) {
-      handleApiError(error, router, "erro ao deletar a conta")
+      handleApiError(error, router, "Erro ao deletar a conta")
     } finally {
       setDeleteLoading(false)
       setDeleteDialogOpen(false)
