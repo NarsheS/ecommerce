@@ -24,12 +24,19 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
 
   const router = useRouter()
-  const { submit, loading, error, setError } = useLogin()
 
-  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
+  const { submit, loading, error, setError } =
+    useLogin()
+
+  const handleLogin = async (
+    e: FormEvent<HTMLFormElement>,
+  ) => {
     e.preventDefault()
 
-    const result = await submit(identifier, password)
+    const result = await submit(
+      identifier,
+      password,
+    )
 
     if (result.ok) {
       router.replace("/")
@@ -52,14 +59,20 @@ export default function Login() {
 
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Entre na sua conta</CardTitle>
+          <CardTitle>
+            Entre na sua conta
+          </CardTitle>
+
           <CardDescription>
-            Acesse sua conta usando seu email ou nome de usuário
+            Acesse sua conta usando seu email ou
+            nome de usuário
           </CardDescription>
 
           <CardAction className="mt-4">
             <Button
-              onClick={() => router.push("/register")}
+              onClick={() =>
+                router.push("/register")
+              }
               type="button"
               variant="outline"
             >
@@ -72,18 +85,40 @@ export default function Login() {
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
               <Label>Email ou usuário</Label>
+
               <Input
                 value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
+                onChange={(e) =>
+                  setIdentifier(e.target.value)
+                }
                 required
               />
             </div>
 
             <div className="grid gap-2">
-              <Label>Senha</Label>
+              <div className="flex items-center justify-between">
+                <Label>Senha</Label>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(
+                      "/forgot-password",
+                    )
+                  }
+                  className="text-sm text-blue-600 hover:underline cursor-pointer"
+                >
+                  Esqueci minha senha
+                </button>
+              </div>
+
               <div className="relative">
                 <Input
-                  type={showPassword ? "text" : "password"}
+                  type={
+                    showPassword
+                      ? "text"
+                      : "password"
+                  }
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value)
@@ -92,9 +127,12 @@ export default function Login() {
                   placeholder="************"
                   required
                 />
+
                 <button
                   type="button"
-                  onClick={() => setShowPassword(s => !s)}
+                  onClick={() =>
+                    setShowPassword((s) => !s)
+                  }
                   className="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700"
                 >
                   {showPassword ? "🙈" : "👁️"}
@@ -105,8 +143,14 @@ export default function Login() {
         </CardContent>
 
         <CardFooter>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Carregando..." : "Entrar"}
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading}
+          >
+            {loading
+              ? "Carregando..."
+              : "Entrar"}
           </Button>
         </CardFooter>
       </Card>

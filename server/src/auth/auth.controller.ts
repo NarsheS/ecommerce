@@ -14,6 +14,7 @@ import { Public } from '../common/decorators/public.decorator';
 import { LoginDto } from './dto/login.dto';
 import { Register } from './dto/register.dto';
 import type { Request, Response } from 'express';
+import { ResetPasswordDto } from './dto/resetPassword.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -123,6 +124,28 @@ export class AuthController {
     });
 
     return { ok: true };
+  }
+
+  @Public()
+  @Post('forgot-password')
+  async forgotPassword(
+    @Body() body: { identifier: string },
+  ) {
+    return this.authService.requestPasswordReset(
+      body.identifier,
+    );
+  }
+
+  @Public()
+  @Post('reset-password')
+  async resetPassword(
+    @Body()
+    body: ResetPasswordDto,
+  ) {
+    return this.authService.resetPassword(
+      body.token,
+      body.password,
+    );
   }
 
 
