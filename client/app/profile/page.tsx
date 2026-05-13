@@ -196,6 +196,27 @@ export default function ProfilePage() {
 
       </div>
 
+      {/* DIALOG PROFILE */}
+      <DialogAction
+        open={profile.dialogOpen}
+        onOpenChange={profile.setDialogOpen}
+        title="Editar Perfil"
+        content={[
+          { id: 1, name: "username", label: "Usuário" },
+          { id: 2, name: "email", label: "E-mail" },
+          { id: 3, name: "password", label: "Nova senha" },
+        ]}
+        handleSubmit={profile.submit}
+        loading={profile.saving}
+        values={profile.form}
+        onChange={(name, value) =>
+          profile.setForm(prev => ({
+            ...prev,
+            [name]: value,
+          }))
+        }
+      />
+
       {/* DIALOG ADDRESS (CREATE + EDIT) */}
       <DialogAction
         open={address.dialogOpen}
