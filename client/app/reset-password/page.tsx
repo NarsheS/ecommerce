@@ -111,7 +111,7 @@ export default function ResetPasswordPage() {
           )}
 
           {success && (
-            <Alert className="mb-4">
+            <Alert className="mb-4 bg-green-500 text-white">
               <CheckCircle2 className="h-4 w-4" />
 
               <AlertTitle>

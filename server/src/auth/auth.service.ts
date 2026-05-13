@@ -315,8 +315,9 @@ export class AuthService {
     }
 
     // Criptografa a nova senha (use bcrypt)
-    const hashed = await bcrypt.hash(newPassword, 12);
-    await this.usersService.updateUser(user.id, { password: hashed });
+    await this.usersService.updateUser(user.id, {
+      password: newPassword,
+    });
 
     // Limpa e reseta token e refresh token (force logout)
     await this.usersService.clearResetToken(user.id);
