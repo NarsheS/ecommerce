@@ -67,8 +67,8 @@ Para verificar se está rodando:
 - GET - api/auth/me                                 (Retorna a Role do usuário)
 - POST - api/auth/logout                            (Sair da conta)
 - POST - api/auth/refresh                           (Resfresh token)
-- POST - api/auth/forgot-password                           
-- POST - api/auth/reset-password                           
+- POST - api/auth/forgot-password                   (Envia um email com link para redefinir senha)       
+- POST - api/auth/reset-password                    (Redefine sua senha por uma nova)       
 
 # Users:
 # (username, email, password)

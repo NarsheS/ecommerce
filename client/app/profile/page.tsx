@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Pencil, Trash2, Plus } from "lucide-react"
+import { Pencil, Trash2, Plus, KeyRound } from "lucide-react"
 
 import DialogAction from "@/components/dialog-action"
 import ConfirmDialog from "@/components/confirm-dialog"
@@ -16,7 +16,6 @@ import { useProfile } from "@/hooks/useProfile"
 import { useAddress } from "@/hooks/useAddress"
 
 export default function ProfilePage() {
-  const router = useRouter()
 
   const profile = useProfile()
   const address = useAddress()
@@ -34,7 +33,7 @@ export default function ProfilePage() {
   return (
     <>
       <div className="container mx-auto py-10 space-y-8">
-        
+
         {/* PERFIL */}
         <Card className="max-w-2xl mx-auto">
           <CardHeader className="flex flex-row items-center gap-4">
@@ -48,11 +47,13 @@ export default function ProfilePage() {
               <CardTitle className="text-2xl">
                 {profile.user.username}
               </CardTitle>
+
               <p className="text-muted-foreground">
                 {profile.user.email}
               </p>
             </div>
 
+            {/* EDITAR PERFIL */}
             <Button
               size="icon"
               variant="outline"
@@ -62,6 +63,17 @@ export default function ProfilePage() {
               <Pencil className="h-4 w-4" />
             </Button>
 
+            {/* RESET PASSWORD */}
+            <Button
+              size="icon"
+              variant="outline"
+              className="rounded-full cursor-pointer"
+              onClick={profile.handlePasswordReset}
+            >
+              <KeyRound className="h-4 w-4" />
+            </Button>
+
+            {/* DELETE ACCOUNT */}
             <Button
               size="icon"
               variant="destructive"
@@ -79,13 +91,23 @@ export default function ProfilePage() {
             {/* ID */}
             <div className="flex justify-between">
               <span className="text-muted-foreground">ID</span>
-              <span className="font-medium">{profile.user.id}</span>
+
+              <span className="font-medium">
+                {profile.user.id}
+              </span>
             </div>
 
             {/* ROLE */}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Função</span>
-              <Badge variant={profile.user.role === "admin" ? "default" : "secondary"}>
+
+              <Badge
+                variant={
+                  profile.user.role === "admin"
+                    ? "default"
+                    : "secondary"
+                }
+              >
                 {profile.user.role}
               </Badge>
             </div>
@@ -93,7 +115,14 @@ export default function ProfilePage() {
             {/* VERIFIED */}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Verificado</span>
-              <Badge variant={profile.user.isVerified ? "default" : "destructive"}>
+
+              <Badge
+                variant={
+                  profile.user.isVerified
+                    ? "default"
+                    : "destructive"
+                }
+              >
                 {profile.user.isVerified ? "Sim" : "Não"}
               </Badge>
             </div>
@@ -101,6 +130,7 @@ export default function ProfilePage() {
             {/* CREATED */}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Criado em</span>
+
               <span className="font-medium">
                 {new Date(profile.user.createdAt).toLocaleDateString("pt-BR")}
               </span>
@@ -108,7 +138,10 @@ export default function ProfilePage() {
 
             {/* UPDATED */}
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Última atualização</span>
+              <span className="text-muted-foreground">
+                Última atualização
+              </span>
+
               <span className="font-medium">
                 {new Date(profile.user.updatedAt).toLocaleDateString("pt-BR")}
               </span>
@@ -167,6 +200,8 @@ export default function ProfilePage() {
 
                 {/* AÇÕES */}
                 <div className="flex gap-2">
+
+                  {/* EDIT ADDRESS */}
                   <Button
                     size="icon"
                     variant="outline"
@@ -176,6 +211,7 @@ export default function ProfilePage() {
                     <Pencil className="h-4 w-4" />
                   </Button>
 
+                  {/* DELETE ADDRESS */}
                   <Button
                     size="icon"
                     variant="destructive"
@@ -192,8 +228,6 @@ export default function ProfilePage() {
             ))}
           </CardContent>
         </Card>
-
-
       </div>
 
       {/* DIALOG PROFILE */}
@@ -216,7 +250,7 @@ export default function ProfilePage() {
         }
       />
 
-      {/* DIALOG ADDRESS (CREATE + EDIT) */}
+      {/* DIALOG ADDRESS */}
       <DialogAction
         open={address.dialogOpen}
         onOpenChange={address.setDialogOpen}
@@ -232,7 +266,10 @@ export default function ProfilePage() {
         loading={address.saving}
         values={address.form}
         onChange={(name, value) =>
-          address.setForm(prev => ({ ...prev, [name]: value }))
+          address.setForm(prev => ({
+            ...prev,
+            [name]: value,
+          }))
         }
       />
 

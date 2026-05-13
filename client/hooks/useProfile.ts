@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import type { Profile } from "@/app/types/profile"
 import { profileService } from "@/app/services/profile.service"
 import handleApiError from "@/app/utils/handleApiError"
+import { toast } from "sonner"
 
 export function useProfile() {
   const router = useRouter()
@@ -17,6 +18,8 @@ export function useProfile() {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
+
+  const [resetLoading, setResetLoading] = useState(false)
 
   const [form, setForm] = useState({
     username: "",
@@ -85,6 +88,37 @@ export function useProfile() {
     }
   }
 
+  const handlePasswordReset = async () => {
+    if (!user) return
+
+    setResetLoading(true)
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_SERVER}/auth/forgot-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            identifier: user.email,
+          }),
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error()
+      }
+
+      toast.success("Enviamos para seu e-mail um link para redefinir sua senha")
+    } catch (error) {
+      handleApiError(error, router, "Erro ao enviar email de redefinição")
+    } finally {
+      setResetLoading(false)
+    }
+  }
+
   const confirmDelete = async () => {
     setDeleteLoading(true)
 
@@ -114,11 +148,14 @@ export function useProfile() {
     saving,
     deleteLoading,
 
+    resetLoading,
+
     form,
     setForm,
 
     openEdit,
     submit,
+    handlePasswordReset,
     confirmDelete,
   }
 }
