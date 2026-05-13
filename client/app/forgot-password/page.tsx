@@ -95,13 +95,11 @@ export default function ForgotPasswordPage() {
           )}
 
           {success && (
-            <Alert className="mb-4">
+            <Alert className="mb-4 bg-green-500 text-white">
               <CheckCircle2 className="h-4 w-4" />
 
               <AlertTitle>
-                Se existir uma conta com esse
-                identificador, um email de
-                redefinição foi enviado.
+                Email enviado!
               </AlertTitle>
             </Alert>
           )}
@@ -128,7 +126,7 @@ export default function ForgotPasswordPage() {
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full cursor-pointer"
               disabled={loading}
             >
               {loading
@@ -141,7 +139,7 @@ export default function ForgotPasswordPage() {
         <CardFooter>
           <Button
             variant="ghost"
-            className="w-full"
+            className="w-full cursor-pointer"
             onClick={() =>
               router.push("/login")
             }

@@ -75,6 +75,7 @@ export class MailService {
     this.logger.log(`sendReset chamado para: ${email}`);
 
     const appUrl = process.env.APP_URL;
+    this.logger.log(`MAIL_FROM RAW: ${process.env.MAIL_FROM}`);
     const mailFrom = process.env.MAIL_FROM;
 
     if (!appUrl || !mailFrom) {

@@ -163,7 +163,7 @@ export default function ResetPasswordPage() {
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full cursor-pointer"
               disabled={
                 loading || !token
               }
@@ -178,7 +178,7 @@ export default function ResetPasswordPage() {
         <CardFooter>
           <Button
             variant="ghost"
-            className="w-full"
+            className="w-full cursor-pointer"
             onClick={() =>
               router.push("/login")
             }
