@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
 
 import DialogAction, { DialogField } from '@/components/dialog-action'
 import ContentBox from '@/components/content-box'
@@ -46,7 +45,6 @@ const CategoriesPage: React.FC = () => {
 
       setFormValues({ name: '' })
       setDialogOpen(false)
-      toast.success('Categoria criada com sucesso')
       await refresh()
     } catch (error) {
       handleApiError(error, router, 'Erro ao criar categoria')
@@ -58,7 +56,6 @@ const CategoriesPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await categoryService.remove(id)
-      toast.success('Categoria deletada com sucesso')
       await refresh()
     } catch (error) {
       handleApiError(error, router, 'Falha ao tentar deletar categoria')
