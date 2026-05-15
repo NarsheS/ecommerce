@@ -12,7 +12,7 @@ export class CartItem{
     cart: Cart;
 
     // Cada carrinho item é um produto
-    @ManyToOne(() => Products, { eager: true })
+    @ManyToOne(() => Products, { eager: true, onDelete: 'CASCADE' })
     product: Products;
 
     // Quantidade do produto
