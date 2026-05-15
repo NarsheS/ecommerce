@@ -13,12 +13,14 @@ import { FileInterceptor } from "@nestjs/platform-express"
 import { BannerService } from "./banner.service"
 import { Roles } from "../../../common/roles/roles.decorator";
 import { Role } from "../../../user/user.entity";
+import { Public } from "src/common/decorators/public.decorator";
 
 @Controller("banners")
 export class BannerController {
   constructor(private readonly service: BannerService) {}
 
   @Get()
+  @Public()
   findAll() {
     return this.service.findAll()
   }
