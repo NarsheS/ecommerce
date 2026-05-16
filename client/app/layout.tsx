@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
 import "./globals.css";
+
 import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
+
 import { Toaster } from "@/components/ui/sonner";
 import Footer from "@/components/footer";
 import AppNavbar from "@/components/AppNavbar";
@@ -32,16 +36,26 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100 min-h-screen flex flex-col`}
       >
         <AuthProvider>
-          <AppNavbar />
-          <main className="flex-1">
-            {children}
-          </main>
 
-          <Footer />
+          <CartProvider>
 
-          <Toaster richColors closeButton={false} position="top-center" />
+            <AppNavbar />
+
+            <main className="flex-1">
+              {children}
+            </main>
+
+            <Footer />
+
+            <Toaster
+              richColors
+              closeButton={false}
+              position="top-center"
+            />
+
+          </CartProvider>
+
         </AuthProvider>
-
       </body>
     </html>
   );
