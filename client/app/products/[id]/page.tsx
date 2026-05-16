@@ -49,7 +49,6 @@ export default function ProductPage() {
 
       const { data } = await api.get(`/products/${productId}`)
       setProduct(data)
-
     } catch (error: any) {
       handleApiError(
         error,
@@ -66,7 +65,6 @@ export default function ProductPage() {
 
         const { data } = await api.get(`/products/${productId}`)
         setProduct(data)
-
       } catch (error) {
         handleApiError(error, router, "Erro ao carregar produto")
       } finally {
@@ -78,6 +76,28 @@ export default function ProductPage() {
   }, [productId])
 
   const images = product?.images ?? []
+
+  const cartItem = cart?.items?.find(
+    item => item?.product?.id === product?.id
+  )
+
+  const quantityInCart = cartItem?.quantity || 0
+
+  const availableStock = Math.max(
+    (product?.inStock || 0) - quantityInCart,
+    0
+  )
+
+  // 🔥 HOOK CORRIGIDO (ANTES DO RETURN)
+  useEffect(() => {
+    if (!product) return
+
+    const value = Number(quantity)
+
+    if (value > availableStock) {
+      setQuantity(String(availableStock))
+    }
+  }, [availableStock, quantity, product])
 
   if (loading) {
     return (
@@ -94,25 +114,6 @@ export default function ProductPage() {
       </div>
     )
   }
-
-  const cartItem = cart?.items?.find(
-    item => item.product.id === product.id
-  )
-
-  const quantityInCart = cartItem?.quantity || 0
-
-  const availableStock = Math.max(
-    product.inStock - quantityInCart,
-    0
-  )
-
-  useEffect(() => {
-    const value = Number(quantity)
-
-    if (value > availableStock) {
-      setQuantity(String(availableStock))
-    }
-  }, [availableStock, quantity])
 
   return (
     <div className="max-w-7xl mx-auto p-6 rounded-md bg-white my-10">
@@ -150,13 +151,14 @@ export default function ProductPage() {
         <div className="flex flex-col gap-5 mt-5 max-w-md">
 
           <div className="ml-5 gap-2 flex flex-col">
+
             <h1 className="text-2xl font-bold">
               {product.name}
             </h1>
 
             {product.category?.name && (
               <p className="inline-flex items-center text-white bg-cyan-400 rounded-full px-2 py-0.5 text-xs w-fit self-start">
-                {product.category?.name}
+                {product.category.name}
               </p>
             )}
 
@@ -164,19 +166,19 @@ export default function ProductPage() {
               {product.description}
             </p>
 
-            <div className="flex flex-col ">
+            <div className="flex flex-col">
               {product.pricing?.hasDiscount ? (
                 <>
                   <span className="line-through text-sm text-gray-500">
-                    {priceFormatter.format(product.pricing.originalPrice)}
+                    {priceFormatter.format(product.pricing?.originalPrice ?? 0)}
                   </span>
                   <span className="text-2xl font-bold text-green-600">
-                    {priceFormatter.format(product.pricing.finalPrice)}
+                    {priceFormatter.format(product.pricing?.finalPrice ?? 0)}
                   </span>
                 </>
               ) : (
                 <span className="text-2xl font-bold">
-                  {priceFormatter.format(product.pricing.originalPrice)}
+                  {priceFormatter.format(product.pricing?.originalPrice ?? 0)}
                 </span>
               )}
             </div>
@@ -190,6 +192,7 @@ export default function ProductPage() {
                 ? `Disponíveis: ${availableStock}`
                 : "Sem estoque disponível"}
             </span>
+
           </div>
 
           <div className="flex items-center gap-3">
@@ -211,9 +214,7 @@ export default function ProductPage() {
                 value={quantity}
                 onChange={(e) => {
                   const value = e.target.value
-
                   if (!/^\d*$/.test(value)) return
-
                   setQuantity(value)
                 }}
                 onBlur={() => {

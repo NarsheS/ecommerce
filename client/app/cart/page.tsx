@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import useCart from "@/hooks/useCart"
+import { useCart } from "@/app/context/CartContext"
 import LoadingCircle from "@/components/loading-circle"
 import {
   Select,
@@ -29,10 +29,29 @@ export default function CartPage() {
     removeItem,
     clearCart,
     updateItemQuantity,
-    createOrderPayment
   } = useCart()
 
-  // NOVO: estado do frete
+  const createOrderPayment = async () => {
+    try {
+      if (!selectedAddressId) {
+        alert("Selecione um endereço antes de continuar")
+        return
+      }
+
+      const { data } = await api.post("/orders/checkout", {
+        addressId: selectedAddressId,
+      })
+
+      const paymentResponse = await api.post(
+        `/payments/create/${data.id}`
+      )
+
+      window.location.href = paymentResponse.data.url
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const [shipping, setShipping] = useState<{
     cost: number
     estimatedDays: number
@@ -50,13 +69,12 @@ export default function CartPage() {
     if (!cep) return ""
 
     const cleaned = cep.replace(/\D/g, "")
-
     if (cleaned.length < 8) return cep
 
     return `${cleaned.slice(0, 5)}-${cleaned.slice(5, 8)}`
   }
 
-  // NOVO: calcular frete automaticamente
+  // CALCULAR FRETE
   useEffect(() => {
     async function calculateShipping() {
       if (!selectedAddressId || !cart?.items?.length) return
@@ -64,16 +82,22 @@ export default function CartPage() {
       try {
         setShippingLoading(true)
 
-        const address = addresses.find(a => a.id === selectedAddressId)
+        const address = addresses.find(
+          (a) => a.id === selectedAddressId
+        )
+
         if (!address) return
 
         const { data } = await api.post("/shipping/calculate", {
           zipcode: address.zipcode,
-          itemsCount: cart.items.reduce((t, i) => t + i.quantity, 0),
+          itemsCount: cart.items.reduce(
+            (t, i) => t + i.quantity,
+            0
+          ),
         })
 
         setShipping(data)
-      } catch (err) {
+      } catch {
         setShipping(null)
       } finally {
         setShippingLoading(false)
@@ -83,12 +107,12 @@ export default function CartPage() {
     calculateShipping()
   }, [selectedAddressId, cart, addresses])
 
-  // NOVO: total com frete
-  const itemsTotal = cart?.items?.reduce(
-    (total, item) =>
-      total + item.pricing.finalPrice * item.quantity,
-    0
-  ) || 0
+  const itemsTotal =
+    cart?.items?.reduce(
+      (total, item) =>
+        total + item.pricing.finalPrice * item.quantity,
+      0
+    ) || 0
 
   const finalTotal = itemsTotal + (shipping?.cost || 0)
 
@@ -111,12 +135,11 @@ export default function CartPage() {
 
         <p className="text-muted-foreground mt-2 max-w-md">
           Parece que você ainda não adicionou nenhum produto.
-          Explore nossa loja e encontre algo que você goste.
         </p>
 
         <button
           onClick={() => router.push("/")}
-          className="mt-6 px-6 py-3 bg-primary text-white rounded-md font-medium hover:opacity-90 transition cursor-pointer"
+          className="mt-6 px-6 py-3 bg-primary text-white rounded-md font-medium hover:opacity-90"
         >
           Ver produtos
         </button>
@@ -132,8 +155,7 @@ export default function CartPage() {
 
         {/* ITENS */}
         <div className="lg:col-span-2 space-y-4">
-          {cart.items.map(item => {
-
+          {cart.items.map((item) => {
             const unitPrice = item.pricing.finalPrice
             const hasDiscount = item.pricing.hasDiscount
 
@@ -174,10 +196,14 @@ export default function CartPage() {
                   </div>
 
                   <div className="flex items-center gap-4">
+
                     <Button
                       disabled={item.quantity <= 1}
                       onClick={() =>
-                        updateItemQuantity(item.product.id, item.quantity - 1)
+                        updateItemQuantity(
+                          item.product.id,
+                          item.quantity - 1
+                        )
                       }
                     >
                       -
@@ -186,9 +212,14 @@ export default function CartPage() {
                     <span>{item.quantity}</span>
 
                     <Button
-                      disabled={item.quantity >= item.product.inStock}
+                      disabled={
+                        item.quantity >= item.product.inStock
+                      }
                       onClick={() =>
-                        updateItemQuantity(item.product.id, item.quantity + 1)
+                        updateItemQuantity(
+                          item.product.id,
+                          item.quantity + 1
+                        )
                       }
                     >
                       +
@@ -196,20 +227,24 @@ export default function CartPage() {
 
                     <div className="text-right">
                       <p className="font-semibold">
-                        {formatPrice(unitPrice * item.quantity)}
+                        {formatPrice(
+                          unitPrice * item.quantity
+                        )}
                       </p>
 
                       <Button
                         variant="destructive"
                         size="sm"
                         className="mt-2 cursor-pointer"
-                        onClick={() => removeItem(item.product.id)}
+                        onClick={() =>
+                          removeItem(item.product.id)
+                        }
                       >
                         Remover
                       </Button>
                     </div>
-                  </div>
 
+                  </div>
                 </CardContent>
               </Card>
             )
@@ -228,7 +263,9 @@ export default function CartPage() {
 
               <Select
                 value={selectedAddressId?.toString()}
-                onValueChange={(value) => setSelectedAddressId(Number(value))}
+                onValueChange={(value) =>
+                  setSelectedAddressId(Number(value))
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecione um endereço" />
@@ -236,20 +273,17 @@ export default function CartPage() {
 
                 <SelectContent>
                   {addresses.map((address) => (
-                    <SelectItem key={address.id} value={address.id.toString()}>
-                      {address.street}, nº {address.number} • {address.city} ({address.state}) • CEP {formatCep(address.zipcode)}
+                    <SelectItem
+                      key={address.id}
+                      value={address.id.toString()}
+                    >
+                      {address.street}, nº {address.number} •{" "}
+                      {address.city} ({address.state}) • CEP{" "}
+                      {formatCep(address.zipcode)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-
-              <Button
-                variant="outline"
-                className="w-full cursor-pointer"
-                onClick={() => router.push("/profile")}
-              >
-                Novo endereço
-              </Button>
             </div>
 
             <Separator />
@@ -272,8 +306,8 @@ export default function CartPage() {
                 {shippingLoading
                   ? "Calculando..."
                   : shipping
-                    ? formatPrice(shipping.cost)
-                    : "-"}
+                  ? formatPrice(shipping.cost)
+                  : "-"}
               </span>
             </div>
 
@@ -307,7 +341,6 @@ export default function CartPage() {
 
           </CardContent>
         </Card>
-
       </div>
     </div>
   )
