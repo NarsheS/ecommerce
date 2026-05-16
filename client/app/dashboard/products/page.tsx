@@ -168,7 +168,7 @@ const ProductsPage: React.FC = () => {
         {fetching ? (
           <LoadingCircle />
         ) : (
-          <div className="gap-4 flex flex-row">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {products.map(prod => (
               <ProductCard
                 dashboard
