@@ -25,7 +25,7 @@ export default function ProductPage() {
   const { id } = useParams()
   const router = useRouter()
 
-  const { refreshCart } = useCart()
+  const { cart, refreshCart } = useCart()
 
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
@@ -45,10 +45,8 @@ export default function ProductPage() {
         quantity,
       })
 
-      // atualiza navbar
       await refreshCart()
 
-      // atualiza estoque
       const { data } = await api.get(`/products/${productId}`)
       setProduct(data)
 
@@ -79,15 +77,7 @@ export default function ProductPage() {
     if (productId) getProduct()
   }, [productId])
 
-  useEffect(() => {
-    if (!product) return
-
-    const value = Number(quantity)
-
-    if (value > product.inStock) {
-      setQuantity(String(product.inStock))
-    }
-  }, [product])
+  const images = product?.images ?? []
 
   if (loading) {
     return (
@@ -105,7 +95,24 @@ export default function ProductPage() {
     )
   }
 
-  const images = product.images ?? []
+  const cartItem = cart?.items?.find(
+    item => item.product.id === product.id
+  )
+
+  const quantityInCart = cartItem?.quantity || 0
+
+  const availableStock = Math.max(
+    product.inStock - quantityInCart,
+    0
+  )
+
+  useEffect(() => {
+    const value = Number(quantity)
+
+    if (value > availableStock) {
+      setQuantity(String(availableStock))
+    }
+  }, [availableStock, quantity])
 
   return (
     <div className="max-w-7xl mx-auto p-6 rounded-md bg-white my-10">
@@ -176,12 +183,12 @@ export default function ProductPage() {
 
             <span
               className={`inline-flex items-center text-white ${
-                product.inStock > 0 ? "bg-emerald-400" : "bg-red-600"
+                availableStock > 0 ? "bg-emerald-400" : "bg-red-600"
               } rounded-full px-2 py-0.5 text-xs w-fit self-start mt-2.5`}
             >
-              {product.inStock > 0
-                ? `Em estoque: ${product.inStock}`
-                : "Sem estoque"}
+              {availableStock > 0
+                ? `Disponíveis: ${availableStock}`
+                : "Sem estoque disponível"}
             </span>
           </div>
 
@@ -213,7 +220,7 @@ export default function ProductPage() {
                   let value = Number(quantity)
 
                   if (!value || value < 1) value = 1
-                  if (value > product.inStock) value = product.inStock
+                  if (value > availableStock) value = availableStock
 
                   setQuantity(String(value))
                 }}
@@ -223,7 +230,9 @@ export default function ProductPage() {
 
               <button
                 onClick={() =>
-                  setQuantity(q => String(Math.min(product.inStock, Number(q) + 1)))
+                  setQuantity(q =>
+                    String(Math.min(availableStock, Number(q) + 1))
+                  )
                 }
                 className="px-3 py-1 hover:bg-muted cursor-pointer"
               >
@@ -234,11 +243,11 @@ export default function ProductPage() {
 
             <button
               onClick={() => addItem(product.id, Number(quantity) || 1)}
-              disabled={product.inStock === 0}
+              disabled={availableStock <= 0}
               className="flex-1 bg-primary max-w-sm cursor-pointer text-white rounded-md py-2 font-medium hover:opacity-90 disabled:opacity-50"
             >
-              {product.inStock === 0
-                ? "Sem estoque"
+              {availableStock <= 0
+                ? "Quantidade máxima no carrinho"
                 : "Adicionar ao carrinho"}
             </button>
 

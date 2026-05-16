@@ -175,6 +175,7 @@ export default function CartPage() {
 
                   <div className="flex items-center gap-4">
                     <Button
+                      disabled={item.quantity <= 1}
                       onClick={() =>
                         updateItemQuantity(item.product.id, item.quantity - 1)
                       }
@@ -185,6 +186,7 @@ export default function CartPage() {
                     <span>{item.quantity}</span>
 
                     <Button
+                      disabled={item.quantity >= item.product.inStock}
                       onClick={() =>
                         updateItemQuantity(item.product.id, item.quantity + 1)
                       }

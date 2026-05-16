@@ -1,3 +1,5 @@
+"use client"
+
 import { api } from "@/app/services/api"
 import type { Address } from "@/app/types/Address"
 import { Cart } from "@/app/types/cart"
@@ -7,28 +9,38 @@ import { useEffect, useState } from "react"
 
 export default function useCart() {
   const [cart, setCart] = useState<Cart | null>(null)
+
   const [addresses, setAddresses] = useState<Address[]>([])
+
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null)
+
   const [loading, setLoading] = useState(true)
 
   const router = useRouter()
 
   const fetchCart = async () => {
     try {
-      const response = await api.get("cart")
+      const response = await api.get("/cart")
+
       setCart(response.data)
+
     } catch (error) {
       console.error("Carrinho vazio", error)
+
+      setCart(null)
     }
   }
 
   const fetchAddresses = async () => {
     try {
-      const response = await api.get("users/address")
+      const response = await api.get("/users/address")
+
       setAddresses(response.data)
 
       if (response.data.length > 0) {
-        setSelectedAddressId(response.data[0].id)
+        setSelectedAddressId(prev =>
+          prev ?? response.data[0].id
+        )
       }
 
     } catch (error) {
@@ -37,47 +49,95 @@ export default function useCart() {
   }
 
   const fetchAll = async () => {
-    setLoading(true)
-    await Promise.all([
-      fetchCart(),
-      fetchAddresses()
-    ])
-    setLoading(false)
+    try {
+      setLoading(true)
+
+      await Promise.all([
+        fetchCart(),
+        fetchAddresses(),
+      ])
+
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
     fetchAll()
   }, [])
 
+  // REMOVE ITEM
   const removeItem = async (productId: number) => {
-    await api.delete(`cart/${productId}`)
-    fetchCart()
+    try {
+      const { data } = await api.delete(`/cart/${productId}`)
+
+      setCart(data)
+
+    } catch (error) {
+      handleApiError(error, router, "Erro ao remover item")
+    }
   }
 
+  // LIMPAR CARRINHO
   const clearCart = async () => {
-    await api.delete("cart")
-    fetchCart()
+    try {
+      const { data } = await api.delete("/cart")
+
+      setCart(data)
+
+    } catch (error) {
+      handleApiError(error, router, "Erro ao limpar carrinho")
+    }
   }
 
-  const updateItemQuantity = async (productId: number, quantity: number) => {
+  // ALTERAR QUANTIDADE
+  const updateItemQuantity = async (
+    productId: number,
+    quantity: number
+  ) => {
+
+    // atualização otimista
     setCart(prev => {
       if (!prev) return prev
 
       return {
         ...prev,
-        items: prev.items.map(item =>
-          item.product.id === productId
-            ? { ...item, quantity }
-            : item
-        )
+        items: prev.items
+          .map(item =>
+            item.product.id === productId
+              ? { ...item, quantity }
+              : item
+          )
+          .filter(item => item.quantity > 0)
       }
     })
 
     try {
-      await api.patch(`/cart/item/${productId}`, { quantity })
-    } catch {
+
+      const { data } = await api.patch(
+        `/cart/item/${productId}`,
+        { quantity }
+      )
+
+      // backend retorna carrinho atualizado
+      setCart(data)
+
+    } catch (error) {
+
+      // rollback
       await fetchCart()
+
+      handleApiError(
+        error,
+        router,
+        "Erro ao atualizar quantidade"
+      )
     }
+  }
+
+  // REFRESH MANUAL
+  const refetch = async () => {
+    await fetchCart()
   }
 
   // ORDER + PAYMENT
@@ -89,31 +149,44 @@ export default function useCart() {
         return
       }
 
-      const { data } = await api.post("orders/checkout", {
+      const { data } = await api.post("/orders/checkout", {
         addressId: selectedAddressId
       })
 
-      const paymentResponse = await api.post(`/payments/create/${data.id}`)
+      const paymentResponse = await api.post(
+        `/payments/create/${data.id}`
+      )
 
       const paymentUrl = paymentResponse.data.url
 
       window.location.href = paymentUrl
 
     } catch (error) {
-      handleApiError(error, router, "Erro ao redirecionar para o pagamento")
+      handleApiError(
+        error,
+        router,
+        "Erro ao redirecionar para o pagamento"
+      )
     }
   }
 
   return {
     cart,
+
     addresses,
+
     selectedAddressId,
     setSelectedAddressId,
+
     loading,
+
     removeItem,
     clearCart,
-    refetch: fetchCart,
+
+    refetch,
+
     updateItemQuantity,
+
     createOrderPayment,
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Cart } from "./cart.entity";
 import { Repository } from "typeorm";
@@ -60,21 +60,38 @@ export class CartService{
 
         const product = await this.productRepo.findOne({
             where: { id: dto.productId },
-            relations: ['category'], // importante para regras por categoria
+            relations: ['category'],
         });
 
-        if (!product) throw new NotFoundException("Produto não encontrado!");
+        if (!product) {
+            throw new NotFoundException("Produto não encontrado!");
+        }
 
         const existingItem = await this.itemRepo.findOne({
             where: {
-            cart: { id: cart.id },
-            product: { id: dto.productId },
+                cart: { id: cart.id },
+                product: { id: dto.productId },
             },
         });
 
+        // quantidade atual no carrinho
+        const currentQuantity = existingItem?.quantity || 0;
+
+        // quantidade final que ficará
+        const finalQuantity = currentQuantity + dto.quantity;
+
+        // VALIDA ESTOQUE
+        if (finalQuantity > product.inStock) {
+            throw new BadRequestException(
+                `Estoque insuficiente. Disponível: ${product.inStock}`
+            );
+        }
+
         if (existingItem) {
-            existingItem.quantity += dto.quantity;
+            existingItem.quantity = finalQuantity;
+
             await this.itemRepo.save(existingItem);
+
             return this.getUserCart(userId);
         }
 
@@ -85,6 +102,7 @@ export class CartService{
         });
 
         await this.itemRepo.save(newItem);
+
         return this.getUserCart(userId);
     }
 
@@ -109,7 +127,11 @@ export class CartService{
     }
 
     // UPDATE - Muda a quantidade de X item no carrinho
-    async updateItemQuantity(userId: number, productId: number, quantity: number) {
+    async updateItemQuantity(
+        userId: number,
+        productId: number,
+        quantity: number,
+    ) {
         const cart = await this.getUserCart(userId);
 
         const item = cart.items.find(i => i.product.id === productId);
@@ -118,14 +140,32 @@ export class CartService{
             throw new NotFoundException("Item não encontrado no carrinho!");
         }
 
+        const product = await this.productRepo.findOne({
+            where: { id: productId },
+        });
+
+        if (!product) {
+            throw new NotFoundException("Produto não encontrado!");
+        }
+
+        // remove se for <= 0
         if (quantity <= 0) {
             await this.itemRepo.remove(item);
+
             return this.getUserCart(userId);
         }
 
+        // VALIDA ESTOQUE
+        if (quantity > product.inStock) {
+            throw new BadRequestException(
+                `Estoque insuficiente. Disponível: ${product.inStock}`
+            );
+        }
+
         item.quantity = quantity;
+
         await this.itemRepo.save(item);
 
         return this.getUserCart(userId);
-        }
+    }
 }
