@@ -19,9 +19,13 @@ import type { Product } from "@/app/types/product"
 import LoadingCircle from "@/components/loading-circle"
 import ProductReviews from "@/components/product-reviews"
 
+import { useCart } from "@/app/context/CartContext"
+
 export default function ProductPage() {
   const { id } = useParams()
   const router = useRouter()
+
+  const { refreshCart } = useCart()
 
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
@@ -41,15 +45,20 @@ export default function ProductPage() {
         quantity,
       })
 
-      window.dispatchEvent(new Event("cartUpdated"))
+      // atualiza navbar
+      await refreshCart()
 
-      // REFETCH PRODUTO (ATUALIZA ESTOQUE)
+      // atualiza estoque
       const { data } = await api.get(`/products/${productId}`)
       setProduct(data)
 
     } catch (error: any) {
-        handleApiError(error, router, error.response?.data?.message || "Erro ao adicionar ao carrinho")
-      }
+      handleApiError(
+        error,
+        router,
+        error.response?.data?.message || "Erro ao adicionar ao carrinho"
+      )
+    }
   }
 
   useEffect(() => {
@@ -103,7 +112,6 @@ export default function ProductPage() {
 
       <div className="grid md:grid-cols-2 gap-34 my-2">
 
-        {/* CAROUSEL DE IMAGENS */}
         <div className="w-full bg-black py-4 rounded-xl">
           {images.length > 0 ? (
             <Carousel className="w-full relative">
@@ -132,7 +140,6 @@ export default function ProductPage() {
           )}
         </div>
 
-        {/* INFO */}
         <div className="flex flex-col gap-5 mt-5 max-w-md">
 
           <div className="ml-5 gap-2 flex flex-col">
@@ -150,7 +157,6 @@ export default function ProductPage() {
               {product.description}
             </p>
 
-            {/* PREÇO */}
             <div className="flex flex-col ">
               {product.pricing?.hasDiscount ? (
                 <>
@@ -168,7 +174,6 @@ export default function ProductPage() {
               )}
             </div>
 
-            {/* ESTOQUE */}
             <span
               className={`inline-flex items-center text-white ${
                 product.inStock > 0 ? "bg-emerald-400" : "bg-red-600"
@@ -182,68 +187,62 @@ export default function ProductPage() {
 
           <div className="flex items-center gap-3">
 
-          {/* QUANTIDADE */}
-          <div className="flex items-center border rounded-md overflow-hidden">
+            <div className="flex items-center border rounded-md overflow-hidden">
+
+              <button
+                onClick={() =>
+                  setQuantity(q => String(Math.max(1, Number(q) - 1)))
+                }
+                className="px-3 py-1 hover:bg-muted cursor-pointer"
+              >
+                -
+              </button>
+
+              <input
+                type="text"
+                inputMode="numeric"
+                value={quantity}
+                onChange={(e) => {
+                  const value = e.target.value
+
+                  if (!/^\d*$/.test(value)) return
+
+                  setQuantity(value)
+                }}
+                onBlur={() => {
+                  let value = Number(quantity)
+
+                  if (!value || value < 1) value = 1
+                  if (value > product.inStock) value = product.inStock
+
+                  setQuantity(String(value))
+                }}
+                onFocus={(e) => e.target.select()}
+                className="w-12 text-center text-sm outline-none"
+              />
+
+              <button
+                onClick={() =>
+                  setQuantity(q => String(Math.min(product.inStock, Number(q) + 1)))
+                }
+                className="px-3 py-1 hover:bg-muted cursor-pointer"
+              >
+                +
+              </button>
+
+            </div>
 
             <button
-              onClick={() =>
-                setQuantity(q => String(Math.max(1, Number(q) - 1)))
-              }
-              className="px-3 py-1 hover:bg-muted cursor-pointer"
+              onClick={() => addItem(product.id, Number(quantity) || 1)}
+              disabled={product.inStock === 0}
+              className="flex-1 bg-primary max-w-sm cursor-pointer text-white rounded-md py-2 font-medium hover:opacity-90 disabled:opacity-50"
             >
-              -
-            </button>
-
-            <input
-              type="text"
-              inputMode="numeric"
-              value={quantity}
-              onChange={(e) => {
-                const value = e.target.value
-
-                // só números
-                if (!/^\d*$/.test(value)) return
-
-                // permite vazio
-                setQuantity(value)
-              }}
-              onBlur={() => {
-                let value = Number(quantity)
-
-                if (!value || value < 1) value = 1
-                if (value > product.inStock) value = product.inStock
-
-                setQuantity(String(value))
-              }}
-              onFocus={(e) => e.target.select()}
-              className="w-12 text-center text-sm outline-none"
-            />
-
-            <button
-              onClick={() =>
-                setQuantity(q => String(Math.min(product.inStock, Number(q) + 1)))
-              }
-              className="px-3 py-1 hover:bg-muted cursor-pointer"
-            >
-              +
+              {product.inStock === 0
+                ? "Sem estoque"
+                : "Adicionar ao carrinho"}
             </button>
 
           </div>
-
-          {/* BOTÃO */}
-          <button
-            onClick={() => addItem(product.id, Number(quantity) || 1)}
-            disabled={product.inStock === 0}
-            className="flex-1 bg-primary max-w-sm cursor-pointer text-white rounded-md py-2 font-medium hover:opacity-90 disabled:opacity-50"
-          >
-            {product.inStock === 0
-              ? "Sem estoque"
-              : "Adicionar ao carrinho"}
-          </button>
-
-        </div>
-
-          
 
         </div>
 

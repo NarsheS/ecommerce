@@ -5,9 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/app/context/AuthContext"
 import { Button } from "@/components/ui/button"
 import UserMenu from "@/components/UserMenu"
-import { useEffect, useState } from "react"
-import { api } from "@/app/services/api"
-import { Cart } from "@/app/types/cart"
+import { useCart } from "@/app/context/CartContext"
 
 export default function AppNavbar() {
   const router = useRouter()
@@ -15,32 +13,17 @@ export default function AppNavbar() {
 
   const { accessToken, user, refresh, setAccessToken } = useAuth()
 
-  const [cart, setCart] = useState<Cart | null>(null)
+  const { cart } = useCart()
 
   const search = searchParams.get("search") ?? ""
 
-  const getCart = async () => {
-    if (!accessToken) return
-
-    try {
-      const res = await api.get("/cart")
-      setCart(res.data)
-    } catch (e) {
-      console.error("Erro ao atualizar carrinho", e)
-    }
-  }
-
-  useEffect(() => {
-    if (accessToken) getCart()
-  }, [accessToken])
-
   const handleLoginClick = async () => {
     const ok = await refresh()
+
     if (!ok) router.push("/login")
   }
 
   const handleLogout = async () => {
-    await api.post("/auth/logout").catch(() => {})
     setAccessToken(null)
     router.replace("/login")
   }
@@ -72,7 +55,9 @@ export default function AppNavbar() {
         accessToken ? (
           <UserMenu role={user?.role} onLogout={handleLogout} />
         ) : (
-          <Button onClick={handleLoginClick}>Entrar</Button>
+          <Button onClick={handleLoginClick}>
+            Entrar
+          </Button>
         )
       }
     />
