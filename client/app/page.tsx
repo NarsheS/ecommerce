@@ -20,6 +20,7 @@ const Home = () => {
   const [fetching, setFetching] = useState(false)
 
   const [isMobile, setIsMobile] = useState(false)
+  const [visibleByCategory, setVisibleByCategory] = useState<Record<string, number>>({})
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -57,11 +58,19 @@ const Home = () => {
       const categoryName = product.category?.name || "Outros"
 
       if (!grouped[categoryName]) grouped[categoryName] = []
+
       grouped[categoryName].push(product)
     }
 
-    return grouped
-  }, [filteredProducts])
+    // ordenar por rating
+    Object.keys(grouped).forEach(category => {
+      grouped[category].sort(
+        (a, b) => (b.averageRating || 0) - (a.averageRating || 0)
+      )
+  })
+
+  return grouped
+}, [filteredProducts])
 
 
   useEffect(() => {
@@ -119,13 +128,15 @@ const Home = () => {
         ) : (
           Object.entries(productsByCategory).map(([category, products]) => {
 
+            const initialLimit = isMobile ? 4 : 6
+
             const limit = hasSearch
               ? products.length
-              : isMobile
-                ? 3
-                : 5
+              : visibleByCategory[category] || initialLimit
 
             const visibleProducts = products.slice(0, limit)
+
+            const hasMore = products.length > limit
 
             return (
               <div key={category} className="space-y-4">
@@ -142,6 +153,23 @@ const Home = () => {
                     />
                   ))}
                 </div>
+
+                {hasMore && (
+                  <div className="flex justify-center">
+                    <Button
+                      variant="outline"
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setVisibleByCategory(prev => ({
+                          ...prev,
+                          [category]: limit + 6
+                        }))
+                      }}
+                    >
+                      Mostrar mais
+                    </Button>
+                  </div>
+                )}
 
               </div>
             )
