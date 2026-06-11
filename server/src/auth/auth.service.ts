@@ -257,7 +257,7 @@ export class AuthService {
   async login(user: any) {
     // User precisa ser um usuário do DB (precisamos de id e Role)
     const dbUser = await this.usersService.findById(user.id);
-    if (!dbUser) throw new HttpException('User não encontrado', HttpStatus.UNAUTHORIZED);
+    if (!dbUser) throw new HttpException('Usuário não encontrado', HttpStatus.UNAUTHORIZED);
 
     /* Também comentei esse, ele existe por questões de segurança extra, mas é opcional
     if (!dbUser.isVerified) {
