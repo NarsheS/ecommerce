@@ -168,9 +168,12 @@ export class AuthService {
       return null;
     }
 
+    /* Esse trecho pode ser reinterado ao código se desejar, porém, o usuário terá de verificar
+    sua conta antes de realizar qualquer atividade na sua conta 
     if (!user.isVerified) {
       throw new HttpException('Email não verificado!', HttpStatus.FORBIDDEN);
     }
+    */
 
     const valid = await this.usersService.validatePassword(user, plainPassword);
     if (!valid) {
@@ -256,11 +259,12 @@ export class AuthService {
     const dbUser = await this.usersService.findById(user.id);
     if (!dbUser) throw new HttpException('User não encontrado', HttpStatus.UNAUTHORIZED);
 
-    // Opcional: Verifica isVerified novamente
+    /* Também comentei esse, ele existe por questões de segurança extra, mas é opcional
     if (!dbUser.isVerified) {
       throw new HttpException('Email não verificado', HttpStatus.FORBIDDEN);
     }
-
+    */
+   
     return this.issueTokensAndSaveRefresh(dbUser);
   }
 

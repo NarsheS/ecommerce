@@ -10,6 +10,7 @@ Para verificar se está rodando:
 - Lembrete, para tokens funcionarem eles precisam do prefixo: Bearer <token>
 
 # OBS: 
+- Caso deseje que o usuário só possa fazer login após verificação de conta via email, abra o arquivo auth.service.ts e busque por "isVerified" sem aspas, tem dois trechos de código comentado, apenas tire o comentario para liberar o codigo e ninguém vai poder logar sem antes verificar a conta.
 - Algumas funcionalidades podem não funcionar sem o client, já que isso foi pensado como uma parte de um todo.
 - Para cálculo real do frete, é necessário a reconfiguração do shipping.service.ts, pois este precisa de uma API de terceiros para tal.
 - A configuração do .env se faz necessária para executar o server sem erros
